@@ -29,6 +29,7 @@ let authToken;
 let authTokenInitialised = false;
 onTokenChange(({ token }) => { authToken = token; authTokenInitialised = true; });
 
+
 const withAuthToken = setContext(() => {
   if (authTokenInitialised) {
     return authToken ? { headers: { authorization: authToken } } : undefined;
@@ -36,6 +37,7 @@ const withAuthToken = setContext(() => {
 
   return getLoginToken()
     .then((token) => {
+      console.log("getLoginToken - return new token:",token)
       authToken = token;
       authTokenInitialised = true;
       return authToken ? { headers: { authorization: authToken } } : undefined;
@@ -60,6 +62,7 @@ const onErrorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const client = new ApolloClient({
+  // methods passed to apollo client using apollolink
   link: ApolloLink.from([
     apolloLogger,
     withAuthToken,
@@ -75,6 +78,7 @@ const client = new ApolloClient({
 // Inject the data into the app shell.
 // If the structure's changed, ssr.js also needs updating.
 async function renderAsync() {
+  console.log('renderAsync')
   const [
     React,
     { hydrate, render },
@@ -136,12 +140,13 @@ async function renderAsync() {
       </ApolloProvider>
     </Router>
   );
-
+  console.log('render Menu')
   render(<ClientApp component={Menu} />, document.getElementById('menu'));
-
+  console.log('render HeaderTitle')
   hydrate(<ClientApp component={HeaderTitle} />, document.getElementById('header-title'));
+  console.log('render LanguagePicker')
   hydrate(<ClientApp component={LanguagePicker} />, document.getElementById('header-lang-picker'));
-
+  console.log('render Routes')
   hydrate(<ClientApp component={Routes} />, document.getElementById('main'));
 }
 

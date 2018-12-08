@@ -3,3 +3,4 @@ import './configs';
 import './apollo-server';
 import './ssr';
 import './startup';
+import './models';

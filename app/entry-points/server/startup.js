@@ -9,6 +9,7 @@ Meteor.startup(() => {
 
   // Setup email provider
   const { protocol, username, password, server, port } = Meteor.settings.smtp;
+  console.log('email provider:',`${protocol}://${username}:${password}@${server}:${port}`)
   process.env.MAIL_URL = `${protocol}://${username}:${password}@${server}:${port}`;
 
   // Setup default users if any

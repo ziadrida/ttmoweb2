@@ -11,5 +11,10 @@ export const LinkExpiredPage = LoadableWrapper({ loader: () => import('./pages/a
 export const ForgotPasswordPage = LoadableWrapper({ loader: () => import('./pages/auth/forgot-password-page'), moduleId: require.resolve('./pages/auth/forgot-password-page') });
 export const LoggedOutPage = LoadableWrapper({ loader: () => import('./pages/auth/reset-password-page'), moduleId: require.resolve('./pages/auth/reset-password-page') });
 export const DataTestPage = LoadableWrapper({ loader: () => import('./pages/data-test'), moduleId: require.resolve('./pages/data-test') });
-export const AdminPage = LoadableWrapper({ loader: () => import('./pages/admin/admin-page'), moduleId: require.resolve('./pages/admin/admin-page') });
+
 export const NotFoundPage = LoadableWrapper({ loader: () => import('./pages/not-found-page'), moduleId: require.resolve('./pages/not-found-page') });
+// admin pages
+export const AdminPage = LoadableWrapper({ loader: () => import('./pages/admin/admin-page'), moduleId: require.resolve('./pages/admin/admin-page') });
+export const QuotationsPage = LoadableWrapper({ loader: () => import('./pages/admin/quotations-page'), moduleId: require.resolve('./pages/admin/quotations-page') });
+export const OrderDetailsPage = LoadableWrapper({ loader: () => import('./pages/admin/order-details-page'), moduleId: require.resolve('./pages/admin/order-details-page') });
+export const VendorPurchasePage = LoadableWrapper({ loader: () => import('./pages/admin/vendor-purchase-page'), moduleId: require.resolve('./pages/admin/order-details-page') });

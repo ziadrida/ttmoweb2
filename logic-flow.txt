@@ -1,0 +1,48 @@
+
+
+
+ App Shell Architecture
+client/startup.js renders routes based on locales
+load all routes from loadables.js
+
+<Route
+  key={locale}
+  path={`/${locale}/`}
+  render={props => <App component={component} {...props} locale={locale} section="app" />}
+/>
+
+invokes routes.js
+  hydrate(<ClientApp component={Routes} />, document.getElementById('main'));
+
+  --
+
+Routes.js  renders the specific route - in the following case the loginPage
+{/* SIGN-IN/UP */}
+<LoggedOutRoute
+  path={loginUrl()}
+  component={LoginPage}
+  redirectTo={homeUrl()}
+  {...otherProps}
+/>
+
+login-page.js renders
+<PasswordAuthViews
+  view="login"
+  btnLabel={t({ id: 'loginLoginPWButton' })}
+  disabled={disabled}
+  onBeforeHook={() => {
+    // Keep track of the auth service being used
+    setService('password');
+    handleBefore();
+  }}
+  onClientErrorHook={handleClientError}
+  onServerErrorHook={handleServerError}
+/>
+
+ PasswordAuthViews is a react component that renders the form and handles submit
+class PasswordAuthViews extends React.Component
+
+
+
+  color: ${props => {console.log('props:',props); (props.path ==  "/ar/" && props.linklang=='ar')? "red" : "white"}};
+  color: ${props => (props.path ==  "/en/" && props.linklang=='en')? "red" : "white"};

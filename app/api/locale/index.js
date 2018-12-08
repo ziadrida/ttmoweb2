@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import extend from 'lodash/extend';
 
 /**
- * @namespace Base
+ * @namespace Locale
  * @summary defines common types and scalars used across the app.
  */
 const Locale = {};

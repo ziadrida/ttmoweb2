@@ -7,14 +7,22 @@ import { withRouteProps } from '/app/ui/hocs';
 
 const StyledLink = styled(Link)`
   color: white;
+  :hover {
+      color: red;
+    }
   font-variant: small-caps;
+  background: ${props => {
+    //console.log('props:',props);
+     return ( props.linklang==props.to)? "orange" : ''}};
+
 `;
+
 
 const LanguagePicker = ({ className, toUrlWithlocale }) => (
   <div className={className}>
-    <StyledLink to={toUrlWithlocale('en')}><T id="langsEn" /></StyledLink>
+    <StyledLink linklang={location.pathname} to={toUrlWithlocale('en')}><T id="langsEn" /> </StyledLink>
     &nbsp;|&nbsp;
-    <StyledLink to={toUrlWithlocale('fr')}><T id="langsFr" /></StyledLink>
+    <StyledLink linklang={location.pathname} to={toUrlWithlocale('ar')}><T id="langsAr" /> </StyledLink>
   </div>
 );
 

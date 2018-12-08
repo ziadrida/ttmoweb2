@@ -4,7 +4,7 @@ import Title from '/app/ui/components/dumb/title';
 import Subtitle from '/app/ui/components/dumb/subtitle';
 
 const AuthPageLayout = ({ children, title, subtitle, link }) => (
-  <div>
+  <div className='login__container'>
     {title && <Title>{title}</Title>}
     {subtitle && <Subtitle text={subtitle} link={link} />}
     {children}

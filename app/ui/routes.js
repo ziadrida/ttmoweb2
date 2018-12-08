@@ -11,11 +11,13 @@ import {
   LoggedOutRoute,
   RouteWithProps,
   AdminRoute,
+
 } from '/app/ui/components/smart/route-wrappers';
 
 import {
   HomePage, WelcomePage, LoginPage, SignupPage, VerifyEmailPage, LinkExpiredPage,
-  ForgotPasswordPage, LoggedOutPage, DataTestPage, AdminPage, NotFoundPage,
+  ForgotPasswordPage, LoggedOutPage, DataTestPage, AdminPage, NotFoundPage, QuotationsPage,
+  OrderDetailsPage, VendorPurchasePage
 } from './loadables';
 
 const Routes = ({
@@ -28,6 +30,9 @@ const Routes = ({
   resetPasswordUrl,
   dataTestUrl,
   adminUrl,
+  quotationsUrl,
+  orderDetailsUrl,
+  vendorPurchaseUrl,
   ...otherProps
 }) => (
   <ScrollToTop>
@@ -97,6 +102,28 @@ const Routes = ({
         redirectTo={homeUrl()}
         {...otherProps}
       />
+      <LoggedInRoute
+        exact
+        path={quotationsUrl()}
+        component={QuotationsPage}
+        redirectTo={homeUrl()}
+        {...otherProps}
+      />
+      <LoggedInRoute
+        exact
+        path={orderDetailsUrl()}
+        component={OrderDetailsPage}
+        redirectTo={homeUrl()}
+        vendorPurchaseUrl={vendorPurchaseUrl}
+        {...otherProps}
+      />
+      <LoggedInRoute
+        exact
+        path={vendorPurchaseUrl()}
+        component={VendorPurchasePage}
+        redirectTo={homeUrl()}
+        {...otherProps}
+      />
 
       {/* NOT FOUND */}
       <Route
@@ -119,6 +146,9 @@ Routes.propTypes = {
   resetPasswordUrl: PropTypes.func.isRequired,
   dataTestUrl: PropTypes.func.isRequired,
   adminUrl: PropTypes.func.isRequired,
+  quotationsUrl: PropTypes.func.isRequired,
+  orderDetailsUrl:PropTypes.func.isRequired,
+  vendorPurchaseUrl:PropTypes.func.isRequired,
 };
 
 export default compose(

@@ -1,4 +1,4 @@
-# A starting point for creating a new multilingual Progressive Web Application based on Apollo 2, Meteor 1.8 and React 16.6, with support for server-side rendering, authentication and Styled Components.
+# Modified a starting point for creating a new multilingual Progressive Web Application based on Apollo 2, Meteor 1.8 and React 16.6, with support for server-side rendering, authentication and Styled Components.
 
 ### This project includes the following libraries/functionality:
 - Apollo 2 GraphQL server running with Express bound to the Meteor (1.8) app
@@ -43,7 +43,7 @@ In order to get started, first access your [Mailgun][Mailgun] account. Then, gra
 
 #### 4. Register the app on Facebook.
 
-You only need to do this if you wish to have Facebook logon support. You may also need to run the starter kit's https proxy (see below for more details): 
+You only need to do this if you wish to have Facebook logon support. You may also need to run the starter kit's https proxy (see below for more details):
 
 1. Visit https://developers.facebook.com
 2. Add a new app from the `My Apps` menu
@@ -117,7 +117,7 @@ Note that `nemms:meteor-react-loadable` can't be used to handle nested loadable 
 
 #### Multilingual support
 
-When creating a new project it's incredibly important to internationalise your application from the beginning. Adding multilingual support later on is a much more complicated task. 
+When creating a new project it's incredibly important to internationalise your application from the beginning. Adding multilingual support later on is a much more complicated task.
 
 Even if you're not internationalising your app, using translation files makes it easier to handle things such as plural strings, and you'll be ready for that day when the client decides that they _do_ want a localised version after all.
 

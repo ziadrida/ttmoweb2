@@ -1,6 +1,6 @@
 <head>
   <meta charset="utf-8">
-  
+
   <!-- GPU rasterisation -->
   <meta name="viewport" content="width=device-width, minimum-scale=1.0">
 
@@ -65,7 +65,10 @@
   <!-- App shell styles -->
   <link rel="stylesheet" type="text/css" href="/css/sanitize.css">
   <link rel="stylesheet" type="text/css" href="/css/basscss.min.css">
-  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/css/react-table.css?v=0.9989">
+  <link rel="stylesheet" type="text/css" href="/css/style.css?v=0.9989">
+  <!-- src="/css/styles.css?v={random number/string}" -->
+
 </head>
 
 <body>
@@ -76,13 +79,13 @@
           <path d="M6 36h36v-4H6v4zm0-10h36v-4H6v4zm0-14v4h36v-4H6z" />
         </svg>
       </div>
-      <div id="header-title" class="center header__title no--select"></div>
+      <div id="header-title" class="right header__title no--select"></div>
       <div id="header-lang-picker" class="no--select"></div>
     </div>
   </header>
 
   <div id="burger-btn-controller"></div>
-  
+
   <div class="fixed top-0 bottom-0 z2 menu">
     <div class="menu__header"></div>
     <ul id="menu" class="menu__list"></ul>
@@ -90,8 +93,9 @@
 
   <div class="fixed top-0 bottom-0 left-0 right-0 z1 menu__overlay"></div>
 
-  <div class="flex justify-around items-center app__outer">
-    <div class="app__container pt4">
+  <!--<div class="flex justify-around items-center app__outer"> -->
+  <div class="app__outer">
+    <div class="app__container pt4 fit">
       <div class="flex flex-column justify-between">
         <div id="main"></div>
       </div>
@@ -104,4 +108,5 @@
   <script src="/js/toast.js"></script>
   <script src="/js/offline.js"></script>
   <script src="/js/menu.js"></script>
+
 </body>

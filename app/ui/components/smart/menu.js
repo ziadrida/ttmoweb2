@@ -7,10 +7,13 @@ import userFragment from '/app/ui/apollo-client/user/userFragment';
 import { withRouteProps, withGlobalContextProps } from '/app/ui/hocs';
 import { LogoutBtn } from './auth';
 
-const Menu = ({ curUser, homeUrl, dataTestUrl, adminUrl }) => {
+const Menu = ({ curUser, homeUrl, dataTestUrl, adminUrl, quotationsUrl,orderDetailsUrl,vendorPurchaseUrl }) => {
   const menuRoutes = [
     { path: homeUrl(), label: 'Home', menu: true, auth: true },
-    { path: dataTestUrl(), label: 'Data test', menu: true },
+  //  { path: dataTestUrl(), label: 'Data test', menu: true },
+    { path: quotationsUrl(), label: 'Quotations', menu: true },
+    { path: orderDetailsUrl(), label: 'Order Details', menu: true },
+    { path: vendorPurchaseUrl(), label: 'Vendor Purchase', menu: true },
   ];
 
   if (curUser && curUser.roles.includes('admin')) {
@@ -26,8 +29,7 @@ const Menu = ({ curUser, homeUrl, dataTestUrl, adminUrl }) => {
         </Link>
       </li>
     )),
-    curUser
-      ? (
+    curUser? (
         <li key="logout">
           <LogoutBtn
             btnType="link"

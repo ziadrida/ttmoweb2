@@ -5,6 +5,7 @@ import { FormattedMessage as T, injectIntl } from 'react-intl';
 import { compose, setDisplayName } from 'recompose';
 import { withRouteProps } from '/app/ui/hocs';
 
+// set title in App Bar (not very useful!)
 const HeaderTitle = ({
   homeUrl,
   loginUrl,
@@ -15,6 +16,9 @@ const HeaderTitle = ({
   resetPasswordUrl,
   dataTestUrl,
   adminUrl,
+  quotationsUrl,
+  orderDetailsUrl,
+  vendorPurchaseUrl,
 }) => (
   <Switch>
     <Route path={homeUrl()} exact render={() => <T id="homeHeaderTitle" />} />
@@ -26,6 +30,9 @@ const HeaderTitle = ({
     <Route path={resetPasswordUrl()} render={() => <T id="resetPasswordTitle" />} />
     <Route path={dataTestUrl()} render={() => <T id="dataTestTitle" />} />
     <Route path={adminUrl()} render={() => <T id="adminHeaderTitle" />} />
+    <Route path={quotationsUrl()} render={() => <T id="quotationsHeaderTitle" />} />
+    <Route path={orderDetailsUrl()} render={() => <T id="orderDetailsHeaderTitle" />} />
+    <Route path={vendorPurchaseUrl()} render={() => <T id="vendorPurchaseHeaderTitle" />} />
     <Route render={() => <T id="notFoundTitle" />} />
   </Switch>
 );
@@ -36,10 +43,10 @@ HeaderTitle.propTypes = {
   }).isRequired,
 };
 
-// withRouter provides access to location.pathname
+
 export default compose(
   injectIntl,
-  withRouteProps,
-  withRouter,
-  setDisplayName('HeaderTitle'),
+  withRouteProps, // fix url based on locale
+  withRouter, // withRouter provides access to location.pathname
+  setDisplayName('HeaderTitle'), //Assigns to the propTypes property on the base component.
 )(HeaderTitle);

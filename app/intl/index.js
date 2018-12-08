@@ -1,9 +1,10 @@
 
 import { addLocaleData } from 'react-intl';
 import en from 'react-intl/locale-data/en';
-import fr from 'react-intl/locale-data/fr';
+//import fr from 'react-intl/locale-data/fr';
+import ar from 'react-intl/locale-data/ar';
 
-addLocaleData([...en, ...fr]);
+addLocaleData([...en,...ar]);
 
 // The `primaryLocale` may be set to the main locale used when the user visits a non-prefixed route.
 // For example, if set to 'en' then visiting the site at the root (/) will use the english locale.
@@ -17,4 +18,4 @@ addLocaleData([...en, ...fr]);
 // version of the site.
 
 export const primaryLocale = undefined;
-export const otherLocales = ['en', 'fr'];
+export const otherLocales = ['en', 'ar'];

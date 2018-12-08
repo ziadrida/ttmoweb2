@@ -3,7 +3,9 @@ import { primaryLocale, otherLocales } from '/app/intl';
 
 export const urlWithLocale = (locale, url) => ((locale === primaryLocale) ? url : `/${locale}${url}`);
 
+// switch locals for a URL
 export const toUrlWithlocale = (newLocale, location) => {
+  console.log('=> toUrlWithlocale')
   const parts = location.pathname.split('/');
 
   if (otherLocales.includes(parts[1])) {
@@ -27,7 +29,22 @@ export const toUrlWithlocale = (newLocale, location) => {
 // Provides functions to get the url of a given route.
 // Requires `injectIntl` as a HOC for most functions, and withRouter for `toUrlWithlocale`
 
-const withRouteProps = withHandlers({
+
+// withHandlers allows you to create "handlers," which are functions that do things in response to DOM
+// synthetic events.
+// A handler function accept your base component's props as their first argument and
+//  can accept the event argument (which represents the data collected from the triggered event)
+// as well as multiple values passed to the handler from your onEvent property.
+// withHandlers({
+//   handleClick: props => event => {
+//     console.log(event)
+//     alert('<div> was clicked!')
+//     props.doSomething()
+//   },
+// })
+const withRouteProps = withHandlers(
+  // pass base component props
+  {
   toUrlWithlocale: ({ location }) => newLocale => toUrlWithlocale(newLocale, location),
   urlWithLocale: ({ intl: { locale } }) => url => urlWithLocale(locale, url),
   homeUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/'),
@@ -39,6 +56,10 @@ const withRouteProps = withHandlers({
   forgotPasswordUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/forgot-password'),
   dataTestUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/data-test'),
   adminUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin'),
+  quotationsUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/quotations'),
+  orderDetailsUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/order-details'),
+  vendorPurchaseUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/vendor-purchase'),
+
 });
 
 export default withRouteProps;

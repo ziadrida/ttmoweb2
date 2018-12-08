@@ -13,6 +13,10 @@ const HASHED_CACHE = 'hashedCache';
 // If any of these files are updated, run `npm run update-sw` to update this file automatically.
 workbox.precaching.precacheAndRoute([
   {
+    "url": "css/react-table.css",
+    "revison": "v10005"
+  },
+  {
     "url": "css/basscss.min.css",
     "revision": "cc1614fb7c8dc4be202aac2a18aba498"
   },
@@ -100,7 +104,7 @@ function hasSameHash(firstUrl, secondUrl) {
 const expirationManager = new workbox.expiration.CacheExpiration(
   HASHED_CACHE,
   {
-    maxAgeSeconds: 4 * 7 * 24 * 60 * 60
+    maxAgeSeconds: 4 * 7 * 24 * 60 * 60 // 4 weeks!
   }
 );
 

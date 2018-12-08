@@ -1,26 +1,19 @@
-/*
-# BEM (BLOCK, ELEMENT, MODIFIER) METHEDOLOGY
-<div class="card card--show">
-  <div class="card__title"></div>
-  <div class="card__container">
-  </div>
-</div>
-.card - BLOCK
-.card__title - ELEMENT
-.card--show - MODIFIER
-*/
-
 
 /* RESET styles */
 
 a {
   text-decoration: none;
   color: inherit;
+  font-size:small;
 }
-
+a:active {color:red;text-decoration: none}
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  ;font-weight:bold;
+  font-size:larger
 }
+ a:link {color:forestgreen;}
+a:visited {color:seagreen;}
 
 ul,
 li {
@@ -40,7 +33,7 @@ li {
 
 body {
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   padding: 0;
@@ -160,12 +153,14 @@ header {
 
 .app__outer {
   min-height: calc(100vh - 56px); /* do not consider header height */
+  /*background-color: beige;*/
 }
 
+
 .app__container {
-  max-width: 420px;
-  min-height: 420px;
-  width: 100%;
+/*  background-color: purple;*/
+
+
 }
 
 .toast__container {
@@ -194,4 +189,75 @@ header {
 
 .toast__msg--hide {
   opacity: 0;
+}
+
+
+.login__container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 42em;
+  min-height: 42em;
+  width: 100%;
+}
+
+
+.filter {
+  background-color: lightblue;
+  border-right: 2px solid #f0f0f0;
+
+
+}
+
+.search_data_container {
+/*  background-color: lightblue;*/
+
+}
+.search {
+ /*background-color: ligthblue;*/
+
+}
+
+.search_data_container .data {
+/*  background-color: yellow;*/
+
+}
+
+.quotations__container {
+  max-width: 96em;
+  min-width: 86em;
+  max-height: 36em;
+  margin-right: auto;
+  margin-bottom: auto;
+  position: fixed;
+  padding: 1em;
+  left: 0%;
+  /* overflow: scroll; */
+}
+.wordwrap {
+  white-space: pre-line !important;
+  word-wrap: break-word;
+  font-size: 10px;
+}
+.popup {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: rgba(0,0,0, 0.5);
+
+}
+.popup_inner {
+  position: absolute;
+  left: 1%;
+  right: 1%;
+  top: 5%;
+  bottom: 1%;
+  margin: auto;
+  overflow: scroll;
+  background: #FFFFF8 /* #FDFDF0; White Orchid  #FFB90F darkgoldenrod1  */
+
 }

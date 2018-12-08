@@ -6,6 +6,7 @@ import { withRouteProps, withFormProps, withServiceProps, withSEO } from '/app/u
 import AuthPageLayout from '/app/ui/layouts/auth-page';
 import { PasswordAuthViews, FBAuthBtn } from '/app/ui/components/smart/auth';
 import Feedback from '/app/ui/components/dumb/feedback';
+import styled from 'styled-components';
 
 // OBSERVATION: in case of facebook authentication, withFormProps.handleSuccess
 // is only reachable when using 'popup' loginStyle at serviceConfiguration. On

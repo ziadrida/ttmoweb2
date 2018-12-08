@@ -1,4 +1,4 @@
-{
+  {
   "name": "inscriptions",
   "private": true,
   "scripts": {
@@ -15,12 +15,14 @@
   },
   "meteor": {
     "mainModule": {
-      "client": "/app/entry-points/client/startup.js",
-      "server": "/app/entry-points/server/index.js"
+      "client": "./app/entry-points/client/startup.js",
+      "server": "./app/entry-points/server/index.js"
     }
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@material-ui/core": "^3.5.1",
+    "@material-ui/icons": "^3.0.1",
     "@storybook/addon-actions": "^3.4.11",
     "@storybook/addon-links": "^3.4.11",
     "@storybook/react": "^3.4.11",
@@ -33,6 +35,7 @@
     "apollo-link-http": "^1.5.5",
     "apollo-link-logger": "^1.2.3",
     "apollo-server-express": "^2.1.0",
+    "babel-plugin-react-css-modules": "^3.4.2",
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "classnames": "^2.2.6",
@@ -48,8 +51,12 @@
     "invariant": "^2.2.2",
     "jest-styled-components": "^6.2.2",
     "lodash": "^4.17.11",
+    "match-sorter": "^2.3.0",
     "merge-graphql-schemas": "^1.5.7",
     "meteor-node-stubs": "^0.4.1",
+    "moment": "^2.22.2",
+    "mongoose": "^5.3.11",
+    "mui-datatables": "^2.0.0-beta-38",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-apollo": "^2.2.4",
@@ -59,6 +66,7 @@
     "react-intl": "^2.7.2",
     "react-loadable": "^5.5.0",
     "react-router-dom": "^4.3.1",
+    "react-table": "^6.8.6",
     "recompose": "^0.30.0",
     "simpl-schema": "^1.5.3",
     "storybook-host": "^5.0.1",

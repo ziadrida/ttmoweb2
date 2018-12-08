@@ -9,8 +9,8 @@ const theme = {
     link: 'blue',
   },
   fontSize: {
-    small: '14px',
-    normal: '16px',
+    small: '10px',
+    normal: '14px',
   },
 };
 

@@ -3,7 +3,8 @@
 
 const app = {
   langsEn: 'en',
-  langsFr: 'fr',
+  langsFr: 'Fr',
+  langsAr: 'عربي',
 
   emailLabel: 'Email',
   emailRequiredError: 'Email is required',
@@ -76,14 +77,17 @@ const app = {
   notFoundHomeLinkText: 'Home',
 
   homeHTMLTitle: 'Home',
-  homeHeaderTitle: 'TA Meteor Starter Kit',
+  homeHeaderTitle: 'TechTown MailOrder',
   homeNoServiceWorkerError: "Your browser doesn't support service workers",
 
   dataTestHTMLTitle: 'Data Test',
   dataTestTitle: 'Data Test',
   dataTestReturned: 'Data returned after 2 seconds',
 
-  adminHeaderTitle: 'Admin Page :)',
+  adminHeaderTitle: 'Admin',
+  quotationsHeaderTitle: 'Quotations',
+  orderDetailsHeaderTitle: 'Order Details',
+  quotationsHTMLTitle: 'Quotations',
 };
 
 // Admin strings
@@ -91,6 +95,10 @@ const app = {
 const admin = {
   adminHTMLTitle: 'Admin Page',
   adminTitle: 'This is your admin area',
+  quotationsHTMLTitle: 'Quotations Page',
+  quotationsTitle: 'Search Quotations',
+  quotationsHeaderTitle: 'Quotations',
+  orderDetailsHeaderTitle: 'Order Details',
 };
 
 export default { app, admin };
