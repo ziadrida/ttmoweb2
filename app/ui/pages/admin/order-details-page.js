@@ -29,13 +29,13 @@ class OrderDetailsPage extends React.PureComponent {
 
   state = {
     orderDetailsSearch: {
-      poNo: null,
-      status: null,
-      orderNo: null,
-      trackingNo: null,
-      awbNo: null,
-      username: null,
-      search: null,
+      poNo: '',
+      status: '',
+      orderNo: '',
+      trackingNo: '',
+      awbNo: '',
+      username: '',
+      search: '',
 
     },
     stage: 'purchase'
@@ -80,6 +80,7 @@ class OrderDetailsPage extends React.PureComponent {
         const { value, name } = target;
         console.log("target name/value,",name,":",value)
         this.setState({orderDetailsSearch: { [name]: value }});
+        console.log('orderDetailsPage state:',this.state)
       }
 
   render() {

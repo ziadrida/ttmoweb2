@@ -170,7 +170,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               }),
             filterAll: true,
             maxWidth: 120,
-            views:[view.all,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
           },
           {
@@ -184,7 +184,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             filterAll: true,
             maxWidth: 100,
 
-            views:[view.all,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
           },
           {
 
@@ -193,7 +193,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["status"] }),
             filterAll: true,
-            views:[view.all,view.deliver,view.close],
+            views:[view.all,view.payment,view.deliver,view.close],
           },
           {
 
@@ -202,7 +202,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["closed"] }),
             filterAll: true,
-            views:[view.all,view.close],
+            views:[view.all,view.payment,view.close],
           },
           {
             id: 'username',
@@ -211,7 +211,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["username"] }),
             filterAll: true,
-            views:[view.all,view.order,view.purchase,view.deliver,view.close],
+            views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
           },
           {
             Header: "T Amount",
@@ -221,7 +221,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                       row[filter.id] >= filter.value,
             filterAll: true,
             //width: 50,
-            views:[view.all,view.order,view.deliver,view.close],
+            views:[view.all,view.payment,view.order,view.deliver,view.close],
           },
         ]
         },
@@ -237,7 +237,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["address"] }),
               filterAll: true,
-              views:[view.all,view.order,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.deliver,view.close],
             },
             {
               Header: "Phone",
@@ -248,7 +248,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                         return  matchSorter(rows, filter.value, { keys: ["phone_no"] })
                         },
               filterAll: true,
-              views:[view.all,view.order,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.deliver,view.close],
             },
           ]
         },
@@ -268,7 +268,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               style: {
                 textAlign: 'right'
               },
-              views: [view.all, view.order, view.ship, view.deliver, view.close],
+              views: [view.all,view.payment, view.order, view.ship, view.deliver, view.close],
             },
             {
               id: "first_payment",
@@ -277,7 +277,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterMethod: (filter, rows) =>
                 row[filter.id] >= filter.value,
               filterAll: true,
-              views: [view.all, view.order, view.deliver, view.close],
+              views: [view.all,view.payment, view.order, view.deliver, view.close],
             },
             {
               Header: "category",
@@ -290,7 +290,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.order,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
               //maxWidth: 200
             },
             {
@@ -301,7 +301,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                   keys: ["title"]
                 }),
               filterAll: true,
-              views:[view.all,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
               //maxWidth: 200
             },
             {
@@ -318,13 +318,13 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterAll: true,
               style: { 'whiteSpace': 'unset',
                 'fontSize': '10px',
-                'overflow-y':'scroll',
+                'overflowY':'scroll',
                 maxWidth:'440px',
                 'height':'2.5em'
                },
 
               minWidth: 300,
-              views:[view.all,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
             },
             {
               Header: "Options",
@@ -334,7 +334,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                   keys: ["options"]
                 }),
               filterAll: true,
-              views:[view.all,view.order,view.purchase,view.deliver],
+              views:[view.all,view.payment,view.order,view.purchase,view.deliver],
               //maxWidth: 200
             },
             {
@@ -345,7 +345,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                   keys: ["order_notes"]
                 }),
               filterAll: true,
-              views:[view.all,view.order,view.purchase,view.deliver],
+              views:[view.all,view.payment,view.order,view.purchase,view.deliver],
               //maxWidth: 200
             },
 
@@ -356,7 +356,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["source"] }),
               filterAll: true,
-              views:[view.all,view.order,view.purchase,view.track,view.arrive,],
+              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,],
             },
              {
               id: "price",
@@ -368,7 +368,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
             },
 
             {
@@ -378,7 +378,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["destination"] }),
               filterAll: true,
-              views:[view.all,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
             },
             {
             Header: "PO Qty",
@@ -391,7 +391,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               textAlign: 'right'
             },
             //width: 50,
-            views:[view.all,view.order,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
+            views:[view.all,view.payment,view.order,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
           },
         ] },
         {
@@ -415,7 +415,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                   textAlign: 'right'
                 },
                 //width: 35,
-                views:[view.all,view.purchase,view.track],
+                views:[view.all,view.payment,view.purchase,view.track],
 
               },
             {
@@ -436,7 +436,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["order_no"] }),
               filterAll: true,
-              views:[view.all,view.purchase,view.track,view.arrive,],
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
               width:200,
             },
 
@@ -455,7 +455,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               filterAll: true,
               width: 100,
             //  width:(d) => getColumnWidth(this.state.data, d.order, "Order No."),
-              views:[view.all,view.purchase,view.track,],
+              views:[view.all,view.payment,view.purchase,view.track,],
             },
             {
               Header: "Order Qty",
@@ -469,7 +469,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                 textAlign: 'right'
               },
             //  width: 35,
-              views:[view.all,view.purchase,view.track],
+              views:[view.all,view.payment,view.purchase,view.track],
 
             },
 
@@ -485,7 +485,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                 textAlign: 'right'
               },
               //width: 35,
-              views:[view.all,view.purchase,view.track],
+              views:[view.all,view.payment,view.purchase,view.track],
 
             },
             {
@@ -500,7 +500,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                 textAlign: 'right'
               },
               //width: 35,
-              views:[view.all,view.purchase,view.track],
+              views:[view.all,view.payment,view.purchase,view.track],
 
             },
             // accessor: d =>
@@ -877,8 +877,8 @@ render() {
     const { orderDetailsData, classes, stage, ...otherProps } = this.props
 
   //  this.state.stage = stage;
-  console.log("--->>>>> Render order-details -> \nnew stage\n: ",stage,"\ndata size:\n",
-  this.state.date? this.state.date.length:"null!!!")
+  console.log("--->>>>> Render order-details -> \nnew stage\n: ",
+    stage,"\ndata size:\n",  this.state.data? this.state.data.length:"null!!!")
     const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
@@ -985,7 +985,7 @@ render() {
           //     }
           //   };
           // }}
-          /> // ReactTable
+          />
           {this.state.showPurchase ?
           <VendorPurchaseFormWithMutation
              closePopup={this.handlePurchase}

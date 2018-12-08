@@ -244,7 +244,7 @@ componentDidUpdate(prevProps) {
              }}
               margin="dense"
             />
-            <div style={{'overflow-x': 'hidden','overflow-y':'scroll', width:'500px',height:'2em'}}>
+            <div style={{'overflow-x': 'hidden','overflowY':'scroll', width:'500px',height:'2em'}}>
             {link}
             </div>
 

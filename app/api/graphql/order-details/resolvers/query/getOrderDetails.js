@@ -170,26 +170,26 @@ const getOrderDetails = async (root, args, context) => {
       var lookupRegex = [];
        if (args.status && args.status != "")  {
          if( typeof args.status === 'string' ) {
-          lookupStatus = [args.status.toLowerCase() ];
+
+          lookupStatus = args.status.toLowerCase().split(",") ;
 
         } else {
           // status is an array
           lookupStatus = args.status
         }
-        for (var i = 0; i < lookupStatus.length; i++) {
-          if (lookupStatus[i]!= '')
-            lookupRegex[i] = new RegExp(lookupStatus[i]);
-        }
+        lookupRegex = lookupStatus.map(function (e) { return new RegExp(e, "i"); });
       } else {
         if (args.stage == 'purchase') {
           // for not purchased get active if no status is specified
-          lookupRegex = [ new RegExp ('active')]
+          lookupRegex = [ new RegExp ("active","i")]
         } //else if (args && args.option == 'not_shipped' || args.option == 'ns') {
         //  lookupRegex = [ new RegExp ('active')]
         //}
       }
-        console.log("** status:", lookupStatus )
-        console.log("** status:", lookupRegex )
+        console.log("** lookupStatus:", lookupStatus )
+        console.log("** lookupRegex :", lookupRegex )
+        console.log("** lookupRegex.length :", lookupRegex.length )
+
       if (lookupRegex && lookupRegex.length > 0)  {
        matchArray.push (
           {
@@ -201,6 +201,8 @@ const getOrderDetails = async (root, args, context) => {
         }
         )
       }
+      console.log('matchArray [1]:\n',JSON.stringify(matchArray))
+
       if (args.title)   matchArray.push (  {title: { $regex: args.title.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), $options: 'i' }  })
 
     if (args.box_id)   {
@@ -221,19 +223,41 @@ const getOrderDetails = async (root, args, context) => {
       if (args.company)   matchArray.push (  {company: { $regex: args.company, $options: 'i' }  })
       if (args.real_name)   matchArray.push (  {real_name: { $regex: args.real_name, $options: 'i' }  })
 
-  if (args.phone_no)   matchArray.push (  {phone_no: { $regex: args.phone_no, $options: 'i' }  })
-  if (args.tracking_no)   matchArray.push (  {tracking_no: { $regex: args.tracking_no.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'),
-   $options: 'i' }  })
-  if (args.order_no)   matchArray.push (  {order_no: { $regex: args.order_no.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), $options: 'i' }  })
-    if (args.awb_no)   matchArray.push (  {awb_no: { $regex: args.awb_no, $options: 'i' }  })
-
-    if (args.received!= undefined)   {
-      matchArray.push ( {received: args.received  }  )
+  if (args.phone_no) matchArray.push({
+      phone_no: {
+        $regex: args.phone_no,
+        $options: 'i'
+      }
+  })
+  if (args.tracking_no) matchArray.push({
+      tracking_no: {
+        $regex: args.tracking_no.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'),
+        $options: 'i'
+      }
+  })
+  if (args.order_no) matchArray.push({
+    order_no: {
+      $regex: args.order_no.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'),
+      $options: 'i'
     }
+  })
+  if (args.awb_no) matchArray.push({
+    awb_no: {
+      $regex: args.awb_no,
+      $options: 'i'
+    }
+  })
 
-    if (args.closed!= undefined)   {
+  if (args.received != undefined) {
+    matchArray.push({
+      received: args.received
+    })
+  }
+
+  if (args.closed!= undefined)   {
       matchArray.push ( {closed: args.closed  }  )
-    }
+  }
+
     matchArray.push({
       closed: false
     })
@@ -852,7 +876,7 @@ const getOrderDetails = async (root, args, context) => {
       }
   //___END OF aggregate_______
 
-]).limit(20).exec()
+]).limit(70).exec()
     console.log("curOrderDetails.length:",curOrderDetails.length)
    //console.log("curOrderDetails:",JSON.stringify(curOrderDetails))
    // cleanup wrong field values
