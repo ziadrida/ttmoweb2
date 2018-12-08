@@ -168,7 +168,7 @@ const getOrderDetails = async (root, args, context) => {
 
       var lookupStatus = []
       var lookupRegex = [];
-       if (args.status)  {
+       if (args.status && args.status != "")  {
          if( typeof args.status === 'string' ) {
           lookupStatus = [args.status.toLowerCase() ];
 
@@ -177,6 +177,7 @@ const getOrderDetails = async (root, args, context) => {
           lookupStatus = args.status
         }
         for (var i = 0; i < lookupStatus.length; i++) {
+          if (lookupStatus[i]!= '')
             lookupRegex[i] = new RegExp(lookupStatus[i]);
         }
       } else {
