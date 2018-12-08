@@ -240,7 +240,6 @@ componentDidUpdate(prevProps) {
                //backgroundColor:'pink',
                'whiteSpace': 'unset',
                 'fontSize': '10px' ,
-                
                'width' : '40em',
              }}
               margin="dense"
