@@ -17,7 +17,8 @@ import {
 import {
   HomePage, WelcomePage, LoginPage, SignupPage, VerifyEmailPage, LinkExpiredPage,
   ForgotPasswordPage, LoggedOutPage, DataTestPage, AdminPage, NotFoundPage, QuotationsPage,
-  OrderDetailsPage, VendorPurchasePage
+  OrderDetailsPage,
+  //VendorPurchasePage
 } from './loadables';
 
 const Routes = ({
@@ -87,21 +88,22 @@ const Routes = ({
         redirectTo={homeUrl()}
         {...otherProps}
       />
-
+  {/*
       <RouteWithProps
         path={dataTestUrl()}
         component={DataTestPage}
         {...otherProps}
       />
+      */}
 
-      {/* ADMIN */}
+      {/* ADMIN
       <AdminRoute
         exact
         path={adminUrl()}
         component={AdminPage}
         redirectTo={homeUrl()}
         {...otherProps}
-      />
+      />*/}
       <LoggedInRoute
         exact
         path={quotationsUrl()}
@@ -117,6 +119,7 @@ const Routes = ({
         vendorPurchaseUrl={vendorPurchaseUrl}
         {...otherProps}
       />
+        {/*
       <LoggedInRoute
         exact
         path={vendorPurchaseUrl()}
@@ -124,6 +127,7 @@ const Routes = ({
         redirectTo={homeUrl()}
         {...otherProps}
       />
+        */}
 
       {/* NOT FOUND */}
       <Route

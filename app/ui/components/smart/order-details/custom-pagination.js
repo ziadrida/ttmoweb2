@@ -116,7 +116,10 @@ class CustomPagination extends Component {
     } = this.props
 
     const { anchorEl } = this.state;
-
+    const anchorOrigin = {
+      vertical: "top",
+      horizontal: "bottom"
+    }
     return (
       <div className={classes1(className, '-pagination')} style={this.props.style}>
         <div className="-previous">
@@ -185,14 +188,10 @@ class CustomPagination extends Component {
         </div>
 
         <Popover
-
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={this.handleClose}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "bottom"
-          }}
+          anchorOrigin={anchorOrigin}
           // transformOrigin={{
           //   vertical: "bottom",
           //   horizontal: "bottom"

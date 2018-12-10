@@ -44,7 +44,7 @@ const errorOn = true;
       }
     }
     if (debugOn) console.log("queryStr:", queryStr)
-    resp = {}
+    var resp = {}
     try {
       resp = await VendorPurchase.findOneAndUpdate(
         queryStr,
@@ -67,7 +67,7 @@ const errorOn = true;
               || !order.order_date
               || !order.purchased_qty) {
               // cannot create
-
+              resp = {}
               resp.message = "For new purchase I need po_no, order_no, order_date and purchased_qty"
               console.log("message[1]:",order.message)
               return resp;
@@ -95,6 +95,7 @@ const errorOn = true;
                 } catch(err) {
                   if (errorOn) console.log("vendorPurchase - Error inserting new VendorPurchase info err:", err);
                   if (errorOn) console.log("vendorPurchase - Error inserting new VendorPurchase info newDoc:", newDoc);
+                  resp = {}
                   resp.message = "Error updating vendorPurchase: " + JSON.stringify(err, null, 2);
                   return resp
               }

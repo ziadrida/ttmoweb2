@@ -13,7 +13,7 @@ a:hover {
   font-size:larger
 }
  a:link {color:forestgreen;}
-a:visited {color:seagreen;}
+a:visited {color:blue;}
 
 ul,
 li {
@@ -48,7 +48,7 @@ a {
 
 header {
   width: 100%;
-  height: 56px;
+  height: 50px;
   background-color: blue;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.19);
   overflow: hidden;
@@ -135,7 +135,7 @@ header {
   width: inherit;
   height: inherit;
   overflow: auto;
-  overflow-x: hidden;
+  overflowX: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -152,7 +152,7 @@ header {
 }
 
 .app__outer {
-  min-height: calc(100vh - 56px); /* do not consider header height */
+  min-height: calc(100vh - 50px); /* do not consider header height */
   /*background-color: beige;*/
 }
 

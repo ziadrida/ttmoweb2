@@ -113,7 +113,9 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
         console.log('=> in OrderDetails component props', this.props)
         this.state = {
           showPurchase:false,
-          currentRow: null,
+          toggleRegreshData: false,
+          currentRow: {},
+          rowIndex:-1,
           data: [],
           columns: [],
           views: detailViews,
@@ -142,6 +144,12 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
            console.log("Escape newValue:", this.state.newVal)
          }
        }
+
+       static getDerivedStateFromProps(props, state) {
+         console.log("orderDetails-Data getDerivedStateFromProps \nprops",props, "\nstate",state)
+       }
+
+
        componentDidMount() {
          console.log(">>>>>>>>>>>>>> order-details componentDidMount")
         this.setState({ columns: this.configColumns() })
@@ -153,9 +161,11 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
          //   ].view)
        }
 
+
        componentWillUnmount() {
          document.removeEventListener("keydown", this.escFunction, false);
        }
+
       configColumns = () => { return  [{
         Header: "Order Information",
         id: "oderInfo",
@@ -213,16 +223,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             filterAll: true,
             views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
           },
-          {
-            Header: "T Amount",
-            accessor: "total_amount" ,
-            Cell: ({ value }) => (value >= 9999 ? 0 : value),
-            filterMethod: (filter, rows) =>
-                      row[filter.id] >= filter.value,
-            filterAll: true,
-            //width: 50,
-            views:[view.all,view.payment,view.order,view.deliver,view.close],
-          },
+
         ]
         },
 
@@ -255,7 +256,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
         {
             Header: "Purchasing Info",
             id: "purchInfo",
-              show:true,
+            show:true,
             columns: [
 
             {
@@ -270,15 +271,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               },
               views: [view.all,view.payment, view.order, view.ship, view.deliver, view.close],
             },
-            {
-              id: "first_payment",
-              Header: "Init Pymnt",
-              accessor: d => d.first_payment,
-              filterMethod: (filter, rows) =>
-                row[filter.id] >= filter.value,
-              filterAll: true,
-              views: [view.all,view.payment, view.order, view.deliver, view.close],
-            },
+
             {
               Header: "category",
               accessor: "category",
@@ -301,8 +294,10 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                   keys: ["title"]
                 }),
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
-              //maxWidth: 200
+              views:[view.all,view.payment,view.order,
+                view.purchase,view.track,view.arrive,
+                view.pack,view.ship,view.deliver,view.close],
+                width:400,
             },
             {
               id: 'link',
@@ -319,11 +314,10 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               style: { 'whiteSpace': 'unset',
                 'fontSize': '10px',
                 'overflowY':'scroll',
-                maxWidth:'440px',
+                'width':'440px',
                 'height':'2.5em'
                },
-
-              minWidth: 300,
+              width:400,
               views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
             },
             {
@@ -338,25 +332,29 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               //maxWidth: 200
             },
             {
-              Header: "Order Notes",
-              accessor: "order_notes",
+              Header: "T Amount",
+              accessor: "total_amount" ,
+              Cell: ({ value }) => (value >= 9999 ? 0 : value),
               filterMethod: (filter, rows) =>
-                matchSorter(rows, filter.value, {
-                  keys: ["order_notes"]
-                }),
+                        row[filter.id] >= filter.value,
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.deliver],
-              //maxWidth: 200
+              //width: 50,
+              views:[view.all,view.payment,view.purchase,view.order,view.deliver,view.close],
             },
-
             {
-              id: "source",
-              Header: "Source",
-              accessor: d => d.source,
+              id: "first_payment",
+              Header: "Init Pymnt",
+              accessor: d => d.first_payment,
+              getProps:  (state, rowInfo) => ({
+               style: {
+                   backgroundColor: (rowInfo && rowInfo.row &&
+                      parseFloat(rowInfo.row.first_payment) == 0 ? 'orange' : null)
+               }
+              }),
               filterMethod: (filter, rows) =>
-                          matchSorter(rows, filter.value, { keys: ["source"] }),
+                row[filter.id] >= filter.value,
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,],
+              views: [view.all,view.payment, view.order,view.purchase, view.deliver, view.close],
             },
              {
               id: "price",
@@ -370,7 +368,15 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               },
               views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
             },
-
+            {
+              id: "source",
+              Header: "Source",
+              accessor: d => d.source,
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["source"] }),
+              filterAll: true,
+              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,],
+            },
             {
               id: "destination",
               Header: "Dest",
@@ -383,6 +389,11 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             {
             Header: "PO Qty",
             accessor: "po_qty" ,
+            getProps:  (state, rowInfo) => ({
+             style: {
+                 backgroundColor: (rowInfo && rowInfo.row && rowInfo.row.po_qty > 1 ? 'ligthblue' : null)
+             }
+            }),
             Cell: ({ value }) => (value >= 9999 ? 0 : value),
             filterMethod: (filter, rows) =>
                       row[filter.id] >= filter.value,
@@ -392,6 +403,17 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             },
             //width: 50,
             views:[view.all,view.payment,view.order,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
+          },
+          {
+            Header: "Order Notes",
+            accessor: "order_notes",
+            filterMethod: (filter, rows) =>
+              matchSorter(rows, filter.value, {
+                keys: ["order_notes"]
+              }),
+            filterAll: true,
+            views:[view.all,view.payment,view.order,view.purchase,view.deliver],
+            //maxWidth: 200
           },
         ] },
         {
@@ -403,7 +425,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
                 Header: "Purchase Id",
                 accessor: "purchase_id",
                 //width: 35,
-                views:[99],
+                views:[-1],
               },
               {
                 Header: "T Purch Qty",
@@ -727,6 +749,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
           />
         );
       }
+
       handlePurchase (rowInfo ) {
       const {vendorPurchaseUrl, history } = this.props
 
@@ -737,7 +760,8 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
       console.log("vendorPurchaseUrl", vendorPurchaseUrl())
       this.setState({
         showPurchase: !this.state.showPurchase,
-        currentRow: rowInfo.row
+        currentRow: rowInfo.row,
+        rowIndex: rowInfo.index
       });
     } else {
       this.setState({
@@ -765,6 +789,18 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
       //   }
       // });
     }
+
+
+    registerPurchase (purchase_id,rowIndex) {
+      console.log("=> in registerPurchase props\n",this.props)
+          console.log("=> in registerPurchase purchase_id:",
+          purchase_id, " rowIndex:",rowIndex )
+          // newData = this.state.data
+          // newData[rowIndex].purchase_id = purchase_id
+          this.setState({toggleRegreshData: !this.state.toggleRegreshData})
+
+    }
+
       handleRowChange = row => event => {
         if (event.target.value !== 0) {
           this.setState({
@@ -777,6 +813,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
 
 
   handleRowClick() {
+    console.log("=>handleRowClick")
     rowSize = parseInt(this.state.row);
 
     //console.log(parseInt(rowSize)); console.log(typeof rowSize);
@@ -849,19 +886,32 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
       }
     );
   };
+
   componentDidUpdate(prevProps) {
     console.log("order-details componentDidUpdate \nprevProps\n:",prevProps)
     console.log('state stage:',this.state.stage)
     // Typical usage (don't forget to compare props):
-    if (this.state.stage !== prevProps.stage || this.state.stage =='') {
+    if (this.state.stage !== prevProps.stage || this.state.stage ==''
+      ) {
       const {stage} = prevProps
       console.log('set stage:',stage)
-      this.setState({stage});
+      this.setState({
+          stage,}
+
+            );
       var idx = stages.indexOf(stages.find(i=> (i.name== stage) ));
       console.log('stage index:',idx)
       this.toggleViewChooser( stages[idx].view)
 
-    }
+     }
+     // else if (prevProps&&prevProps.orderDetailsData&&
+     //            !prevProps.orderDetailsData.loading &&
+     //            !prevProps.orderDetailsData.error) {
+     //    this.setState({data:
+     //      prevProps.orderDetailsData.getOrderDetails
+     //      })
+     //    }
+
   }
   // static getDerivedStateFromProps(props,state) {
   //   console.log("order-details getDerivedStateFromProps \nprops\n:",props,
@@ -877,14 +927,13 @@ render() {
     const { orderDetailsData, classes, stage, ...otherProps } = this.props
 
   //  this.state.stage = stage;
-  console.log("--->>>>> Render order-details -> \nnew stage\n: ",
-    stage,"\ndata size:\n",  this.state.data? this.state.data.length:"null!!!")
+  console.log("--->>>>> Render order-details -> \nnew stage\n: ", stage)
     const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
 
-    console.log('getOrderDetails:',getOrderDetails)
-     getOrderDetails
+    console.log('getOrderDetails:\n',getOrderDetails)
+
 
     console.log('variables:',variables)
 
@@ -989,7 +1038,9 @@ render() {
           {this.state.showPurchase ?
           <VendorPurchaseFormWithMutation
              closePopup={this.handlePurchase}
-             poInfo={this.state.currentRow?this.state.currentRow:{}}
+             registerPurchase={this.registerPurchase}
+             poInfo={getOrderDetails[this.state.rowIndex]}
+             rowIndex={this.state.rowIndex}
           //     po_no: rowInfo.row.po_no,
           //     title: rowInfo.row.title,
           //     link: rowInfo.row.link.props.href,

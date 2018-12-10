@@ -32,7 +32,7 @@ const HeaderTitle = ({
     <Route path={adminUrl()} render={() => <T id="adminHeaderTitle" />} />
     <Route path={quotationsUrl()} render={() => <T id="quotationsHeaderTitle" />} />
     <Route path={orderDetailsUrl()} render={() => <T id="orderDetailsHeaderTitle" />} />
-    <Route path={vendorPurchaseUrl()} render={() => <T id="vendorPurchaseHeaderTitle" />} />
+  //  <Route path={vendorPurchaseUrl()} render={() => <T id="vendorPurchaseHeaderTitle" />} />
     <Route render={() => <T id="notFoundTitle" />} />
   </Switch>
 );

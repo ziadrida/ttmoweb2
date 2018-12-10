@@ -32,7 +32,10 @@ class SimplePopover extends React.Component {
   render() {
     const { classes } = this.props;
     const { anchorEl } = this.state;
-
+    const anchorOrigin={
+      vertical: "bottom",
+      horizontal: "center"
+    }
     return (
       <div>
         <Button variant="contained" onClick={this.handleClick}>
@@ -42,10 +45,7 @@ class SimplePopover extends React.Component {
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={this.handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center"
-          }}
+          anchorOrigin={anchorOrigin}
           // transformOrigin={{
           //   vertical: "bottom",
           //   horizontal: "bottom"

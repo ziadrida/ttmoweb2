@@ -74,7 +74,10 @@ class ColumnChooser extends React.Component {
     render() {
       //console.log('columnChooser props:',this.props)
         const { classes, columns } = this.props;
-
+        const anchorOrigin={
+             vertical: 'bottom',
+             horizontal: 'left',
+           }
         return (
             <div>
               <Tooltip id="tooltip-columns" title="Select Columns">
@@ -85,10 +88,7 @@ class ColumnChooser extends React.Component {
                 <Popover
                     open={this.state.open}
                     anchorEl={this.state.anchorEl}
-                    anchorOrigin={{
-                         vertical: 'bottom',
-                         horizontal: 'left',
-                       }}
+                    anchorOrigin={anchorOrigin}
                        transformOrigin={{
                          vertical: 'top',
                          horizontal: 'center',

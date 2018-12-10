@@ -7,8 +7,21 @@ import { withStyles } from '@material-ui/core/styles';
 import {  graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { onError } from "apollo-link-error";
+import AddIcon from '@material-ui/icons/Add';
+import CancelIcon from '@material-ui/icons/Cancel';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Fab from '@material-ui/core/Fab';
+import Icon from '@material-ui/core/Icon';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 // withStyles takes the styles and change them to classes props
 const styles = theme => ({
+  fab: {
+  margin: theme.spacing.unit,
+
+},
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -38,8 +51,22 @@ class VendorPurchaseForm extends React.Component {
     console.log("VendorPurchaseForm constructor props:",props)
   super(props);
   this.state = {
+    allowSave: true,
     message: '',
-  poInfo: props.poInfo? props.poInfo: {
+  vendorPurchaseInfo: {
+    po_no:'',
+    order_no: '',
+    purchase_qty: 0,
+    delivery_days_from: 0,
+    delivery_days_to: 0,
+    purchase_id: -99,
+    order_date:  moment().format("DD/MM/YYYY"),
+    source: '',
+    notes:'',
+  },
+
+  poInfo: {
+    rowIndex:0,
     po_no: '',
     title: '',
     link: '',
@@ -52,52 +79,129 @@ class VendorPurchaseForm extends React.Component {
     order_no: '',
     delivery_days_from: 0,
     delivery_days_to: 0,
-    order_date: '',//moment(new Date()).format('DD/MM/YYYY')
+    purchase_id: -99,
+    order_date:  moment().format("DD/MM/YYYY"),
   }
+}
     // TODO: add errors field
-  }
 }
-componentDidUpdate(prevProps) {
-  console.log("vendor-purchase-form componentDidUpdate \nprevProps\n:",prevProps)
-  console.log('this.state',this.state)
-  // Typical usage (don't forget to compare props):
 
-  if (prevProps && this.state.poInfo &&
-    this.state.poInfo.po_no != prevProps.poInfo.po_no  ) {
-    // const { po_no,
-    //    title, link, po_qty, total_purchased_qty,
-    //    price,sale_price,first_payment,
-    //    order_no,delivery_days_to,delivery_days_from,order_date,options,
-    //  } = this.props.poInfo;
-    console.log("update state for ",prevProps.poInfo)
-    this.setState({
-              poInfo: prevProps.poInfo
-            }  );
+static getDerivedStateFromProps(props, state) {
+  console.log("vendorPurchaseForm getDerivedStateFromProps \nprops",props, "\nstate",state)
+    if (props.poInfo.po_no !== state.poInfo.po_no) {
+      return {
+        poInfo: props.poInfo ,
+        vendorPurchaseInfo: {
+          purchase_id: props.poInfo.purchase_id,
+          po_no:props.poInfo.po_no,
+          order_no: props.poInfo.order_no,
+          purchase_qty: props.poInfo.purchase_qty,
+          delivery_days_from: props.poInfo.delivery_days_from,
+          delivery_days_to: props.poInfo.delivery_days_to,
+          purchase_id: props.poInfo.purchase_id,
+          order_date: props.poInfo.order_date && props.poInfo.order_date!=''? props.poInfo.order_date :
+            moment().format("DD/MM/YYYY"),
+          source: props.poInfo.source,
+          notes:props.poInfo.order_notes,
+        },
 
+      };
+    }
+    // Return null to indicate no change to state.
+   return null;
   }
-}
+// componentWillReceiveProps(nextProps) {
+//  //here u might want to check if u are currently editing but u get the idea -- maybe u want to reset it to the current prop on some cancelEdit method instead
+//  console.log("vendorPurchaseForm componentWillReceiveProps nextProps\n",nextProps)
+//  this.setState({purchase_id: nextProps.poInfo.purchase_id})
+//
+// }
+
+// componentDidUpdate(prevProps) {
+//   console.log("vendor-purchase-form componentDidUpdate \nprevProps\n:",prevProps)
+//   console.log('this.state',this.state)
+//   // Typical usage (don't forget to compare props):
+//
+//   if (prevProps && this.state.poInfo &&
+//     this.state.poInfo.po_no != prevProps.poInfo.po_no  ) {
+//     // const { po_no,
+//     //    title, link, po_qty, total_purchased_qty,
+//     //    price,sale_price,first_payment,
+//     //    order_no,delivery_days_to,delivery_days_from,order_date,options,
+//     //  } = this.props.poInfo;
+//     console.log("update state for ",prevProps.poInfo)
+//     this.setState({
+//               poInfo: prevProps.poInfo
+//             }  );
+//
+//   }
+// }
   handleChange = ({ target }) => {
     console.log('in handleChange ',target)
     const { value, name } = target;
-    var newState = {poInfo: {...this.state.poInfo}}
-    newState.poInfo[name] = value
+    var newState = {vendorPurchaseInfo: {...this.state.vendorPurchaseInfo}}
+    newState.vendorPurchaseInfo[name] = value
     this.setState(newState);
 
+    console.log('handleChange',this.state)
     //let order-detail-page set the state so when page filter is
     // used the form values are correct
     // this means we actually don't need to pass form values onSubmit (but we do!)
-    if (typeof this.props.onChange === 'function') {
-           this.props.onChange({target});
-       }
+    // if (typeof this.props.onChange === 'function') {
+    //        this.props.onChange({target});
+    //    }
+  }
+
+  addOrder = (evt) => {
+    console.log("=> addOrder")
+    //reset vendorPurchaseInfo
+    setState({
+      vendorPurchaseInfo: {
+        po_no:'',
+        order_no: '',
+        purchase_qty: 0,
+        delivery_days_from: 0,
+        delivery_days_to: 0,
+        purchase_id: -99,
+        order_date:   moment().format("DD/MM/YYYY"),
+        source: '',
+        notes:'',
+      }
+    })
+    }
+
+  cancelAddOrder = (evt) => {
+    console.log("=> cancelAddOrder")
+    setState({
+    vendorPurchaseInfo: {
+      purchase_id: this.state.poInfo.purchase_id,
+      po_no:this.state.poInfo.po_no,
+      order_no: this.state.poInfo.order_no,
+      purchase_qty: this.state.poInfo.purchase_qty,
+      delivery_days_from: this.state.poInfo.delivery_days_from,
+      delivery_days_to: this.state.poInfo.delivery_days_to,
+      purchase_id: this.state.poInfo.purchase_id,
+      order_date: this.state.poInfo.order_date,
+      source: this.state.poInfo.source,
+      notes:this.state.poInfo.order_notes,
+    },
+      })
+  }
+
+  deleteOrder = (evt) => {
+    console.log("=> deleteOrder")
+    // simply clear the purchase_id!
+    this.setState({message:"not working yet Call me if you need it!"}) // revert back to existing purchase_id
   }
 
   handleSubmit = (evt) => {
     evt.preventDefault();
     console.log('VendorPurchaseForm handleSubmit:',evt)
-    console.log('=> VendorPurchaseForm in handleSubmit props',this.props)
-    console.log('=> VendorPurchaseForm in handleSubmit state',this.state)
+    console.log('=> VendorPurchaseForm in handleSubmit props==>\n',this.props)
+    console.log('=> VendorPurchaseForm in handleSubmit state\n',this.state)
     const { closePopup } = this.props;
-  //   this.setState({message:"Updating ..."})
+    this.setState({message:"Updating ...",
+                allowSave: false})
 
   //  const { poNo, orderNo } = this.state;
     //const {po_no} = this.props.location.state
@@ -112,17 +216,17 @@ componentDidUpdate(prevProps) {
        mutate({
           variables: {
             "vendorPurchase": {
-             "po_no": this.state.poInfo.po_no,
-             "_id":this.state.poInfo.purchase_id?
-              parseFloat(this.state.poInfo.purchase_id):null,
-             "order_no": this.state.poInfo.order_no,
-             "source": this.state.poInfo.source != this.props.poInfo.source? this.state.poInfo.source:
+             "po_no": this.state.vendorPurchaseInfo.po_no,
+             "_id":this.state.vendorPurchaseInfo.purchase_id?
+              parseFloat(this.state.vendorPurchaseInfo.purchase_id):null,
+             "order_no": this.state.vendorPurchaseInfo.order_no,
+             "source": this.state.vendorPurchaseInfo.source != this.props.poInfo.source? this.state.vendorPurchaseInfo.source:
                 null,
-             "purchased_qty": parseInt(this.state.poInfo.purchased_qty),
-             "delivery_days_from": parseInt(this.state.poInfo.delivery_days_from),
-             "delivery_days_to":  parseInt(this.state.poInfo.delivery_days_to),
-             "order_date": this.state.poInfo.order_date,
-             "notes":this.state.poInfo.notes,
+             "purchased_qty": parseInt(this.state.vendorPurchaseInfo.purchased_qty),
+             "delivery_days_from": parseInt(this.state.vendorPurchaseInfo.delivery_days_from),
+             "delivery_days_to":  parseInt(this.state.vendorPurchaseInfo.delivery_days_to),
+             "order_date": this.state.vendorPurchaseInfo.order_date,
+             "notes":this.state.vendorPurchaseInfo.notes,
            }
          }
       })
@@ -130,9 +234,40 @@ componentDidUpdate(prevProps) {
         console.log("mutation result:",res)
         if (!res || !res.data || !res.data.createVendorPurchase) {
            this.setState({message: "DB Error"})
-        } else if (!res.data.createVendorPurchase._id) {
+        } else if (!res.data.createVendorPurchase._id ||
+              res.data.createVendorPurchase._id == -99) {
             this.setState({message: res.data.createVendorPurchase.message })
-        }  else    this.setState({message: "Created Successfully." || res.data.createVendorPurchase.message });
+        }  else     {
+          console.log("created/updated vendor purchase - now setting state")
+          this.setState(
+            { message: "Updated Successfully.Purchase Id is " +
+                  res.data.createVendorPurchase._id + " info:"+
+                  res.data.createVendorPurchase.message ,
+              poInfo: {
+                  ...this.state.poInfo,
+                 order_no: this.state.vendorPurchaseInfo.order_no,
+                 purchase_qty: this.state.vendorPurchaseInfo.purchase_qty,
+                 delivery_days_from: this.state.vendorPurchaseInfo.delivery_days_from,
+                 delivery_days_to: this.state.vendorPurchaseInfo.delivery_days_to,
+                 purchase_id: this.state.vendorPurchaseInfo.purchase_id,
+                 order_date: this.state.vendorPurchaseInfo.order_date,
+                 source: this.state.vendorPurchaseInfo.source,
+                 order_notes:this.state.poInfo.order_notes,
+              },
+              vendorPurchaseInfo: {
+                ...this.state.vendorPurchaseInfo,
+                 purchase_id: res.data.createVendorPurchase._id
+              },
+
+              }
+            );
+            console.log('new state:',this.state)
+
+            console.log("Call registerPurchase in order-details")
+            this.prop.registerPurchase(res.data.createVendorPurchase._id,
+              this.prop.rowIndex)
+      }
+
       }).catch((err) => {
         console.log('mutation err:',JSON.stringify(err))
         const { graphQLErrors, networkError } = err
@@ -152,13 +287,31 @@ componentDidUpdate(prevProps) {
             this.setState({message: `[Network error]: ${networkError}`})
           }
 
-        this.setState({message: err.errmsg })
+        if (err && err.errmsg) this.setState({message: err.errmsg })
       });;
 
     }
 
   }
 
+  renderOrders(orderList){
+      console.log('=> in renderOrders orderList:',orderList)
+    const {orders} = orderList
+    console.log('=> in renderOrders:',orders)
+    var tmpOrders = typeof orders != 'undefined'? orders:'No orders'
+       return  tmpOrders!='' &&
+              typeof tmpOrders !== 'string'?
+          orders.map(i => {
+          return <ListItem button>
+            <ListItemText primary={i} key={i} />
+            </ListItem>
+
+      }):
+      <ListItem button>
+        <ListItemText primary={tmpOrders} key={tmpOrders} />
+        </ListItem>
+
+  }
   render() {
     console.log('render vendorPurchaseForm props:',this.props)
     console.log('render vendorPurchaseForm state:',this.state)
@@ -166,13 +319,15 @@ componentDidUpdate(prevProps) {
 
     const { po_no,
        title, link, po_qty, total_purchased_qty,
-       price,sale_price,first_payment,total_amount,
-       order_no,delivery_days_to,delivery_days_from,order_date,options,
-       purchased_qty,source,purchase_id, notes,
+       price,sale_price,first_payment,total_amount,options
+       ,source, notes,orders,destination
     } = this.state.poInfo;
 
-     const { message } = this.state
-     console.log("new message:",message)
+     const { purchased_qty,purchase_id,order_notes,order_date,
+          order_no,delivery_days_to,delivery_days_from} = this.state.vendorPurchaseInfo
+      const {message} = this.state
+     console.log("new message:",message, " purchase_id:",purchase_id)
+
     // if (!order_date || order_date == '') {
     //     order_date=moment(new Date()).format('YYYY/MM/DD')
     // }
@@ -244,17 +399,18 @@ componentDidUpdate(prevProps) {
              }}
               margin="dense"
             />
-            <div style={{'overflow-x': 'hidden','overflowY':'scroll', width:'500px',height:'2em'}}>
-            {link}
-            </div>
+            <div className="border"
+              style={{'overflowX': 'hidden',
+              'overflowY':'scroll',
+               width:'500px',height:'4em'}}>
+            {  <a href = { link } target = "_blank" > {link  } </a>}
+            </div> {/* link */}
 
           <TextField
             name="Price"
             type="Number"
             label="Price"
             value={price}
-
-
             margin="dense"
             className={classes.textField}
           />
@@ -268,19 +424,19 @@ componentDidUpdate(prevProps) {
              readOnly: true,
            }}
             margin="dense"
-            className={classes.textField}
+            className="col-1"
           />
           <TextField
             name="first_payment"
             type="Number"
-            label="Initial Payment"
+            label="Init. Paymt"
             value={first_payment}
 
             InputProps={{
              readOnly: true,
            }}
             margin="dense"
-            className="col-2"
+            className="col-1"
           />
           <TextField
             name="total_amount"
@@ -292,10 +448,10 @@ componentDidUpdate(prevProps) {
              readOnly: true,
            }}
             margin="dense"
-            className="col-2"
+            className="col-1"
           />
           </div>
-          <div className="block ml2">
+          <div className="flex flex-wrap block ml2">
           <TextField
             name="poQty"
             type="Number"
@@ -306,119 +462,161 @@ componentDidUpdate(prevProps) {
              readOnly: true,
            }}
             margin="dense"
-            className={classes.textField}
+            className="col-1"
           />
           <TextField
-
             name="total_purchased_qty"
             type="Number"
-            label="Total Purchased Qty"
+            label="T. Pur Qty"
             value={total_purchased_qty}
             InputProps={{
              readOnly: true,
             }}
             margin="dense"
-            className="col-3"
+            className="col-1"
           />
-          </div>
-        </div>
-        <div  className="flex flex-row ml2 p1 col-10">
-
-        <form  onSubmit={this.handleSubmit} autoComplete="off">
-            {/* Material-UI example usage */}
           <TextField
-            name="order_no"
-            required
+            name="destination"
             type="String"
-            label={"Order # ->" + (!purchase_id||purchase_id=="-99"? "New":"Edit")}
-            autoFocus={true}
-            value={order_no}
-            onChange={this.handleChange}
+            label="Destination"
+            value={destination}
+            InputProps={{
+             readOnly: true,
+            }}
             margin="dense"
-            className="col-4"
-          />
-          <TextField
-            name="purchased_qty"
-            required
-            type="Number"
-            label="Purchased Qty"
-            value={purchased_qty}
-            onChange={this.handleChange}
-            margin="dense"
-            className="col-2"
-          />
-          <TextField
-            name="delivery_days_from"
-            required
-            type="Number"
-            label="Days from"
-            value={delivery_days_from}
-            onChange={this.handleChange}
-            margin="dense"
-            className="col-2"
-          />
-          <TextField
-            name="delivery_days_to"
-            required
-            type="Number"
-            label="Days to"
-
-            value={delivery_days_to}
-            onChange={this.handleChange}
-            margin="dense"
-            className="col-2"
+            className="col-1"
           />
 
-          <TextField
-            name="order_date"
-            required
-            type="date"
-            label="Order Date"
-            defaultValue={moment(order_date,"DD/MM/YYYY").format('YYYY-MM-DD')}
-            onChange={this.handleChange}
-            InputLabelProps={{ shrink: true }}
-            helperText="Purchase Date"
-          />
-          <TextField
-            name="source"
 
-            type="String"
-            label="Actual Source"
-            value={source}
-            onChange={this.handleChange}
-            margin="dense"
-            className="col-4"
-          />
           <TextField
             name="notes"
-
             type="String"
-            label="notes"
-
+            label="Notes"
             value={notes}
             onChange={this.handleChange}
             margin="dense"
-            className="col-4"
+            className="col-3 ml2"
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            margin="dense"
-            className="col-3"
-          >
-            purchase
-          </Button>
 
-        </form>
-        <div>
+          <List className="col-3 border ">
+                  {this.renderOrders({orders})}
+          </List>
+          </div>  {/* poQty block*/}
+        </div>
+        <div  className="flex flex-row ml2 p1 col-10">
+        <div className="col1">
+        <Fab size="small" color="primary" aria-label="Add" className={classes.fab}>
+          <AddIcon size="small" onClik={this.addOrder} />
+        </Fab>
+        <Fab size="small" color="secondary" aria-label="Cancel" className={classes.fab}>
+          <CancelIcon size="small" onClick={this.cancelAddOrder} />
+        </Fab>
+        <Fab size="small" disabled aria-label="Delete" className={classes.fab}>
+          <DeleteIcon size="small" onClick={this.deleteOrder} />
+        </Fab>
+        </div>
+
+          <form  className="ml2" onSubmit={this.handleSubmit} autoComplete="off">
+              {/* Material-UI example usage */}
+
+            <TextField
+              name="order_no"
+              required
+              type="String"
+              label={"Order # ->" + (!purchase_id||purchase_id==-99? "New":"Edit")}
+              autoFocus={true}
+              value={order_no}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-4 ml2"
+            />
+            <TextField
+              name="purchased_qty"
+              required
+              type="Number"
+              label="Qty"
+              value={purchased_qty}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-2 ml2"
+            />
+            <TextField
+              name="delivery_days_from"
+              required
+              type="Number"
+              label="Days from"
+              value={delivery_days_from}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-2"
+            />
+            <TextField
+              name="delivery_days_to"
+              required
+              type="Number"
+              label="Days to"
+
+              value={delivery_days_to}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-2 ml2"
+            />
+
+            <TextField
+              name="order_date"
+              required
+              type="date"
+              label="Pur Date"
+              defaultValue={order_date && order_date != ''?
+                  moment(order_date,"DD/MM/YYYY").format('YYYY-MM-DD'):
+                  moment().format('YYYY-MM-DD')}
+              onChange={this.handleChange}
+              InputLabelProps={{ shrink: true }}
+
+              className="col-3 ml2"
+            />
+            <TextField
+              name="order_notes"
+
+              type="String"
+              label="Notes"
+
+              value={order_notes}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-3 ml2"
+            />
+            <TextField
+              name="source"
+              type="String"
+              label="Actual Source"
+              value={source}
+              onChange={this.handleChange}
+              margin="dense"
+              className="col-3 ml2"
+            />
+
+            <Button
+              disabled={!this.state.allowSave}
+              size="medium"
+              type="submit"
+              variant="contained"
+              color="primary"
+              margin="dense"
+              className="col-1 ml2"
+            >   Save
+            </Button>
+
+          </form>
+
+          <div className=" col3">
                   <TextField
                     name="message"
                     error
                     label="message"
-                    value={message}
+                    value={message? message:''}
                     multiline
-                    rowsMax="3"
+                    rowsMax="2"
                     variant="outlined"
                     InputProps={{
                      readOnly: true,
@@ -434,13 +632,17 @@ componentDidUpdate(prevProps) {
                     margin="dense"
 
             />
-          <Button   variant="contained"
-            color="primary"
-            margin="dense" onClick={this.props.closePopup}>Close</Button>
-            </div>
-        </div>
-      </div>
-    </div>
+            <Button size="small"  variant="contained"
+              color="primary"
+              margin="dense" onClick={this.props.closePopup}>
+              Close
+            </Button>
+          </div>
+        </div> {/* close div which includes Fabs, from and message */}
+      </div>  {/* popup_inner */}
+
+    </div>  // close div popup
+
 
 
     );

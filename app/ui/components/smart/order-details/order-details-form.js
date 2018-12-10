@@ -57,7 +57,24 @@ class OrderDetailsForm extends React.Component {
            this.props.onChange({target});
        }
   }
+clearFilter = (evt) => {
+  setState({
+    poNo: '',
+    status:'',
+    orderNo:'',
+    trackingNo:'',
+    awbNo:'',
+    username:'',
+    search: '',
 
+  })
+  const { poNo,status,orderNo,trackingNo,awbNo,username, search } = this.state;
+
+  const orderDetailsSearch = { poNo,status,orderNo,trackingNo,awbNo,username, search };
+   console.log('before onSubmit order-details-form:',orderDetailsSearch)
+   // calling on Submit on order-details-page
+  onSubmit({ orderDetailsSearch });
+}
   handleSubmit = (evt) => {
     evt.preventDefault();
     console.log('=> order-details-form in handleSubmit props',this.props)
@@ -160,6 +177,16 @@ class OrderDetailsForm extends React.Component {
           }}
           helperText="Any field!"
         />
+        <Button
+          type="button"
+          variant="contained"
+          color="primary"
+          margin="dense"
+          className={classes.button}
+          onClick={this.clearFilter}
+        >
+          Clear
+        </Button>
         <Button
           type="submit"
           variant="contained"

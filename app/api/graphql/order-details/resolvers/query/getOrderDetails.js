@@ -465,6 +465,7 @@ const getOrderDetails = async (root, args, context) => {
             delivered_qty:1,
             status:1,
             closed:1,
+
             notes: {
               $cond: {
                 if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$po_purchases.notes", null] }]},
@@ -479,7 +480,8 @@ const getOrderDetails = async (root, args, context) => {
             },
             purchased_qty: "$po_purchases.purchased_qty",
             seller: "$po_purchases.seller",
-            total_purchased_qty: 1
+            total_purchased_qty: 1,
+            order_notes: "$po_purchases.notes"
 
           }
         }
@@ -567,7 +569,10 @@ const getOrderDetails = async (root, args, context) => {
             time_in_transit_from: "$po_tracking.time_in_transit_from",
             time_in_transit_to: "$po_tracking.time_in_transit_to",
             shipped_qty: "$po_tracking.shipped_qty",
-            total_order_shipped_qty:1
+            total_order_shipped_qty:1,
+
+            order_notes: 1,
+            tracking_notes: "$po_tracking.notes"
           }
         }
 
@@ -655,7 +660,9 @@ const getOrderDetails = async (root, args, context) => {
             }
           },
           box_id: "$received_packages.box_id",
-          date_received: "$received_packages.date_received"
+          date_received: "$received_packages.date_received",
+          order_notes: 1,
+          tracking_nodes:1,
 
         }
       }
@@ -747,8 +754,9 @@ const getOrderDetails = async (root, args, context) => {
 
           packing: "$packed_packages.packing",
           //      packed_box_id: "$packed_packages.packing.box_id",
-          final_box_id: "$packed_packages.packing.final_box_id"
-
+          final_box_id: "$packed_packages.packing.final_box_id",
+          order_notes: 1,
+          tracking_notes:1,
         }
       },
       {
@@ -876,7 +884,7 @@ const getOrderDetails = async (root, args, context) => {
       }
   //___END OF aggregate_______
 
-]).limit(70).exec()
+]).limit(200).exec()
     console.log("curOrderDetails.length:",curOrderDetails.length)
    //console.log("curOrderDetails:",JSON.stringify(curOrderDetails))
    // cleanup wrong field values
