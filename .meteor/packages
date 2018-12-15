@@ -25,3 +25,4 @@ accounts-password@1.5.1
 orcprogramming:collection2-core-server   # Server side only wrapper for aldeed:collection2-core
 nemms:meteor-react-loadable
 fongandrew:find-and-modify
+react-meteor-data

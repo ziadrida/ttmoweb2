@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 import { propType } from 'graphql-anywhere';
+//import { withTracker } from 'meteor/react-meteor-data';
 import orderDetailsFragment from '/app/ui/apollo-client/order-details/fragment/order-details';
 import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';
 
@@ -11,11 +12,13 @@ import moment from 'moment'
 import CustomPagination from './custom-pagination'
 import matchSorter from 'match-sorter'
 import {view, stages, detailViews } from './helpers';
-  // Import React Table
-  import ReactTable,{ReactTableDefaults} from "react-table";
 import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purchase/vendor-purchase-form';
+import VendorTrackingFormWithMutation from '/app/ui/components/smart/vendor-tracking/vendor-tracking-form';
 
-
+// Import React Table
+import ReactTable,{ReactTableDefaults} from "react-table";
+import selectTableHOC from 'react-table/lib/hoc/selectTable'
+const SelectTable=selectTableHOC(ReactTable)
 
   const styles = theme => ({
     root: {
@@ -107,14 +110,19 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
 
 
   //************************************************************
-    class OrderDetails extends React.Component {
+  class OrderDetails extends React.Component {
       constructor(props) {
         super(props);
         console.log('=> in OrderDetails component props', this.props)
         this.state = {
+          selection: [],
+          selectRows:[],
+          selectAll: false,
           showPurchase:false,
+          showTracking:false,
           toggleRegreshData: false,
           currentRow: {},
+          currentKey: "",
           rowIndex:-1,
           data: [],
           columns: [],
@@ -133,21 +141,84 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
         this.configColumns = this.configColumns.bind(this);
         this.escFunction = this.escFunction.bind(this);
         this.handlePurchase = this.handlePurchase.bind(this);
+        this.handleTracking = this.handleTracking.bind(this);
+        this.toggleSelection = this.toggleSelection.bind(this);
+        this.getRow = this.getRow.bind(this);
       }
 
+      toggleSelection = (key, shift, row) => {
+        console.log('toggleSelection row',row)
+          console.log('toggleSelection key',key)
+          console.log('toggleSelection shift',shift)
+        // start off with the existing state
+        let selection = [...this.state.selection];
+        const keyIndex = selection.indexOf(key);
+        // check to see if the key exists
+        if (keyIndex >= 0) {
+          // it does exist so we will remove it using destructing
+          selection = [
+            ...selection.slice(0, keyIndex),
+            ...selection.slice(keyIndex + 1)
+          ];
 
-       escFunction(event, sender) {
+        } else {
+          // it does not exist so add it
+          selection.push(key);
+        }
+        // update the state
+        this.setState({ selection });
+      };
+
+      toggleAll = () => {
+        // select filtered rows only
+       const selectAll = this.state.selectAll ? false : true;
+       const selection = [];
+       if (selectAll) {
+         // we need to get at the internals of ReactTable
+         const wrappedInstance = this.selectTable.getWrappedInstance();
+         // the 'sortedData' property contains the currently accessible records based on the filter and sort
+         const currentRecords = wrappedInstance.getResolvedState().sortedData;
+         // we just push all the IDs onto the selection array
+         currentRecords.forEach(item => {
+           console.log('item',item)
+           selection.push(item._original._id);
+         });
+       }
+       this.setState({ selectAll, selection });
+     };
+
+     isSelected = key => {
+
+  return this.state.selection.includes(key);
+};
+    escFunction(event, sender) {
          if (event.keyCode === 27) {
            console.log('sender:', sender)
           console.log("Escape!:",event)
           console.log("Escape oldValue:",this.state.oldVal)
            console.log("Escape newValue:", this.state.newVal)
-         }
        }
+    }
 
-       static getDerivedStateFromProps(props, state) {
-         console.log("orderDetails-Data getDerivedStateFromProps \nprops",props, "\nstate",state)
-       }
+  static getDerivedStateFromProps(props, state) {
+         console.log("orderDetails-Data getDerivedStateFromProps \nprops",props,
+         "\nstate",state)
+         const { orderDetailsData, stage } = props
+         const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
+         if (!loading && !error && state.data != getOrderDetails ) {
+           console.log(">>>RESET DATA")
+           return {
+             data: getOrderDetails,
+             selection:[],
+             selectRows:[],
+             selectAll: false,
+             currentRow: {},
+             currentKey: "",
+             rowIndex:-1,
+           }
+         }
+         return null;
+  }
 
 
        componentDidMount() {
@@ -171,6 +242,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
         id: "oderInfo",
         show:true,
         columns: [
+
           {
             Header: "PO No",
             accessor: "po_no",
@@ -273,20 +345,6 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             },
 
             {
-              Header: "category",
-              accessor: "category",
-              filterMethod: (filter, rows) =>
-                matchSorter(rows, filter.value, {
-                  keys: ["category"]
-                }),
-              filterAll: true,
-              style: {
-                textAlign: 'right'
-              },
-              views:[view.all,view.payment,view.order,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
-              //maxWidth: 200
-            },
-            {
               Header: "Title",
               accessor: "title",
               filterMethod: (filter, rows) =>
@@ -369,6 +427,20 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
             },
             {
+              Header: "category",
+              accessor: "category",
+              filterMethod: (filter, rows) =>
+                matchSorter(rows, filter.value, {
+                  keys: ["category"]
+                }),
+              filterAll: true,
+              style: {
+                textAlign: 'right'
+              },
+              views:[view.all,view.payment,view.order,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              //maxWidth: 200
+            },
+            {
               id: "source",
               Header: "Source",
               accessor: d => d.source,
@@ -388,10 +460,12 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
             },
             {
             Header: "PO Qty",
-            accessor: "po_qty" ,
+            id: "po_qty",
+            accessor:  d => d.po_qty ,
             getProps:  (state, rowInfo) => ({
              style: {
-                 backgroundColor: (rowInfo && rowInfo.row && rowInfo.row.po_qty > 1 ? 'ligthblue' : null)
+                 backgroundColor: (rowInfo && rowInfo.row &&
+                    parseFloat(rowInfo.row.po_qty) > 1 ? 'orange' : null)
              }
             }),
             Cell: ({ value }) => (value >= 9999 ? 0 : value),
@@ -468,7 +542,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               id: 'order_date',
               Header: "Order Date",
 
-              accessor: d => d.order_date? moment(d.order_date, 'DD/MM/YYYY').format('MM/DD/YYYY'):"",
+              accessor: d => d.order_date? moment(d.order_date, 'DD/MM/YYYY').format('DD/MM/YYYY'):null,
             //  Cell: this.renderEditable,
               filterMethod: (filter, rows) =>
                 matchSorter(rows, filter.value, {
@@ -542,11 +616,21 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
               Header: "Tracking No",
               accessor: d => d.tracking_no,
             //  Cell: this.renderEditable,
+            Cell: (row) => (
+                <div >
+
+                 <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
+                    onClick={() => this.handleTracking(row)}>{row.value? row.value:"Track"}
+                </button>
+
+
+                </div>
+              ),
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["tracking_no"] }),
               filterAll: true,
               views:[view.all,view.track,view.arrive,view.pack,view.ship],
-              width:180,
+              width:220,
             },
             {
               id: 'ship_date',
@@ -750,18 +834,48 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
         );
       }
 
+      getRow(key) {
+        console.log('getRow key:',key)
+        // find the row in this.state.data
+        var index = this.state.data.findIndex(x=> x._id === key);
+        const row = this.state.data[index]
+        console.log('getRow: row',row)
+        return row;
+      }
+
+    setRow( poInfo) {
+      const key = poInfo._id;
+      console.log('=> setRow ', key, poInfo)
+      var index = this.state.data.findIndex(x=> x._id === key);
+      if (index === -1)
+        // handle error
+        {  console.log(" cannot find po!")}
+      else {
+        console.log("update data values")
+        this.setState({
+          data: [
+             ...this.state.data.slice(0,index),
+             Object.assign({}, this.state.data[index], poInfo),
+             ...this.state.data.slice(index+1)
+          ]
+        });
+      }
+    }
+
       handlePurchase (rowInfo ) {
-      const {vendorPurchaseUrl, history } = this.props
+      //const { history } = this.props
 
       console.log("handlePurchase rowInfo:", rowInfo)
       if (rowInfo && rowInfo.row) {
       console.log("PO#", rowInfo.row.po_no)
       console.log("row index", rowInfo.index)
-      console.log("vendorPurchaseUrl", vendorPurchaseUrl())
+        console.log("row _id", rowInfo.original._id)
+      //console.log("vendorPurchaseUrl", vendorPurchaseUrl())
       this.setState({
         showPurchase: !this.state.showPurchase,
         currentRow: rowInfo.row,
-        rowIndex: rowInfo.index
+        rowIndex: rowInfo.index,
+        currentKey: rowInfo.row._id
       });
     } else {
       this.setState({
@@ -790,6 +904,29 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
       // });
     }
 
+    handleTracking (rowInfo ) {
+    //const { history } = this.props
+
+    console.log("handleTracking rowInfo:", rowInfo)
+    if (rowInfo && rowInfo.row) {
+    console.log("PO#", rowInfo.row.po_no)
+    console.log("row index", rowInfo.index)
+      console.log("row _id", rowInfo.original._id)
+    //console.log("vendorPurchaseUrl", vendorPurchaseUrl())
+    this.setState({
+      showTracking: !this.state.showTracking,
+      currentRow: rowInfo.row,
+      rowIndex: rowInfo.index,
+      currentKey: rowInfo.row._id
+    });
+  } else {
+    this.setState({
+      showTracking: !this.state.showTracking,
+    });
+  }
+
+  }
+
 
     registerPurchase (purchase_id,rowIndex) {
       console.log("=> in registerPurchase props\n",this.props)
@@ -797,11 +934,23 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
           purchase_id, " rowIndex:",rowIndex )
           // newData = this.state.data
           // newData[rowIndex].purchase_id = purchase_id
-          this.setState({toggleRegreshData: !this.state.toggleRegreshData})
+          this.setState({toggleRegreshData: !this.state.toggleRegreshData,
+          data: []})
 
     }
 
-      handleRowChange = row => event => {
+    registerTracking (ship_id,rowIndex) {
+      console.log("=> in registerTracking props\n",this.props)
+          console.log("=> in registerTracking ship_id:",
+          ship_id, " rowIndex:",rowIndex )
+          // newData = this.state.data
+          // newData[rowIndex].purchase_id = purchase_id
+          this.setState({toggleRegreshData: !this.state.toggleRegreshData,
+          data: []})
+
+    }
+
+    handleRowChange = row => event => {
         if (event.target.value !== 0) {
           this.setState({
             row: event.target.value,
@@ -809,7 +958,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
           });
           //console.log(this.state.data);
         }
-      };
+    };
 
 
   handleRowClick() {
@@ -818,6 +967,7 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
 
     //console.log(parseInt(rowSize)); console.log(typeof rowSize);
   }
+
   changeFilter() {
     this.setState({
       filter: !this.state.filter,
@@ -865,14 +1015,14 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
           if (item && item.columns) {
             item.show = false; // hide main header (will show if any of its columns is needed at least once)
             item.columns.forEach(col => {
-              console.log('show view ', views1[index].view, ' for column:',col.Header, " which views:", col.views)
+            //  console.log('show view ', views1[index].view, ' for column:',col.Header, " which views:", col.views)
               if ( col.views.includes(views1[index].view)) {
-                console.log('show ',col) ;
+                //console.log('show ',col) ;
                 item.show = true; // show main header (needed once)
                 col.show = true;
               }
               else {
-                console.log('hide ',col) ;
+                //console.log('hide ',col) ;
                col.show = false};
             });
           }
@@ -913,17 +1063,12 @@ import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purc
      //    }
 
   }
-  // static getDerivedStateFromProps(props,state) {
-  //   console.log("order-details getDerivedStateFromProps \nprops\n:",props,
-  //       "\nstate:\n",state)
-  //   if(props.stage != this.state.stage) {
-  //      const {stage } = props
-  //      console.log('set new stage state')
-  //     this.setState({stage: stage});
-  //   }
-  // }
+
 // render component
 render() {
+  const { toggleSelection, toggleAll, isSelected } = this;
+  const {  selectAll } = this.state;
+
     const { orderDetailsData, classes, stage, ...otherProps } = this.props
 
   //  this.state.stage = stage;
@@ -934,9 +1079,7 @@ render() {
 
     console.log('getOrderDetails:\n',getOrderDetails)
 
-
     console.log('variables:',variables)
-
 
   if (loading) {
     return <Loading />;
@@ -962,11 +1105,30 @@ render() {
 
 //toggleViewChooser( stages[stages.indexOf(stages.find(i=> (i.name== stage) ))].view[0])
 
+    const checkboxProps = {
+      selectAll,
+      isSelected,
+      toggleSelection,
+      toggleAll,
+      selectType: "checkbox",
+      getTrProps: (s, r) => {
+        // someone asked for an example of a background color change
+        // here it is...
+        const selected = r && this.isSelected(r.original._id);
+        return {
+          style: {
+            backgroundColor: selected ? "lightgreen" : "inherit"
+            // color: selected ? 'white' : 'inherit',
+          }
+        };
+      }
+    };
 
   return (
         <div className="data">
-          <ReactTable { ...otherProps}
-            data={getOrderDetails}
+          <SelectTable { ...otherProps}
+           ref={(r) => this.selectTable = r}
+            data={this.state.data}
             column={columnDefaults}
             columns={this.state.columns}
             views={this.state.views}
@@ -1007,6 +1169,8 @@ render() {
           }
         }
           className="-striped -highlight"
+          {...checkboxProps}
+
           // getTdProps={(state, rowInfo, column, instance) => {
           //   return {
           //
@@ -1039,34 +1203,37 @@ render() {
           <VendorPurchaseFormWithMutation
              closePopup={this.handlePurchase}
              registerPurchase={this.registerPurchase}
-             poInfo={getOrderDetails[this.state.rowIndex]}
+             poInfo={this.state.data[this.state.rowIndex]}
+             selection={this.state.selection}
              rowIndex={this.state.rowIndex}
-          //     po_no: rowInfo.row.po_no,
-          //     title: rowInfo.row.title,
-          //     link: rowInfo.row.link.props.href,
-          //     options: rowInfo.row.options,
-          //     po_qty: rowInfo.row.po_qty,
-          //     total_purchased_qty: rowInfo.row.total_purchased_qty,
-          //     price: rowInfo.row.price,
-          //     sale_price: rowInfo.row.sale_price,
-          //     first_payment: rowInfo.row.first_payment,
-          //     destination: rowInfo.row.destination,
-          //     username: rowInfo.row.username,
-          //     total_amount: rowInfo.row.total_amount,
+             currentKey={this.state.currentKey}
+             getRow={this.getRow}
+             setRow={this.setRow}
 
          />
          : null
         }
+        {this.state.showTracking ?
+        <VendorTrackingFormWithMutation
+           closePopup={this.handleTracking}
+           registerPurchase={this.registerTracking}
+           poInfo={this.state.data[this.state.rowIndex]}
+           selection={this.state.selection}
+           rowIndex={this.state.rowIndex}
+           currentKey={this.state.currentKey}
+           getRow={this.getRow}
+           setRow={this.setRow}
+       />
+       : null
+      }
         </div>
       );
   }
   };
 
-
-
 OrderDetails.propTypes = {
 //    classes: PropTypes.object.isRequired,
-  vendorPurchaseUrl:PropTypes.func.isRequired,
+  //vendorPurchaseUrl:PropTypes.func.isRequired,
   orderDetailsData: PropTypes.shape({
     error: PropTypes.object,
     loading: PropTypes.bool.isRequired,
@@ -1106,3 +1273,10 @@ const withData = graphql(orderDetailsQuery, {
 });
 //export default withData(withStyles(styles)(OrderDetails));
 export default withData(OrderDetails);
+
+//export default withTracker(withData(OrderDetails));
+// const OrderDetailsData = compose(
+//   connect(...), // some Redux
+//   graphql(...), // some GraphQL
+//   withTracker(...), // some Tracker data
+// )(Foo);

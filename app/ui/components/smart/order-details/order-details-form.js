@@ -177,6 +177,7 @@ clearFilter = (evt) => {
           }}
           helperText="Any field!"
         />
+        {/*
         <Button
           type="button"
           variant="contained"
@@ -187,6 +188,7 @@ clearFilter = (evt) => {
         >
           Clear
         </Button>
+        */ }
         <Button
           type="submit"
           variant="contained"

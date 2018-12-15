@@ -25,6 +25,9 @@ const schema = mongoose.Schema({
 })
 
 const VendorPurchase = mongoose.model('vendor_purchases', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('NEW VendorPurchase collection:',VendorPurchase)
 if (!VendorPurchase) console.log("purchaseOrder.js VendorPurchase is null!")
 

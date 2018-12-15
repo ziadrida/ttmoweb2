@@ -33,7 +33,7 @@ const Routes = ({
   adminUrl,
   quotationsUrl,
   orderDetailsUrl,
-  vendorPurchaseUrl,
+  //vendorPurchaseUrl,
   ...otherProps
 }) => (
   <ScrollToTop>
@@ -116,7 +116,6 @@ const Routes = ({
         path={orderDetailsUrl()}
         component={OrderDetailsPage}
         redirectTo={homeUrl()}
-        vendorPurchaseUrl={vendorPurchaseUrl}
         {...otherProps}
       />
         {/*

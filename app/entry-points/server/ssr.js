@@ -7,6 +7,9 @@ import { Meteor } from 'meteor/meteor';
 import { onPageLoad } from 'meteor/server-render';
 import { ApolloClient } from 'apollo-client';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
+import { MuiPickersUtilsProvider } from 'material-ui-pickers';
+//import DateFnsUtils from '@date-io/date-fns';
+import MomentUtils from '@date-io/moment';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
 import { StaticRouter, Route } from 'react-router-dom';
@@ -65,14 +68,20 @@ const render = async (sink) => {
 
   const ServerApp = ({ component, context }) => (
     <MeteorLoadable.Capture>
+
       <StaticRouter location={sink.request.url} context={context}>
+
         <ApolloProvider client={ssrClient}>
+           <MuiPickersUtilsProvider utils={MomentUtils}>
           <Route
             path={`/${prefix}`}
             render={props => <App component={component} {...props} locale={locale} section="app" />}
           />
+          </MuiPickersUtilsProvider>
         </ApolloProvider>
+
       </StaticRouter>
+
     </MeteorLoadable.Capture>
   );
 

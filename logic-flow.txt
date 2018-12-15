@@ -46,3 +46,23 @@ class PasswordAuthViews extends React.Component
 
   color: ${props => {console.log('props:',props); (props.path ==  "/ar/" && props.linklang=='ar')? "red" : "white"}};
   color: ${props => (props.path ==  "/en/" && props.linklang=='en')? "red" : "white"};
+
+
+---------------
+DB Stuff
+{
+  "po_no": 1,
+  "order_no": 1,
+  "tracking_no": 1
+}
+
+    db.vendor_order_tracking.aggregate(
+    { $group: {
+        _id: { "po_no": "$po_no", "order_no": "$order_no", "tracking_no": "$tracking_no"},
+        count: { $sum:  1 },
+        docs: { $push: "$_id" }
+    }},
+    { $match: {
+        count: { $gt : 1 }
+    }}
+)

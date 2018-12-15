@@ -261,3 +261,7 @@ header {
   background: #FFFFF8 /* #FDFDF0; White Orchid  #FFB90F darkgoldenrod1  */
 
 }
+.pickers {
+  display: flex;
+  justify-content: space-around;
+}

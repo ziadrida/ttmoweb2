@@ -439,6 +439,7 @@ const getOrderDetails = async (root, args, context) => {
             phone_no:1,
             email:1,
             sales_person:1,
+            vendor_purchase_last_updated:  "$po_purchases.last_updated",
             last_updated: {
               $cond: {
                 if: {
@@ -542,6 +543,8 @@ const getOrderDetails = async (root, args, context) => {
             total_purchased_qty: 1,
             customer_delivery_date:1,
             delivered_qty:1,
+            vendor_purchase_last_updated:1,
+            po_tracking_last_updated: "$po_tracking.last_updated",
             last_updated: {
               $cond: {
                 if: {
@@ -637,6 +640,9 @@ const getOrderDetails = async (root, args, context) => {
           ship_date: 1,
           time_in_transit_from: 1,
           time_in_transit_to: 1,
+          vendor_purchase_last_updated:1,
+          po_tracking_last_updated: 1,
+          received_packages_last_updated: "$received_packages.last_updated",
           last_updated: {
             $cond: {
               if: {
@@ -728,6 +734,9 @@ const getOrderDetails = async (root, args, context) => {
           time_in_transit_to: 1,
           box_id: 1,
           date_received: 1,
+          vendor_purchase_last_updated:1,
+          po_tracking_last_updated: 1,
+          received_packages_last_updated: 1,
           last_updated: {
             $cond: {
               if: {
@@ -842,6 +851,9 @@ const getOrderDetails = async (root, args, context) => {
           date_received: 1,
           ship_id: 1,
           packing: 1,
+          vendor_purchase_last_updated:1,
+          po_tracking_last_updated: 1,
+          received_packages_last_updated: 1,
           last_updated: {
           $cond: {
               if: {
