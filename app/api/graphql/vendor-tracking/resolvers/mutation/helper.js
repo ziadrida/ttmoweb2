@@ -5,13 +5,25 @@ import {getNextSequenceValue} from '/app/api/graphql/utils'
 
 
 import moment from 'moment';
-
+const debugOn = true;
+const errorOn = true;
 
 updateOrInsert =  async function(order,senderID)  {
-  var debugOn = true;
-  var errorOn = true;
+
   if (debugOn) console.log(">>>>>>>>>>>>> in VendorTracking->updateOrInsert  ")
   var resp = {};
+
+  trackResp = await findOrCreatePackageTracking(order,senderID);
+   if (trackResp && trackResp.value ) {
+     console.log("Found tracking record for ", order.tracking_no)
+        if (debugOn) console.log("time_in_transit_from:", trackResp.value.time_in_transit_from)
+        if (debugOn) console.log("time_in_transit_to:", trackResp.value.time_in_transit_to)
+
+          order.time_in_transit_from =  trackResp.value.time_in_transit_from? trackResp.value.time_in_transit_from:undefined
+          order.time_in_transit_to =  trackResp.value.time_in_transit_to? trackResp.value.time_in_transit_to:undefined
+    }
+
+
   order.last_updated = moment().toDate();
   order.updated_by = senderID? senderID: 'admin'
   updateFlds = removeEmpty(order)
@@ -44,64 +56,30 @@ try {
     if (resp ) {
      if (debugOn) console.log("VendorTracking updated existing record");
        resp.message = "vendor_order_tracking updated.  order:"+
-        JSON.stringify(resp.value,null,2)
+        JSON.stringify(resp,null,2)
       return resp;
    } else {
         if (debugOn) console.log("VendorTracking doscs NOT found.")
       //add new order
-       nextVal = await getNextSequenceValue('vendor_shipment');
+      nextVal = await getNextSequenceValue('vendor_shipment');
 
-           var newDoc = order;
-           newDoc._id = nextVal;
+      var newDoc = order;
+      newDoc._id = nextVal;
 
-        newDoc.date_created =  moment().toDate()
+      newDoc.date_created =  moment().toDate()
       newDoc.created_by = senderID? senderID: 'admin'
       newDoc.last_updated = moment().toDate()
       newDoc.updated_by = senderID? senderID: 'admin'
       //newDoc.closed = false
       //newDoc.status = order.status? order.status:"NEW"
-      var packageObj =
-      { //_id: order.tracking_no,
-        last_updated: moment().format("DD/MM/YYYY"),
-        updated_by: senderID? senderID: 'admin',
-        carrier: order.carrier?order.carrier:undefined,
-        ship_date: order.ship_date? order.ship_date:undefined,
-        time_in_transit_from: order.time_in_transit_from? order.time_in_transit_from:undefined,
-        time_in_transit_to: order.time_in_transit_to? order.time_in_transit_to:undefined
-      }
-
-      updateFlds = removeEmpty(packageObj)
-      updateStr = { $set: updateFlds }
-      trackResp = await PackageTracking.findOneAndUpdate(
-            { _id: order.tracking_no},
-            {
-              $setOnInsert: { // only on insert
-                date_created: moment().toDate(),
-                created_by: senderID? senderID: 'admin'
-              },
-                $set: { // insert and update
-                  last_updated: moment().toDate(),
-                  updated_by: senderID? senderID: 'admin',
-                  carrier: order.carrier?order.carrier:undefined,
-                  ship_date: order.ship_date? order.ship_date:undefined,
-                  time_in_transit_from: order.time_in_transit_from? order.time_in_transit_from:undefined,
-                  time_in_transit_to: order.time_in_transit_to? order.time_in_transit_to:undefined
-                }
-            },
-            {
-              returnOriginal: false,
-              new: true,
-              upsert: true
-          });
-
-       if (debugOn) console.log(" ************** After update with upsert true package-tracking");
-       if (trackResp && trackResp.value ) {
-            if (debugOn) console.log("time_in_transit_from:", trackResp.value.time_in_transit_from)
-            if (debugOn) console.log("time_in_transit_to:", trackResp.value.time_in_transit_to)
-
-              newDoc.time_in_transit_from =  trackResp.value.time_in_transit_from? trackResp.value.time_in_transit_from:undefined
-              newDoc.time_in_transit_to =  trackResp.value.time_in_transit_to? trackResp.value.time_in_transit_to:undefined
-        }
+      // trackResp = await findOrCreatePackageTracking(order,senderID);
+      //  if (trackResp && trackResp.value ) {
+      //       if (debugOn) console.log("time_in_transit_from:", trackResp.value.time_in_transit_from)
+      //       if (debugOn) console.log("time_in_transit_to:", trackResp.value.time_in_transit_to)
+      //
+      //         newDoc.time_in_transit_from =  trackResp.value.time_in_transit_from? trackResp.value.time_in_transit_from:undefined
+      //         newDoc.time_in_transit_to =  trackResp.value.time_in_transit_to? trackResp.value.time_in_transit_to:undefined
+      //   }
         newDoc =removeEmpty(newDoc)
          resp = {}
           try {
@@ -119,5 +97,47 @@ try {
           resp.message = "new vendor_order_tracking  created. \n" + JSON.stringify(newDoc,null,2);
           return resp;
       }
+  }
+
+  async function findOrCreatePackageTracking(order,senderID) {
+    var packageObj =
+    { //_id: order.tracking_no,
+      last_updated: moment().format("DD/MM/YYYY"),
+      updated_by: senderID? senderID: 'admin',
+      carrier: order.carrier?order.carrier:undefined,
+      ship_date: order.ship_date? order.ship_date:undefined,
+      time_in_transit_from: order.time_in_transit_from? order.time_in_transit_from:undefined,
+      time_in_transit_to: order.time_in_transit_to? order.time_in_transit_to:undefined
+    }
+
+    updateFlds = removeEmpty(packageObj)
+    updateStr = { $set: updateFlds }
+    var resp = await PackageTracking.findOneAndUpdate(
+          { _id: order.tracking_no},
+          {
+            $setOnInsert: { // only on insert
+              date_created: moment().toDate(),
+              created_by: senderID? senderID: 'admin'
+            },
+              $set: { // insert and update
+                last_updated: moment().toDate(),
+                updated_by: senderID? senderID: 'admin',
+                carrier: order.carrier?order.carrier:undefined,
+                ship_date: order.ship_date? order.ship_date:undefined,
+                time_in_transit_from: order.time_in_transit_from? order.time_in_transit_from:undefined,
+                time_in_transit_to: order.time_in_transit_to? order.time_in_transit_to:undefined,
+                notes:order.notes? order.notes:undefined,
+              }
+          },
+          {
+            returnOriginal: false,
+            new: true,
+            upsert: true
+        });
+
+     if (debugOn) console.log(" ************** After update with upsert true package-tracking resp:",
+     JSON.stringify(resp,null,2)
+   );
+     return resp;
   }
   export default updateOrInsert;

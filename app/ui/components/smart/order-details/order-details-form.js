@@ -53,9 +53,9 @@ class OrderDetailsForm extends React.Component {
     //let order-detail-page set the state so when page filter is
     // used the form values are correct
     // this means we actually don't need to pass form values onSubmit (but we do!)
-    if (typeof this.props.onChange === 'function') {
-           this.props.onChange({target});
-       }
+    // if (typeof this.props.onChange === 'function') {
+    //        this.props.onChange({target});
+    //    }
   }
 clearFilter = (evt) => {
   setState({
@@ -88,6 +88,7 @@ clearFilter = (evt) => {
      console.log('before onSubmit order-details-form:',orderDetailsSearch)
      // calling on Submit on order-details-page
     onSubmit({ orderDetailsSearch });
+
   }
 
   render() {

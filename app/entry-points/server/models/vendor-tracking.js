@@ -17,13 +17,14 @@ const schema = mongoose.Schema({
   last_updated: Date,
   updated_by: String,
 
-})
+},{ collection: 'vendor_order_tracking' })
 
 const VendorTracking = mongoose.model('vendor_order_tracking', schema);
 schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
   return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
 };
-console.log('NEW VendorTracking collection:',VendorTracking)
+
+console.log('NEW VendorTracking collection:',VendorTracking);
 if (!VendorTracking) console.log("vendorTracking.js VendorTracking is null!")
 
 export default VendorTracking;

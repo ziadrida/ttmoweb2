@@ -1,6 +1,6 @@
 import VendorTracking from '/app/entry-points/server/models/vendor-tracking';
 import PurchaseOrder from '/app/entry-points/server/models/purchase-order';
-import PackageTracking from '/app/entry-points/server/models/package-tracking';
+
 import VendorPurchase from '/app/entry-points/server/models/vendor-purchase';
 
 import moment from 'moment';
@@ -17,7 +17,11 @@ const errorOn = true;
   // update or insert a new VendorTracking *ship
 
   async function createVendorTracking(root, args, context) {
+
     var order = args.input
+    order.order_no = order.order_no.trim()
+    order.tracking_no = order.tracking_no.trim()
+
     if (debugOn) console.log("=>in VendorTracking - update or insert a new VendorTracking:",
         JSON.stringify(order));
 
@@ -76,13 +80,10 @@ const errorOn = true;
 
             }
 
-
       }
       console.log("RETURN RESULT:",result)
       return result;
     }
-
-
 
     }
 

@@ -10,42 +10,25 @@ const getVendorTracking = async (root, args, context) => {
   // }
   var queryStr = {}
   if (args.search) {
+    // NOT USED
     queryStr = {
       "$or": [{
           "_id": {
-            "$regex": args.search,
+            "$regex": args.tracking_no,
             "$options": "i"
           }
-        },{
-          "order_no": {
-            "$regex": args.search,
-            "$options": "i"
-          }
-        },{
-          "tracking_no": {
-            "$regex": args.search,
-            "$options": "i"
-          }
-        },
-        {
-            "box_id": {
-              "$regex": args.search,
-              "$options": "i"
-            }
-          },
-
-
+        }
       ]
     }
   } else {
     queryStr = {
-      _id: args.po_no
+      _id: args.tracking_no
     }
   }
   // Query current logged in trackingOrder
   try {
     console.log('vendorTracking queryStr:',queryStr)
-    const result = await VendorTracking.findOne(queryStr).sort({"-id":-1}).limit(1).exec();
+    const result = await VendorTracking.findOne(queryStr).exec();
     console.log("result.length:",result.length)
    //console.log("result:",JSON.stringify(result))
     return result;

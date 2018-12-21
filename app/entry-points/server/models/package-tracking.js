@@ -14,10 +14,10 @@ const schema = mongoose.Schema({
   last_updated: Date,
   updated_by: String,
 
-})
+},{ collection: 'package_tracking' })
 
 const PackageTracking = mongoose.model('package_tracking', schema);
-console.log('NEW PackageTracking collection:',PackageTracking)
+console.log('NEW PackageTracking collection:',PackageTracking);
 if (!PackageTracking) console.log("vendorTracking.js PackageTracking is null!")
 
 export default PackageTracking;

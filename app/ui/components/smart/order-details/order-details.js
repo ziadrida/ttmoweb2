@@ -113,14 +113,14 @@ const SelectTable=selectTableHOC(ReactTable)
   class OrderDetails extends React.Component {
       constructor(props) {
         super(props);
-        console.log('=> in OrderDetails component props', this.props)
+        console.log('=> in OrderDetails constructor component props', this.props)
         this.state = {
           selection: [],
           selectRows:[],
           selectAll: false,
           showPurchase:false,
           showTracking:false,
-          toggleRegreshData: false,
+          refreshData: false,
           currentRow: {},
           currentKey: "",
           rowIndex:-1,
@@ -144,6 +144,7 @@ const SelectTable=selectTableHOC(ReactTable)
         this.handleTracking = this.handleTracking.bind(this);
         this.toggleSelection = this.toggleSelection.bind(this);
         this.getRow = this.getRow.bind(this);
+        this.orderNoColumn = this.orderNoColumn.bind(this);
       }
 
       toggleSelection = (key, shift, row) => {
@@ -205,16 +206,28 @@ const SelectTable=selectTableHOC(ReactTable)
          "\nstate",state)
          const { orderDetailsData, stage } = props
          const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
-         if (!loading && !error && state.data != getOrderDetails ) {
-           console.log(">>>RESET DATA")
+         if (state.refreshData) {
+           console.log("reset data and query again")
            return {
-             data: getOrderDetails,
+             data: [],
              selection:[],
              selectRows:[],
              selectAll: false,
              currentRow: {},
              currentKey: "",
              rowIndex:-1,
+             refreshData: false,
+           }
+         } else   if (!loading && !error && state.data != getOrderDetails ) {
+           console.log(">>>RESET DATA")
+           return {
+             data: getOrderDetails,
+             // selection:[],
+             // selectRows:[],
+             // selectAll: false,
+             // currentRow: {},
+             // currentKey: "",
+             // rowIndex:-1,
            }
          }
          return null;
@@ -237,6 +250,30 @@ const SelectTable=selectTableHOC(ReactTable)
          document.removeEventListener("keydown", this.escFunction, false);
        }
 
+       orderNoColumn = () => {
+         return       ({
+                 id: "order_no",
+                 Header: "Order No",
+                 accessor: d => d.order_no,
+               //  Cell: this.renderEditable,
+               Cell: (row) => (
+                   <div >
+
+                    <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
+                       onClick={() => this.handlePurchase(row)}>{row.value? row.value:"Purchase"}
+                   </button>
+
+
+                   </div>
+                 ),
+                 filterMethod: (filter, rows) =>
+                             matchSorter(rows, filter.value, { keys: ["order_no"] }),
+                 filterAll: true,
+                 views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
+                 width:200,
+               })
+       }
+
       configColumns = () => { return  [{
         Header: "Order Information",
         id: "oderInfo",
@@ -254,6 +291,49 @@ const SelectTable=selectTableHOC(ReactTable)
             maxWidth: 120,
             views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
+          },
+          {
+            id: "order_no",
+            Header: "Order No",
+            accessor: d => d.order_no,
+          //  Cell: this.renderEditable,
+          Cell: (row) => (
+              <div >
+
+               <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
+                  onClick={() => this.handlePurchase(row)}>{row.value? row.value:"Purchase"}
+              </button>
+
+
+              </div>
+            ),
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["order_no"] }),
+            filterAll: true,
+            views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
+            width:200,
+          },
+
+          {
+            id: "tracking_no",
+            Header: "Tracking No",
+            accessor: d => d.tracking_no,
+          //  Cell: this.renderEditable,
+          Cell: (row) => (
+              <div >
+
+               <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
+                  onClick={() => this.handleTracking(row)}>{row.value? row.value:"Track"}
+              </button>
+
+
+              </div>
+            ),
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["tracking_no"] }),
+            filterAll: true,
+            views:[view.all,view.track,view.arrive,view.pack,view.ship],
+            width:220,
           },
           {
             id: 'po_date',
@@ -277,24 +357,6 @@ const SelectTable=selectTableHOC(ReactTable)
             filterAll: true,
             views:[view.all,view.payment,view.deliver,view.close],
           },
-          {
-
-            Header: "Closed",
-            accessor: "closed",
-            filterMethod: (filter, rows) =>
-                        matchSorter(rows, filter.value, { keys: ["closed"] }),
-            filterAll: true,
-            views:[view.all,view.payment,view.close],
-          },
-          {
-            id: 'username',
-            Header: "Username",
-            accessor: d => d.username,
-            filterMethod: (filter, rows) =>
-                        matchSorter(rows, filter.value, { keys: ["username"] }),
-            filterAll: true,
-            views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
-          },
 
         ]
         },
@@ -304,13 +366,22 @@ const SelectTable=selectTableHOC(ReactTable)
             id: "custInfo",
               show:true,
             columns: [
-            {
-              Header: "Address",
-              accessor: "address",
-              filterMethod: (filter, rows) =>
+              {
+                id: 'username',
+                Header: "Username",
+                accessor: d => d.username,
+                filterMethod: (filter, rows) =>
+                            matchSorter(rows, filter.value, { keys: ["username"] }),
+                filterAll: true,
+                views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
+              },
+              {
+                Header: "Address",
+                accessor: "address",
+                filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["address"] }),
-              filterAll: true,
-              views:[view.all,view.payment,view.order,view.deliver,view.close],
+                filterAll: true,
+                views:[view.all,view.payment,view.order,view.deliver,view.close],
             },
             {
               Header: "Phone",
@@ -510,6 +581,13 @@ const SelectTable=selectTableHOC(ReactTable)
                 style: {
                   textAlign: 'right'
                 },
+                getProps:  (state, rowInfo) => ({
+                 style: {
+                     backgroundColor: (rowInfo && rowInfo.row &&
+                        parseFloat(rowInfo.row.total_purchased_qty)<
+                        parseFloat(rowInfo.row.po_qty) ? 'orange' : 'lightgreen')
+                 }
+                }),
                 //width: 35,
                 views:[view.all,view.payment,view.purchase,view.track],
 
@@ -555,12 +633,18 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Order Qty",
-
               accessor: "purchased_qty",
             //  Cell: this.renderEditable,
               filterMethod: (filter, rows) =>
                         row[filter.id] >= filter.value,
               filterAll: true,
+              getProps:  (state, rowInfo) => ({
+               style: {
+                   backgroundColor: (rowInfo && rowInfo.row &&
+                      parseFloat(rowInfo.row.total_purchased_qty)<
+                      parseFloat(rowInfo.row.po_qty) ? 'orange' : 'lightgreen')
+               }
+              }),
               style: {
                 textAlign: 'right'
               },
@@ -658,11 +742,19 @@ const SelectTable=selectTableHOC(ReactTable)
 
             },
             {
-              Header: "T Ship Qty",
-              accessor: "total_order_shipped_qty",
+              Header: "O.Ship Qty",
+              id: "total_order_shipped_qty",
+              accessor: d => d.total_order_shipped_qty ,
               filterMethod: (filter, rows) =>
                         row[filter.id] >= filter.value,
               filterAll: true,
+              getProps:  (state, rowInfo) => ({
+               style: {
+                   backgroundColor: (rowInfo && rowInfo.row &&
+                      parseFloat(rowInfo.row.total_order_shipped_qty)<
+                      parseFloat(rowInfo.row.purchased_qty) ? 'orange' : 'lightgreen')
+               }
+              }),
               style: {
                 textAlign: 'right'
               },
@@ -794,7 +886,18 @@ const SelectTable=selectTableHOC(ReactTable)
               filterAll: true,
             //  width: 80,
               views:[view.all,view.ship,view.deliver,view.close],
+              },
+            {
+
+              Header: "Closed",
+              accessor: "closed",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["closed"] }),
+              filterAll: true,
+              views:[view.all,view.payment,view.close],
             },
+
+
           ]
         },
       ] }
@@ -844,6 +947,7 @@ const SelectTable=selectTableHOC(ReactTable)
       }
 
     setRow( poInfo) {
+      /*
       const key = poInfo._id;
       console.log('=> setRow ', key, poInfo)
       var index = this.state.data.findIndex(x=> x._id === key);
@@ -860,6 +964,7 @@ const SelectTable=selectTableHOC(ReactTable)
           ]
         });
       }
+      */
     }
 
       handlePurchase (rowInfo ) {
@@ -932,21 +1037,31 @@ const SelectTable=selectTableHOC(ReactTable)
       console.log("=> in registerPurchase props\n",this.props)
           console.log("=> in registerPurchase purchase_id:",
           purchase_id, " rowIndex:",rowIndex )
+          console.log("call refetch")
+          this.props.orderDetailsData.refetch()
           // newData = this.state.data
           // newData[rowIndex].purchase_id = purchase_id
-          this.setState({toggleRegreshData: !this.state.toggleRegreshData,
-          data: []})
+          // this.setState({refreshData: !this.state.refreshData,
+          // data: []})
 
     }
 
     registerTracking (ship_id,rowIndex) {
       console.log("=> in registerTracking props\n",this.props)
+      console.log("=> in registerTracking state\n",this.state)
           console.log("=> in registerTracking ship_id:",
           ship_id, " rowIndex:",rowIndex )
+          //
+          // if (this.props&& this.props.orderDetailsData && this.props.orderDetailsData.refetch)  {
+          //     console.log("call refetch")
+          //   this.props.orderDetailsData.refetch()
+          // }
           // newData = this.state.data
           // newData[rowIndex].purchase_id = purchase_id
-          this.setState({toggleRegreshData: !this.state.toggleRegreshData,
-          data: []})
+          // this.setState({refreshData: !this.state.refreshData,
+          // data: []})
+          this.setState({refreshData: true,
+            data: []})
 
     }
 
@@ -974,18 +1089,34 @@ const SelectTable=selectTableHOC(ReactTable)
     })
   }
 
-    toggleColumnChooser = (index) => {
+    toggleColumnChooser = (index,chooserColumns) => {
     //   console.log('=> columnChooser:',index)
+    console.log("toggleColumnChooser: index",index)
+  //  console.log("toggleColumnChooser: checked",checked)
+    console.log(" toggleColumnChooserchooserColumns:",chooserColumns)
       this.setState(
         prevState => {
           const columns1 = [];
           columns1.push(...this.state.columns);
           console.log(columns1);
-          columns1[index].show = !columns1[index].show;
-          if (columns1[index].columns) {
-            columns1[index].columns.forEach(item => {
-              item.show = !item.show
+          // hide all columns first_payment
+          columns1.forEach(h=> {
+            //  h.show=false;
+            h.columns.forEach(c=> {
+              c.show=false
             })
+          })
+          chooserColumns[index].show = !chooserColumns[index].show;
+          for (var i=1; i< chooserColumns.length;i++) {
+
+           columns1[i-1].show = chooserColumns[i].show;
+           if (columns1[i-1].columns) {
+            // set all columns under this header
+            columns1[i-1].columns.forEach(item => {
+              // do not hide columns due to overlaps (we already hid all columns)
+              if (chooserColumns[i].show)   item.show = true; // only set to true
+            })
+           }
           }
 
           return {
@@ -1039,10 +1170,10 @@ const SelectTable=selectTableHOC(ReactTable)
 
   componentDidUpdate(prevProps) {
     console.log("order-details componentDidUpdate \nprevProps\n:",prevProps)
+      console.log("order-details componentDidUpdate \state\n:",this.state)
     console.log('state stage:',this.state.stage)
     // Typical usage (don't forget to compare props):
-    if (this.state.stage !== prevProps.stage || this.state.stage ==''
-      ) {
+    if (this.state.stage !== prevProps.stage || this.state.stage =='' ) {
       const {stage} = prevProps
       console.log('set stage:',stage)
       this.setState({
@@ -1077,10 +1208,11 @@ render() {
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
 
-    console.log('getOrderDetails:\n',getOrderDetails)
+    console.log('in render getOrderDetails:\n',getOrderDetails)
 
     console.log('variables:',variables)
-
+    console.log('order-details props:',this.props)
+      console.log('order-details state:',this.state)
   if (loading) {
     return <Loading />;
   }
@@ -1209,6 +1341,7 @@ render() {
              currentKey={this.state.currentKey}
              getRow={this.getRow}
              setRow={this.setRow}
+             variables={variables}
 
          />
          : null
@@ -1216,13 +1349,14 @@ render() {
         {this.state.showTracking ?
         <VendorTrackingFormWithMutation
            closePopup={this.handleTracking}
-           registerPurchase={this.registerTracking}
+           registerTracking={this.registerTracking}
            poInfo={this.state.data[this.state.rowIndex]}
            selection={this.state.selection}
            rowIndex={this.state.rowIndex}
            currentKey={this.state.currentKey}
            getRow={this.getRow}
            setRow={this.setRow}
+           variables={variables}
        />
        : null
       }
@@ -1255,10 +1389,12 @@ OrderDetails.defaultProps = {
 };
 
 
-const withData = graphql(orderDetailsQuery, {
+const withData = graphql(orderDetailsQuery,
+  {
   name: 'orderDetailsData',
   // options are props passed from order-details-page
   options: ({ orderDetailsSearch,stage }) => ({
+     fetchPolicy: 'cache-and-network',
     variables: {
       poNo: (orderDetailsSearch && orderDetailsSearch.poNo),
       status: (orderDetailsSearch && orderDetailsSearch.status),
@@ -1270,7 +1406,7 @@ const withData = graphql(orderDetailsQuery, {
       stage: (stage && stage != ''? stage:"purchase"),
     },
   }),
-});
+},{ options: { pollInterval: 2000 }});
 //export default withData(withStyles(styles)(OrderDetails));
 export default withData(OrderDetails);
 

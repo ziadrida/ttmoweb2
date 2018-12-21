@@ -66,14 +66,15 @@ class ColumnChooser extends React.Component {
     };
 
 
-    handleColChange = index => {
-        this.props.onColumnUpdate(index);
+    handleColChange = (index) => {
+        this.props.onColumnUpdate(index,this.props.columns);
     };
 
 
     render() {
       //console.log('columnChooser props:',this.props)
         const { classes, columns } = this.props;
+        console.log("columnChooser columns:",columns)
         const anchorOrigin={
              vertical: 'bottom',
              horizontal: 'left',
@@ -106,7 +107,9 @@ class ColumnChooser extends React.Component {
                     <FormControl component={"fieldset"} className={classes.boxElementPad} >
                         <FormGroup className={classes.formGroup}>
                             { columns.map((column, index) => {
+
                                 return (
+                                    column.id != "_selector" ?
                                     <FormControlLabel
                                         key={index}
                                         classes={{
@@ -124,6 +127,7 @@ class ColumnChooser extends React.Component {
                                         }
                                         label={column.Header}
                                     />
+                                    : null
                                 );
                             })}
                         </FormGroup>

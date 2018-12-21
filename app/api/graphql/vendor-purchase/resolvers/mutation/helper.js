@@ -69,7 +69,7 @@ updateOrInsert = async function(order,senderID) {
           } else {
             if (debugOn) console.log("vendorPurchase - no existing match - create new one.")
             //add new order
-             nextVal = await getNextSequenceValue('vendor_purchase');
+             nextVal = await getNextSequenceValue('vendor_purahse'); //  sequence name is misspelled!
 
               var newDoc = order;
               newDoc._id = nextVal;

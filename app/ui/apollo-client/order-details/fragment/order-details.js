@@ -38,6 +38,7 @@ fragment orderDetailsFragment on OrderDetails {
   closed
   order_no
   orders
+  trackings
   order_type
   delivery_days_from
   delivery_days_to
@@ -62,8 +63,14 @@ fragment orderDetailsFragment on OrderDetails {
     box_id
     final_box_id
   }
+  carrier
   last_updated
+  purchase_last_updated
+  tracking_last_updated
   notes
+
+  tracking_notes
+  purchase_notes
   departure_date
   amm_showroom_arrival_date
   aq_showroom_arrival_date

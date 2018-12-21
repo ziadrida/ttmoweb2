@@ -37,6 +37,7 @@ const types = gql`
     closed:String
     order_no: String
     orders:[String]
+    trackings:[String]
     order_type: String
     delivery_days_from: String
     delivery_days_to: String
@@ -59,7 +60,12 @@ const types = gql`
     ship_id: String
     packing: [Packing]
     last_updated: String
+    purchase_last_updated: String
+    tracking_last_updated: String
     notes: String
+    tracking_notes: String
+    purchase_notes: String
+    carrier: String
     departure_date:String
     amm_showroom_arrival_date:String
     aq_showroom_arrival_date:String

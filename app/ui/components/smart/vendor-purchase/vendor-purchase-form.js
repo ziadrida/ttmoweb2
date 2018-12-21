@@ -22,6 +22,10 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+
+// refetch option to mutate
+import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';
+
 // withStyles takes the styles and change them to classes props
 const styles = theme => ({
   fab: {
@@ -57,6 +61,7 @@ class VendorPurchaseForm extends React.Component {
     console.log("VendorPurchaseForm constructor props:",props)
   super(props);
   this.state = {
+    copySuccess: '',
     bulkUpdate: false,
     refresh: false,
     selectedPoList: [],
@@ -100,23 +105,29 @@ static getDerivedStateFromProps(props, state) {
   console.log("vendorPurchaseForm getDerivedStateFromProps \nprops",props, "\nstate",state)
   const {selection,getRow} = props
   const bulkUpdate = selection && selection.length > 1
-  var selectedPoList = []
+  var tmpSelectedPoList = []
   var changedList = false;
-  if (bulkUpdate) {
+  if (bulkUpdate && props.poInfo) {
     selection.map(key => {
       console.log('build update list ', key)
       var row = getRow(key)
-      row.message = ""
-      selectedPoList.push(row)
-      if (!changedList)  {
+      if (row) {
+        row.message = ""
+        row.purchased_qty = parseInt(row.po_qty) - parseInt(row.total_purchased_qty)
+
+        tmpSelectedPoList.push(row)
+        if (!changedList)  {
         changedList = state.selectedPoList.length == 0 ||
                       (state.selectedPoList.length>0 &&
-                      state.selectedPoList.findIndex(x=> x._id === key) < 0);
+                        state.selectedPoList[0] != undefined &&
+                        state.selectedPoList.findIndex(x=> x._id === key) < 0);
         console.log("selectedPoList changedList",changedList)
       }
+     }
     })
+
   }
-  if (selectedPoList != state.selectedPoList) {
+  if (tmpSelectedPoList != state.selectedPoList) {
     console.log("object compare =>  listChanged")
 
   } else {  console.log("object compare =>  list DID NOT Change")}
@@ -126,7 +137,7 @@ static getDerivedStateFromProps(props, state) {
     if ( changedList ) {
       returnState =  {
         bulkUpdate: bulkUpdate,
-        selectedPoList: selectedPoList,
+        selectedPoList: tmpSelectedPoList,
         refresh: false,
       }
     }
@@ -230,14 +241,14 @@ handleDateChange = date => {
     //reset vendorPurchaseInfo
     this.setState({
       vendorPurchaseInfo: {
-        po_no:'',
+        po_no:this.props.poInfo.po_no,
         order_no: '',
         purchased_qty: 0,
         delivery_days_from: 0,
         delivery_days_to: 0,
         purchase_id: -99,
         order_date:   moment().format("MM-DD-YYYY"),
-        source: '',
+        source: this.props.poInfo.source,
         notes:'',
       },
       allowSave: true,
@@ -302,8 +313,8 @@ handleDateChange = date => {
      // } else {
      //      this.mutateVendorPurchase(this.state.poInfo)
      // }
-        const { selectedPoList, bulkUpdate } = this.state
-        var newSelectedPoList = []
+     const { selectedPoList, bulkUpdate } = this.state
+     var newSelectedPoList = []
      if (bulkUpdate) {
        // creating multiple orders
        selectedPoList.map(poInfo => {
@@ -312,7 +323,8 @@ handleDateChange = date => {
         var newPoInfo =  this.mutateVendorPurchase(poInfo)
          //poInfo.message = res.message;
          console.log("newPoInfo returned:",newPoInfo)
-         newSelectedPoList.push(newPoInfo)
+         if (newPoInfo) newSelectedPoList.push(newPoInfo)
+         else newSelectedPoList.push(poInfo)
        })
        console.log("setState with latest selectedPoList")
        this.setState({
@@ -326,31 +338,56 @@ handleDateChange = date => {
 
   }
 
-  mutateVendorPurchase = (poInfo) => {
-    console.log('=> mutateVendorPurchase po_no:', poInfo)
+  mutateVendorPurchase = (selectedPo) => {
+    console.log('=> mutateVendorPurchase selectedPo:', selectedPo)
     var message =  ""
     var sucess = false
-    var rtnPoInfo = poInfo;
+    var rtnPoInfo = selectedPo;
     const { mutate, setRow} = this.props
     if (mutate) {
-      mutate({
+      console.log("call mutate")
+      var updateInfo = this.state.bulkUpdate?
+       {
+        po_no: selectedPo.po_no,
+        _id:  selectedPo.purchase_id && parseInt(selectedPo.purchase_id)>0?
+            parseInt(selectedPo.purchase_id):null,
+        purchased_qty:  parseInt(selectedPo.purchased_qty),
+      }:
+      {
+        po_no: this.state.vendorPurchaseInfo.po_no,
+        _id:  parseInt(this.state.vendorPurchaseInfo.purchase_id)?
+         parseFloat(this.state.vendorPurchaseInfo.purchase_id):null,
+         purchased_qty: this.state.vendorPurchaseInfo.purchased_qty &&
+               parseInt(this.state.vendorPurchaseInfo.purchased_qty)>0 ?
+               parseInt(this.state.vendorPurchaseInfo.purchased_qty) :
+               parseInt(this.state.vendorPurchaseInfo.po_qty)-
+               parseInt(this.state.vendorPurchaseInfo.total_purchased_qty),
+
+      }
+      console.log('updateInfo:',updateInfo)
+       mutate({
          variables: {
            "vendorPurchase": {
-            "po_no": poInfo.po_no,
-            "_id":parseInt(this.state.vendorPurchaseInfo.purchase_id)?
-             parseFloat(this.state.vendorPurchaseInfo.purchase_id):null,
+            "po_no": updateInfo.po_no,
+            "_id":  updateInfo._id,
             "order_no": this.state.vendorPurchaseInfo.order_no,
-            "source": this.state.vendorPurchaseInfo.source != this.props.poInfo.source? this.state.vendorPurchaseInfo.source:
-               null,
-            "purchased_qty":   parseInt(this.state.vendorPurchaseInfo.purchased_qty)  ,
+            "source": this.state.vendorPurchaseInfo.source != this.props.poInfo.source?
+                this.state.vendorPurchaseInfo.source: null,
+            "purchased_qty":  updateInfo.purchased_qty,
+
             "delivery_days_from": parseInt(this.state.vendorPurchaseInfo.delivery_days_from),
             "delivery_days_to":  parseInt(this.state.vendorPurchaseInfo.delivery_days_to),
-            "order_date":
-            //this.state.vendorPurchaseInfo.order_date,
-             moment(this.state.vendorPurchaseInfo.order_date,'DD-MM-YYYY').format('DD/MM/YYYY'),
+            "order_date":this.state.vendorPurchaseInfo.order_date?
+             moment(this.state.vendorPurchaseInfo.order_date,'MM-DD-YYYY').
+                format('DD/MM/YYYY'):moment().format('DD/MM/YYYY'),
             "notes":this.state.vendorPurchaseInfo.notes,
           }
-        }
+        },
+        refetchQueries: [
+        {
+          query: orderDetailsQuery,
+          variables:this.props.variables
+        }],
      })
      .then( res => {
        console.log("mutation result:",res)
@@ -396,12 +433,12 @@ handleDateChange = date => {
              }
            );
 
-           setRow(poInfo)
+          // setRow(poInfo)
            console.log('new state:',this.state)
 
            console.log("Call registerPurchase in order-details")
-           this.prop.registerPurchase(res.data.createVendorPurchase._id,
-             this.prop.rowIndex)
+           this.props.registerPurchase(res.data.createVendorPurchase._id,
+             this.props.rowIndex)
 
          rtnPoInfo.message = rtnPoInfo.message==""? rtnPoInfo.message:rtnPoInfo.message+'\n'+
                 "Updated Successfully.Purchase Id is " +
@@ -440,25 +477,42 @@ handleDateChange = date => {
                 errMsg
        return rtnPoInfo;
      });;
-
+     console.log("ERROR - no then or catch section!!!")
+     return rtnPoInfo
+   } else {
+     console.log("ERROR - No mutate funtion!!!")
+     return rtnPoInfo
    }
+
   }
 
+  copyToClipboard = (e,val) => {
+    console.log(e);
+      console.log('val:',val)
+    var textField = document.createElement('textarea')
+    textField.innerText = val
+    document.body.appendChild(textField)
+    textField.select()
+    document.execCommand('copy')
+    textField.remove()
+    };
+
   renderExistingOrders(orderList){
-      console.log('=> in renderExistingOrders orderList:',orderList)
+      console.log('=> in vendorPurchaseForm  renderExistingOrders orderList:',orderList)
     const {orders} = orderList
     console.log('=> in renderExistingOrders:',orders)
-    var tmpOrders = typeof orders != 'undefined'? orders:'No orders'
-       return  tmpOrders!='' &&
-              typeof tmpOrders !== 'string'?
-          orders.map(i => {
-          return <ListItem button key={i}>
-            <ListItemText primary={i}  />
+    var tmpVal = typeof orders != 'undefined'? orders:'No orders'
+       return  tmpVal!='' &&
+              typeof tmpVal !== 'string'?
+          orders.map(orderNo => {
+          return <ListItem button key={orderNo}
+          onClick={(e) => {this.copyToClipboard(e, orderNo)}} >
+            <ListItemText primary={orderNo}  onClick={this.copyToClipboard} />
             </ListItem>
 
       }):
       <ListItem button>
-        <ListItemText primary={tmpOrders} key={tmpOrders} />
+        <ListItemText primary={tmpVal} key={tmpVal}   onClick={(e) => {this.copyToClipboard(e, tmpVal)}} />
         </ListItem>
 
   }
@@ -490,7 +544,7 @@ handleDateChange = date => {
           order_no,delivery_days_to,delivery_days_from} = this.state.vendorPurchaseInfo
 
       const {message, bulkUpdate,selectedPoList} = this.state
-     console.log("new message:",message, " purchase_id:",purchase_id)
+     console.log("render new message:",message, " purchase_id:",purchase_id)
 
     // if (!order_date || order_date == '') {
     //     order_date=moment(new Date()).format('YYYY/MM/DD')
@@ -518,6 +572,7 @@ handleDateChange = date => {
               type="String"
               label="PO #"
               value={po_no}
+              onClick={(e) => {this.copyToClipboard(e, po_no)}}
               margin="dense"
               className={classes.textField}
               style={{
@@ -534,6 +589,7 @@ handleDateChange = date => {
               type="String"
               label="Title"
               value={title}
+              onClick={(e) => {this.copyToClipboard(e, title)}}
               multiline
               rowsMax="2"
               InputProps={{
@@ -657,8 +713,6 @@ handleDateChange = date => {
             margin="dense"
             className="col-1"
           />
-
-
           <TextField
             name="notes"
             type="String"
@@ -676,8 +730,8 @@ handleDateChange = date => {
             >
                     {this.renderExistingOrders({orders})}
             </List>
-
             {/* poQty block*/}
+            <p> {this.state.copySuccess} </p>
           </div>
 
         </div>
@@ -713,6 +767,22 @@ handleDateChange = date => {
                   Header: "T. Pur Qty",
                   id: "total_purchased_qty",
                   accessor: d => d.total_purchased_qty
+                },
+                ,
+                {
+                  Header: "Order#",
+                  id: "order_no",
+                  accessor: d => d.order_no
+                },
+                {
+                  Header: "Set Pur Qty",
+                  id: "purchased_qty",
+                  accessor: d => d.purchased_qty,
+                  style: {
+                    backgroundColor: 'lightblue',
+                    font: "bold"
+
+                  }
                 },
                 {
                   Header: "source",
@@ -773,7 +843,7 @@ handleDateChange = date => {
               value={purchased_qty}
               onChange={this.handleChange}
               margin="dense"
-              className="col-2 ml2"
+              className="col-1 ml2"
             />
             <DatePicker className="pickers"
                     autoOk
@@ -793,7 +863,7 @@ handleDateChange = date => {
               value={delivery_days_from}
               onChange={this.handleChange}
               margin="dense"
-              className="col-2"
+              className="col-1"
             />
              -
             <TextField
@@ -825,7 +895,7 @@ handleDateChange = date => {
               value={source}
               onChange={this.handleChange}
               margin="dense"
-              className="col-3 ml2"
+              className="col-2 ml2"
             />
 
             <Button
@@ -857,15 +927,15 @@ handleDateChange = date => {
                     style={{
                       //backgroundColor:'pink',
                        //'whiteSpace': 'unset',
-                        'fontSize': '14px' ,
+                        'fontSize': '12px' ,
                         'font': 'bold',
-                      'width' : 400,
+                      'width' : 600,
                     }}
 
                     margin="dense"
 
             />
-            <Button size="small"  variant="contained"
+            <Button size="medium"  variant="contained"
               color="primary"
               margin="dense" onClick={this.props.closePopup}>
               Close

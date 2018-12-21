@@ -45,81 +45,94 @@ const getOrderDetails = async (root, args, context) => {
             //           }  })
             andOr = "$and"
             if (args.search) {
-
+              var searchTrim = args.search.trim()
               matchArray.push({
                 "$or": [{
                     "sales_person": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },{
                     "username": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },{
                     "MPN": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                       "asin": {
-                        "$regex": args.search,
+                        "$regex": searchTrim,
                         "$options": "i"
                       }
                     },
                   {
                     "title": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "category": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
+                      "$options": "i"
+                    }
+                  },
+                  {
+                    "carrier": {
+                      "$regex": searchTrim,
+                      "$options": "i"
+                    }
+                  },
+
+                  {
+                    "seller": {
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "url": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "source": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "shipment_ref": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "destination": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "box_id": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "final_box_id": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   },
                   {
                     "awb_no": {
-                      "$regex": args.search,
+                      "$regex": searchTrim,
                       "$options": "i"
                     }
                   }
@@ -225,13 +238,19 @@ const getOrderDetails = async (root, args, context) => {
 
   if (args.phone_no) matchArray.push({
       phone_no: {
-        $regex: args.phone_no,
+        $regex: args.phone_no.trim(),
         $options: 'i'
       }
   })
   if (args.tracking_no) matchArray.push({
       tracking_no: {
         $regex: args.tracking_no.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'),
+        $options: 'i'
+      }
+  })
+  if (args.carrier) matchArray.push({
+      carrier: {
+        $regex: args.carrier.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'),
         $options: 'i'
       }
   })
@@ -285,20 +304,10 @@ const getOrderDetails = async (root, args, context) => {
 
       } else if (args.stage == 'track') {
         //  existsArray.push ( { po_tracking : { $exists: false } })
-
-        existsArray.push({
-          "$and": [{
-              tracking_no: {
-                $exists: false
-              }
-            },
-            {
-              order_no: {
-                $exists: true
-              }
-            }
-          ]
+        matchArray.push({
+          needsTracking: -1
         })
+
 
       } else if (args.stage == 'arrive') {
           existsArray.push({
@@ -420,6 +429,8 @@ const getOrderDetails = async (root, args, context) => {
         {
           $project: {
             _id: 1,
+            po_date_created: "$date_created",
+            purchase_date_created: "$po_purchases.date_created",
             purchase_id:  { $ifNull: [ "$po_purchases._id", -99 ] } ,
           //  po_order_no: { $concat: [ "$_id", "-", "$po_purchases.order_no" ] },
             po_no: "$_id",
@@ -439,7 +450,7 @@ const getOrderDetails = async (root, args, context) => {
             phone_no:1,
             email:1,
             sales_person:1,
-            vendor_purchase_last_updated:  "$po_purchases.last_updated",
+            purchase_last_updated:  "$po_purchases.last_updated",
             last_updated: {
               $cond: {
                 if: {
@@ -466,7 +477,7 @@ const getOrderDetails = async (root, args, context) => {
             delivered_qty:1,
             status:1,
             closed:1,
-
+            purchase_notes: "$po_purchases.notes",
             notes: {
               $cond: {
                 if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$po_purchases.notes", null] }]},
@@ -482,7 +493,7 @@ const getOrderDetails = async (root, args, context) => {
             purchased_qty: "$po_purchases.purchased_qty",
             seller: "$po_purchases.seller",
             total_purchased_qty: 1,
-            order_notes: "$po_purchases.notes"
+            purchase_notes: "$po_purchases.notes"
 
           }
         }
@@ -495,7 +506,8 @@ const getOrderDetails = async (root, args, context) => {
             as: "po_tracking"
           }
         },
-        { "$addFields": { "total_order_shipped_qty": { $sum: "$po_tracking.shipped_qty"} } }
+        { "$addFields": { "total_order_shipped_qty": { $sum: "$po_tracking.shipped_qty"} } },
+          { "$addFields": { "trackings": "$po_tracking.tracking_no" }  }
        , {
           $unwind: {
             "path": "$po_tracking",
@@ -504,6 +516,9 @@ const getOrderDetails = async (root, args, context) => {
         }, {
           $project: {
             _id: 1,
+            po_date_created:1,
+            purchase_date_created:1,
+            tracking_date_created:"$po_tracking.date_created",
             seller_ship_id: "$po_tracking._id",
             purchase_id: 1,
             userId: 1,
@@ -513,19 +528,19 @@ const getOrderDetails = async (root, args, context) => {
             price:1,
             sale_price:1,
             destination:1,
-              address:1,
+            address:1,
             username: 1,
             phone_no:1,
             email:1,
             sales_person:1,
             title: 1,
-              options:1,
+            options:1,
             link: 1,
             source:1,
             category: 1,
             first_payment:1,
             total_amount:1,
-              payment_method:1,
+            payment_method:1,
             vip:1,
             trc:1,
             membership_amount:1,
@@ -534,6 +549,7 @@ const getOrderDetails = async (root, args, context) => {
             closed:1,
             order_no: 1,
             orders:1,
+            trackings:1,
             order_type: 1,
             delivery_days_from: 1,
             delivery_days_to: 1,
@@ -543,8 +559,8 @@ const getOrderDetails = async (root, args, context) => {
             total_purchased_qty: 1,
             customer_delivery_date:1,
             delivered_qty:1,
-            vendor_purchase_last_updated:1,
-            po_tracking_last_updated: "$po_tracking.last_updated",
+            purchase_last_updated:1,
+            tracking_last_updated: "$po_tracking.last_updated",
             last_updated: {
               $cond: {
                 if: {
@@ -572,9 +588,10 @@ const getOrderDetails = async (root, args, context) => {
             time_in_transit_from: "$po_tracking.time_in_transit_from",
             time_in_transit_to: "$po_tracking.time_in_transit_to",
             shipped_qty: "$po_tracking.shipped_qty",
+
             total_order_shipped_qty:1,
 
-            order_notes: 1,
+            purchase_notes: 1,
             tracking_notes: "$po_tracking.notes"
           }
         }
@@ -595,8 +612,12 @@ const getOrderDetails = async (root, args, context) => {
       }, {
         $project: {
           _id: 1,
+          po_date_created:1,
+          purchase_date_created:1,
+          tracking_date_created:1,
+          received_date_created:"$received_packages.dateCreated",
           seller_ship_id:1,
-            purchase_id: 1,
+          purchase_id: 1,
           userId: 1,
           po_no: 1,
           po_date:1,
@@ -625,6 +646,7 @@ const getOrderDetails = async (root, args, context) => {
           closed:1,
           order_no: 1,
           orders:1,
+          trackings:1,
           order_date:1,
           order_type: 1,
           delivery_days_from: 1,
@@ -636,12 +658,13 @@ const getOrderDetails = async (root, args, context) => {
           delivered_qty:1,
           tracking_no: 1,
           shipped_qty: 1,
+          carrier: 1,
           total_order_shipped_qty:1,
           ship_date: 1,
           time_in_transit_from: 1,
           time_in_transit_to: 1,
-          vendor_purchase_last_updated:1,
-          po_tracking_last_updated: 1,
+          purchase_last_updated:1,
+          tracking_last_updated: 1,
           received_packages_last_updated: "$received_packages.last_updated",
           last_updated: {
             $cond: {
@@ -667,8 +690,9 @@ const getOrderDetails = async (root, args, context) => {
           },
           box_id: "$received_packages.box_id",
           date_received: "$received_packages.date_received",
-          order_notes: 1,
-          tracking_nodes:1,
+          carrier: "$received_packages.carrier",
+          purchase_notes: 1,
+          tracking_notes:1,
 
         }
       }
@@ -687,8 +711,13 @@ const getOrderDetails = async (root, args, context) => {
       }, {
         $project: {
           _id: 1,
-            seller_ship_id:1,
-              purchase_id: 1,
+          po_date_created:1,
+          purchase_date_created:1,
+          tracking_date_created:1,
+          received_date_created:1,
+          packed_date_created:"$packed_packages.date_created",
+          seller_ship_id:1,
+          purchase_id: 1,
           userId: 1,
           po_no: 1,
           po_date:1,
@@ -717,6 +746,7 @@ const getOrderDetails = async (root, args, context) => {
             closed:1,
           order_no: 1,
           orders:1,
+          trackings:1,
           order_date:1,
           order_type: 1,
           delivery_days_from: 1,
@@ -728,14 +758,15 @@ const getOrderDetails = async (root, args, context) => {
           delivered_qty:1,
           tracking_no: 1,
           shipped_qty: 1,
+          carrier: 1,
           total_order_shipped_qty:1,
           ship_date: 1,
           time_in_transit_from: 1,
           time_in_transit_to: 1,
           box_id: 1,
           date_received: 1,
-          vendor_purchase_last_updated:1,
-          po_tracking_last_updated: 1,
+          purchase_last_updated:1,
+          tracking_last_updated: 1,
           received_packages_last_updated: 1,
           last_updated: {
             $cond: {
@@ -746,7 +777,11 @@ const getOrderDetails = async (root, args, context) => {
               else: "$last_updated",
             }
           },
-
+          recent_date_created: { "$ifNull":["$packed_date_created",
+                  { "$ifNull":["$received_date_created",
+                  { "$ifNull":["$tracking_date_created",
+                { "$ifNull":["$purchase_date_created",
+                { "$ifNull":["$po_date_created","???"]}]}]}]}]},
           notes: {
             $cond: {
               if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$packed_packages.notes", null] }]},
@@ -764,7 +799,7 @@ const getOrderDetails = async (root, args, context) => {
           packing: "$packed_packages.packing",
           //      packed_box_id: "$packed_packages.packing.box_id",
           final_box_id: "$packed_packages.packing.final_box_id",
-          order_notes: 1,
+          purchase_notes: 1,
           tracking_notes:1,
         }
       },
@@ -788,17 +823,26 @@ const getOrderDetails = async (root, args, context) => {
         }
       }, {
         $project: {
-          // _id:  { $concat: [ "$po_no", "-",
-          //           { "$toString": { "$ifNull":["$seller_ship_id",""]}} ,"-",
-          //           { "$toString": { "$ifNull":["$purchase_id",""]}}, "-",
-          //           { "$ifNull":["$box_id",""]}, "-",
-          //           { "$ifNull":["$awb_no",""]}
-          //         ] } ,
-          _id: { $concat: [
-                "$po_no","-",{"$ifNull": ["$order_no",""]},"-",
-                  {"$ifNull": ["$tracking_no",""]}
-                ]
-                } ,
+          _id:  { $concat: [ "$po_no", "-",
+               { "$ifNull":["$order_no",""]},
+                   { "$ifNull":["$tracking_no",""]}
+
+
+                  ] } ,
+          // _id: { $concat: [
+          //       "$po_no","-",
+          //       {"$ifNull" :[
+          //         { $dateToString: { format: "%Y-%m-%d-%H:%M:%S:%L", date: "$recent_date_created" }
+          //         },     "$title"]
+          //       }
+          //       ]
+          //       } ,
+          po_date_created:1,
+          tracking_date_created:1,
+          purchase_date_created:1,
+          received_date_created:1,
+          packed_date_created:1,
+          awb_date_created: "$awb_pos.dateCreated",
           seller_ship_id:1,
           purchase_id: 1,
           userId: 1,
@@ -829,6 +873,7 @@ const getOrderDetails = async (root, args, context) => {
           closed:1,
           order_no: 1,
           orders:1,
+          trackings:1,
           order_type: 1,
           delivery_days_from: 1,
           delivery_days_to: 1,
@@ -837,11 +882,13 @@ const getOrderDetails = async (root, args, context) => {
           purchased_qty: 1,
           total_purchased_qty: 1,
           purchased: {$cmp: ['$total_purchased_qty','$po_qty']},
+          needsTracking: {$cmp: ['$total_order_shipped_qty','$purchased_qty']},
           customer_delivery_date:1,
           delivered_qty:1,
           delivered: {$cmp: ['$delivered_qty','$purchased_qty']},
           tracking_no: 1,
           shipped_qty: 1,
+          carrier: 1,
           total_order_shipped_qty:1,
           ship_date: 1,
           time_in_transit_from: 1,
@@ -851,8 +898,8 @@ const getOrderDetails = async (root, args, context) => {
           date_received: 1,
           ship_id: 1,
           packing: 1,
-          vendor_purchase_last_updated:1,
-          po_tracking_last_updated: 1,
+          purchase_last_updated:1,
+          tracking_last_updated: 1,
           received_packages_last_updated: 1,
           last_updated: {
           $cond: {
@@ -864,6 +911,8 @@ const getOrderDetails = async (root, args, context) => {
             }
           },
           notes: 1,
+          tracking_notes:1,
+          purchaes_notes:1,
           departure_date:"$awb_pos.departure_date",
           amm_showroom_arrival_date:"$awb_pos.amm_showroom_arrival_date",
           aq_showroom_arrival_date: "$awb_pos.aq_showroom_arrival_date",
