@@ -2,11 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 import { propType } from 'graphql-anywhere';
+import { withStyles } from '@material-ui/core/styles';
 //import { withTracker } from 'meteor/react-meteor-data';
 import orderDetailsFragment from '/app/ui/apollo-client/order-details/fragment/order-details';
 import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';
 
-
+import Icon from '@material-ui/core/Icon';
+import CancelIcon from '@material-ui/icons/Cancel';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Fab from '@material-ui/core/Fab';
 import Loading from '/app/ui/components/dumb/loading';
 import moment from 'moment'
 import CustomPagination from './custom-pagination'
@@ -14,6 +18,7 @@ import matchSorter from 'match-sorter'
 import {view, stages, detailViews } from './helpers';
 import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purchase/vendor-purchase-form';
 import VendorTrackingFormWithMutation from '/app/ui/components/smart/vendor-tracking/vendor-tracking-form';
+import OrderCancelFormWithMutation from '/app/ui/components/smart/purchase-order/order-cancel-form';
 
 // Import React Table
 import ReactTable,{ReactTableDefaults} from "react-table";
@@ -31,7 +36,24 @@ const SelectTable=selectTableHOC(ReactTable)
       minWidth: 500,
     },
 
+  icon: {
+    margin: theme.spacing.unit * 2,
+  },
+  iconHover: {
+    margin: theme.spacing.unit * 2,
+    '&:hover': {
+      color: 'red',
+    },
+  },
+
   });
+
+  const FabStyle = {
+      height: 15,
+      lineHeight: '15px',
+      verticalAlign: 'middle',
+      width: 15,
+  };
 
 
   const getColumnWidth = (data, accessor, headerText) => {
@@ -142,6 +164,7 @@ const SelectTable=selectTableHOC(ReactTable)
         this.escFunction = this.escFunction.bind(this);
         this.handlePurchase = this.handlePurchase.bind(this);
         this.handleTracking = this.handleTracking.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
         this.toggleSelection = this.toggleSelection.bind(this);
         this.getRow = this.getRow.bind(this);
         this.orderNoColumn = this.orderNoColumn.bind(this);
@@ -250,7 +273,9 @@ const SelectTable=selectTableHOC(ReactTable)
          document.removeEventListener("keydown", this.escFunction, false);
        }
 
+
        orderNoColumn = () => {
+
          return       ({
                  id: "order_no",
                  Header: "Order No",
@@ -293,27 +318,45 @@ const SelectTable=selectTableHOC(ReactTable)
 
           },
           {
-            id: "order_no",
-            Header: "Order No",
-            accessor: d => d.order_no,
-          //  Cell: this.renderEditable,
-          Cell: (row) => (
-              <div >
+                  id: "cancel",
+                  Header: "Cancel",
+                  accessor: d => d.po_no,
+                //  Cell: this.renderEditable,
+                Cell: (row) => (
+                  <div>
 
-               <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
-                  onClick={() => this.handlePurchase(row)}>{row.value? row.value:"Purchase"}
-              </button>
+                 <svg  onClick={() => this.handleCancel(row)} color='red' width="30" height="30"
+                    viewBox="0 0 1024 1024">
+<path xmlns="http://www.w3.org/2000/svg" d="M512 0c-282.77 0-512 229.23-512 512s229.23 512 512 512 512-229.23 512-512-229.23-512-512-512zM512 928c-229.75 0-416-186.25-416-416s186.25-416 416-416 416 186.25 416 416-186.25 416-416 416z"/>
+<path xmlns="http://www.w3.org/2000/svg" d="M685.333 234.667l-173.333 173.333-173.333-173.333-104 104 173.333 173.333-173.333 173.333 104 104 173.333-173.333 173.333 173.333 104-104-173.333-173.333 173.333-173.333z"/>
+       </svg>
+                  </div>
+                  ),
+                  width:70,
+                  views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
-
-              </div>
-            ),
-            filterMethod: (filter, rows) =>
-                        matchSorter(rows, filter.value, { keys: ["order_no"] }),
-            filterAll: true,
-            views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
-            width:200,
           },
+          {
+                  id: "order_no",
+                  Header: "Order No",
+                  accessor: d => d.order_no,
+                //  Cell: this.renderEditable,
+                Cell: (row) => (
+                    <div >
 
+                     <button style={{ align: 'center', backgroundColor: 'lightblue' }}
+                        onClick={() => this.handlePurchase(row)}>{row.value? row.value:"Purchase"}
+                    </button>
+
+
+                    </div>
+                  ),
+                  filterMethod: (filter, rows) =>
+                              matchSorter(rows, filter.value, { keys: ["order_no"] }),
+                  filterAll: true,
+                  views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
+                  width:200,
+                },
           {
             id: "tracking_no",
             Header: "Tracking No",
@@ -544,9 +587,10 @@ const SelectTable=selectTableHOC(ReactTable)
                       row[filter.id] >= filter.value,
             filterAll: true,
             style: {
-              textAlign: 'right'
+              textAlign: 'right',
+              width: '4em',
             },
-            //width: 50,
+
             views:[view.all,view.payment,view.order,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
           },
           {
@@ -558,7 +602,10 @@ const SelectTable=selectTableHOC(ReactTable)
               }),
             filterAll: true,
             views:[view.all,view.payment,view.order,view.purchase,view.deliver],
-            //maxWidth: 200
+            style: {
+              textAlign: 'right',
+              width: '10em',
+            },
           },
         ] },
         {
@@ -579,7 +626,8 @@ const SelectTable=selectTableHOC(ReactTable)
                           row[filter.id] >= filter.value,
                 filterAll: true,
                 style: {
-                  textAlign: 'right'
+                  textAlign: 'right',
+                  width: '5em',
                 },
                 getProps:  (state, rowInfo) => ({
                  style: {
@@ -588,7 +636,7 @@ const SelectTable=selectTableHOC(ReactTable)
                         parseFloat(rowInfo.row.po_qty) ? 'orange' : 'lightgreen')
                  }
                 }),
-                //width: 35,
+
                 views:[view.all,view.payment,view.purchase,view.track],
 
               },
@@ -646,7 +694,8 @@ const SelectTable=selectTableHOC(ReactTable)
                }
               }),
               style: {
-                textAlign: 'right'
+                textAlign: 'right',
+                width: '4em'
               },
             //  width: 35,
               views:[view.all,view.payment,view.purchase,view.track],
@@ -662,7 +711,8 @@ const SelectTable=selectTableHOC(ReactTable)
                             matchSorter(rows, filter.value, { keys: ["delivery_days_from"] }),
               filterAll: true,
               style: {
-                textAlign: 'right'
+                textAlign: 'right',
+                width: '3em'
               },
               //width: 35,
               views:[view.all,view.payment,view.purchase,view.track],
@@ -677,7 +727,8 @@ const SelectTable=selectTableHOC(ReactTable)
                             matchSorter(rows, filter.value, { keys: ["delivery_days_to"] }),
               filterAll: true,
               style: {
-                textAlign: 'right'
+                textAlign: 'right',
+                width: '3em'
               },
               //width: 35,
               views:[view.all,view.payment,view.purchase,view.track],
@@ -967,7 +1018,22 @@ const SelectTable=selectTableHOC(ReactTable)
       */
     }
 
-      handlePurchase (rowInfo ) {
+    handleCancel(rowInfo) {
+      console.log("handleCancel rowInfo:", rowInfo)
+      // if (rowInfo && rowInfo.row) {
+      //   this.setState({
+      //     showCancel: !this.state.showCancel,
+      //     currentRow: rowInfo.row,
+      //     rowIndex: rowInfo.index,
+      //     currentKey: rowInfo.row._id
+      //   });
+      // } else {
+      //   this.setState({
+      //     showCancel: !this.state.showCancel,
+      //   });
+      // }
+    }
+    handlePurchase (rowInfo ) {
       //const { history } = this.props
 
       console.log("handlePurchase rowInfo:", rowInfo)
@@ -1038,7 +1104,7 @@ const SelectTable=selectTableHOC(ReactTable)
           console.log("=> in registerPurchase purchase_id:",
           purchase_id, " rowIndex:",rowIndex )
           console.log("call refetch")
-          this.props.orderDetailsData.refetch()
+    //      this.props.orderDetailsData.refetch()
           // newData = this.state.data
           // newData[rowIndex].purchase_id = purchase_id
           // this.setState({refreshData: !this.state.refreshData,
@@ -1060,8 +1126,8 @@ const SelectTable=selectTableHOC(ReactTable)
           // newData[rowIndex].purchase_id = purchase_id
           // this.setState({refreshData: !this.state.refreshData,
           // data: []})
-          this.setState({refreshData: true,
-            data: []})
+          // this.setState({refreshData: true,
+          //   data: []})
 
     }
 
@@ -1269,7 +1335,8 @@ render() {
             defaultFilterMethod={(filter, row) =>
             String(row[filter.id]) === filter.value}
 
-            //pivotBy= {['po_no']}
+          //  pivotBy= {['tracking_no']}
+
             //pivotBy={['po_no','po_date','status','closed','username','total_amount','address', 'phone_no', 'po_no' ]}
             defaultPageSize={10}
 
@@ -1360,13 +1427,28 @@ render() {
        />
        : null
       }
+      {this.state.showCancel ?
+      <OrderCancelFormWithMutation
+         closePopup={this.handleCancel}
+         registerCancel={this.registerCancel}
+         poInfo={this.state.data[this.state.rowIndex]}
+         selection={this.state.selection}
+         rowIndex={this.state.rowIndex}
+         currentKey={this.state.currentKey}
+         getRow={this.getRow}
+         setRow={this.setRow}
+         variables={variables}
+
+     />
+     : null
+    }
         </div>
       );
   }
   };
 
 OrderDetails.propTypes = {
-//    classes: PropTypes.object.isRequired,
+  // classes: PropTypes.object.isRequired,
   //vendorPurchaseUrl:PropTypes.func.isRequired,
   orderDetailsData: PropTypes.shape({
     error: PropTypes.object,
@@ -1407,8 +1489,12 @@ const withData = graphql(orderDetailsQuery,
     },
   }),
 },{ options: { pollInterval: 2000 }});
-//export default withData(withStyles(styles)(OrderDetails));
-export default withData(OrderDetails);
+
+const OrderDetailsWithData = withData(OrderDetails);
+export default withStyles(styles)(OrderDetailsWithData)
+
+// const OrderDetailsComp = withStyles(styles)(OrderDetails)
+// export default withData(OrderDetailsComp);
 
 //export default withTracker(withData(OrderDetails));
 // const OrderDetailsData = compose(

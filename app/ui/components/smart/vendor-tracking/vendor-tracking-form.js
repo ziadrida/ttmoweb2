@@ -66,6 +66,7 @@ class VendorTrackingForm extends React.Component {
   super(props);
   this.state = {
     bulkUpdate: false,
+    validBulkUpdate: false,
     refresh: false,
     selectedPoList: [],
     allowSave: true,
@@ -126,6 +127,7 @@ static getDerivedStateFromProps(props, state) {
   console.log("***vendorTrackingForm getDerivedStateFromProps \nprops",props, "\nstate",state)
   const {selection,getRow} = props
   const bulkUpdate = selection && selection.length > 1
+  var validUpdate = true;
   var tmpSelectedPoList = []
   var changedList = false;
   if (bulkUpdate  && props.poInfo) {
@@ -134,7 +136,9 @@ static getDerivedStateFromProps(props, state) {
       var row = getRow(key)
       if (row) {
         row.message = ""
-        row.shipped_qty = parseInt(row.purchased_qty) - parseInt(row.total_order_shipped_qty)
+        // to do bulk update, all selected items should not have an tracking
+        if (row.ship_id && parseFloat(row.ship_id)>0) validUpdate = false;
+        row.set_shipped_qty = parseInt(row.purchased_qty) - parseInt(row.total_order_shipped_qty)
         tmpSelectedPoList.push(row)
         if (!changedList)  {
           changedList = state.selectedPoList.length == 0 ||
@@ -155,6 +159,7 @@ static getDerivedStateFromProps(props, state) {
   var returnState = {}
     if ( changedList ) {
       returnState =  {
+        validBulkUpdate: validUpdate,
         bulkUpdate: bulkUpdate,
         selectedPoList: tmpSelectedPoList,
         refresh: false,
@@ -320,7 +325,8 @@ handleDateChange = date => {
         order_no: this.props.poInfo.order_no,
         purchase_id: this.props.poInfo.purchase_id,
         tracking_no: '',
-        shipped_qty: parseInt(this.props.poInfo.purchased_qty)-parseInt(this.props.poInfo.total_order_shipped_qty),
+        shipped_qty: parseInt(this.props.poInfo.purchased_qty)-
+          parseInt(this.props.poInfo.total_order_shipped_qty),
         time_in_transit_from: '',
         time_in_transit_to: '',
         seller_ship_id: -99,
@@ -434,7 +440,7 @@ handleDateChange = date => {
         order_no: selectedPo.order_no,
         _id:  selectedPo.seller_ship_id && parseInt(selectedPo.seller_ship_id)>0?
             parseInt(selectedPo.seller_ship_id):null,
-        shipped_qty:    parseInt(selectedPo.shipped_qty),
+        shipped_qty:    parseInt(selectedPo.set_shipped_qty),
       }:
       {
         po_no: this.state.vendorTrackingInfo.po_no,
@@ -661,7 +667,7 @@ handleDateChange = date => {
           time_in_transit_from,time_in_transit_to,carrier} = this.state.vendorTrackingInfo
 
       console.log("ship_date:",ship_date)
-      const {message, bulkUpdate,selectedPoList} = this.state
+      const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
      console.log("new message:",message,
               " seller_ship_id:",seller_ship_id)
 
@@ -929,6 +935,11 @@ handleDateChange = date => {
                   accessor: d =>d.order_no,
                 },
                 {
+                  Header: "Tracking#",
+                  id: "tracking_no",
+                  accessor: d =>d.tracking_no,
+                },
+                {
                   Header: "O.Date",
                   id: "order_date",
                   accessor: d => d.order_date
@@ -955,8 +966,8 @@ handleDateChange = date => {
                 },
                 {
                   Header: "Set Ship Qty",
-                  id: "shipped_qty",
-                  accessor: d => parseInt(d.shipped_qty),
+                  id: "set_shipped_qty",
+                  accessor: d => parseInt(d.set_shipped_qty),
                   style: {
                     backgroundColor: 'lightblue',
                     font: "bold"
@@ -1005,6 +1016,7 @@ handleDateChange = date => {
             <div className="flex flex-row ml2 ">
             <TextField
               name="tracking_no"
+              disabled={bulkUpdate && !validBulkUpdate}
               required
               type="String"
               label={"Tracking # [" + (!seller_ship_id||seller_ship_id==-99? "New":"Edit")+"]"}
@@ -1019,6 +1031,7 @@ handleDateChange = date => {
             />
             <TextField
               name="shipped_qty"
+                disabled={bulkUpdate }
               required
               type="Number"
               label="Ship Qty"
@@ -1032,6 +1045,7 @@ handleDateChange = date => {
               className="col-1 ml2"
             />
             <DatePicker className="pickers"
+              disabled={bulkUpdate && !validBulkUpdate}
                     autoOk
                     disableFuture
                     value={ship_date}
@@ -1043,6 +1057,7 @@ handleDateChange = date => {
             <div className="flex flex-wrap ml2">
             <TextField
               name="time_in_transit_from"
+                disabled={bulkUpdate && !validBulkUpdate}
               required
               type="Number"
               label="Days from"
@@ -1058,6 +1073,7 @@ handleDateChange = date => {
              -
             <TextField
               name="time_in_transit_to"
+                disabled={bulkUpdate && !validBulkUpdate}
               required
               type="Number"
               label="Days to"
@@ -1074,6 +1090,7 @@ handleDateChange = date => {
 
             <TextField
               name="tracking_notes"
+                disabled={bulkUpdate && !validBulkUpdate}
               type="String"
               label="Tracking Cust Note"
 
@@ -1088,6 +1105,7 @@ handleDateChange = date => {
             />
             <TextField
               name="carrier"
+                disabled={bulkUpdate && !validBulkUpdate}
               type="String"
               label="Carrier"
               value={carrier}
@@ -1101,7 +1119,7 @@ handleDateChange = date => {
             />
 
             <Button
-              disabled={!this.state.allowSave}
+              disabled={!(this.state.allowSave && (bulkUpdate && validBulkUpdate))}
               size="medium"
               type="submit"
               variant="contained"
@@ -1129,7 +1147,7 @@ handleDateChange = date => {
                     style={{
                       //backgroundColor:'pink',
                        //'whiteSpace': 'unset',
-                        'fontSize': '12px' ,
+                        'fontSize': '10px' ,
                         'font': 'bold',
                       'width' : 800,
                     }}

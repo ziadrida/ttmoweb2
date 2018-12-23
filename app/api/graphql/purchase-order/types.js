@@ -48,21 +48,29 @@ const types = gql`
     orign_facility_arrival_date: String
     status: String
     notes: String
-    vendorPurchase: [VendorPurchase]
+
+  }
+
+  input CancelPoInput {
+    po_no: String
+    notes: String
+    senderID: String
+
   }
 
   type Query {
         getPurchaseOrder(poNo: String!): PurchaseOrder
-        getNotPurchased(poNo: String, search: String): [PurchaseOrder]
-        vendorPurchases: [VendorPurchase]
-  }
 
+
+
+  }
+  type Mutation {
+
+    cancelPurchaseOrder (input: CancelPoInput!): PurchaseOrder
+  }
 
 `;
 
-  // type Mutation {
-  //   # create purchase order.
-  //   #createPurchaseOrder (input: PurchaseOrder!): PurchaseOrder
-  // }
+
 
 export default types;

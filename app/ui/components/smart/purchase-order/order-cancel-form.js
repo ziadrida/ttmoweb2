@@ -56,19 +56,18 @@ const styles = theme => ({
   },
 });
 
-class VendorPurchaseForm extends React.Component {
+class OrderCancelForm extends React.Component {
   constructor(props) {
-    console.log("VendorPurchaseForm constructor props:",props)
+    console.log("OrderCancelForm constructor props:",props)
   super(props);
   this.state = {
     copySuccess: '',
     bulkUpdate: false,
-    validBulkUpdate: false,
     refresh: false,
     selectedPoList: [],
     allowSave: true,
     message: '',
-  vendorPurchaseInfo: {
+  formEditInfo: {
     po_no:'',
     order_no: '',
     purchased_qty: 0,
@@ -99,28 +98,22 @@ class VendorPurchaseForm extends React.Component {
   }
 }
     // TODO: add errors field
-    this.mutateVendorPurchase = this.mutateVendorPurchase.bind(this)
+    this.mutateAction = this.mutateAction.bind(this)
 }
 
 static getDerivedStateFromProps(props, state) {
-  console.log("vendorPurchaseForm getDerivedStateFromProps \nprops",props, "\nstate",state)
+  console.log("OrderCancelForm getDerivedStateFromProps \nprops",props, "\nstate",state)
   const {selection,getRow} = props
   const bulkUpdate = selection && selection.length > 1
-  var validUpdate = true;
   var tmpSelectedPoList = []
   var changedList = false;
-  console.log("bulk update:",bulkUpdate)
-  if (bulkUpdate && props.poInfo ) {
-
+  if (bulkUpdate && props.poInfo) {
     selection.map(key => {
       console.log('build update list ', key)
       var row = getRow(key)
       if (row) {
         row.message = ""
-        // to do bulk update, all selected items should not have an order
-        if (row.purchase_id && parseFloat(row.purchase_id)>0) validUpdate = false;
-
-        row.set_purchased_qty = parseInt(row.po_qty) - parseInt(row.total_purchased_qty)
+        row.purchased_qty = parseInt(row.po_qty) - parseInt(row.total_purchased_qty)
 
         tmpSelectedPoList.push(row)
         if (!changedList)  {
@@ -143,7 +136,6 @@ static getDerivedStateFromProps(props, state) {
   var returnState = {}
     if ( changedList ) {
       returnState =  {
-        validBulkUpdate: validUpdate,
         bulkUpdate: bulkUpdate,
         selectedPoList: tmpSelectedPoList,
         refresh: false,
@@ -159,11 +151,11 @@ static getDerivedStateFromProps(props, state) {
       returnState =  {
         ...returnState,
         poInfo: props.poInfo ,
-        vendorPurchaseInfo: {
+        formEditInfo: {
           purchase_id: props.poInfo.purchase_id,
           po_no:props.poInfo.po_no,
           order_no: props.poInfo.order_no,
-          purchased_qty:  parseFloat(props.poInfo.purchase_id)>0?
+          purchased_qty:  parseInt(props.poInfo.purchase_id)>0?
              parseInt(props.poInfo.purchased_qty):
               parseInt(props.poInfo.po_qty)-parseInt(props.poInfo.total_purchased_qty) ,
           delivery_days_from: props.poInfo.delivery_days_from,
@@ -187,7 +179,7 @@ static getDerivedStateFromProps(props, state) {
   }
 // componentWillReceiveProps(nextProps) {
 //  //here u might want to check if u are currently editing but u get the idea -- maybe u want to reset it to the current prop on some cancelEdit method instead
-//  console.log("vendorPurchaseForm componentWillReceiveProps nextProps\n",nextProps)
+//  console.log("OrderCancelForm componentWillReceiveProps nextProps\n",nextProps)
 //  this.setState({purchase_id: nextProps.poInfo.purchase_id})
 //
 // }
@@ -214,8 +206,8 @@ static getDerivedStateFromProps(props, state) {
 handleDateChange = date => {
 
       this.setState({
-          vendorPurchaseInfo: {
-          ...this.state.vendorPurchaseInfo,
+          formEditInfo: {
+          ...this.state.formEditInfo,
           order_date: date
         },
         allowSave: true
@@ -228,14 +220,14 @@ handleDateChange = date => {
 
     this.setState(
         {
-          vendorPurchaseInfo: {
-          ...this.state.vendorPurchaseInfo,
+          formEditInfo: {
+          ...this.state.formEditInfo,
             [name]: value
         },
         allowSave: true
       });
 
-    console.log('vendorPurchase handleChange',this.state)
+    console.log('cancelPurhaseOrder handleChange',this.state)
     //let order-detail-page set the state so when page filter is
     // used the form values are correct
     // this means we actually don't need to pass form values onSubmit (but we do!)
@@ -246,9 +238,9 @@ handleDateChange = date => {
 
   addNew = (evt) => {
     console.log("=> addNew")
-    //reset vendorPurchaseInfo
+    //reset formEditInfo
     this.setState({
-      vendorPurchaseInfo: {
+      formEditInfo: {
         po_no:this.props.poInfo.po_no,
         order_no: '',
         purchased_qty: 0,
@@ -266,7 +258,7 @@ handleDateChange = date => {
   cancelAddNew = (evt) => {
     console.log("=> cancelAddNew")
     setState({
-    vendorPurchaseInfo: {
+    formEditInfo: {
       purchase_id: this.state.poInfo.purchase_id,
       po_no:this.state.poInfo.po_no,
       order_no: this.state.poInfo.order_no,
@@ -293,34 +285,16 @@ handleDateChange = date => {
     this.setState({message:"not working yet Call me if you need it!"}) // revert back to existing purchase_id
   }
 
-  handlePurchase = (evt) => {
+  handleAction = (evt) => {
     evt.preventDefault();
-    console.log('VendorPurchaseForm handlePurchase:',evt)
-    console.log('=> VendorPurchaseForm in handlePurchase props==>\n',this.props)
-    console.log('=> VendorPurchaseForm in handlePurchase state\n',this.state)
+    console.log('OrderCancelForm handleAction:',evt)
+    console.log('=> OrderCancelForm in handleAction props==>\n',this.props)
+    console.log('=> OrderCancelForm in handleAction state\n',this.state)
     const { closePopup } = this.props;
     this.setState({message:"Updating ...",
                 allowSave: false})
 
-  //  const { poNo, orderNo } = this.state;
-    //const {po_no} = this.props.location.state
-    // TODO: disable btn on submit
-    // TODO: validate fields
-    // Pass event up to parent component
-  //  const modifiedRow = { poNo,orderNo,trackingNo};
-  //   console.log('before onSubmit VendorPurchaseForm:',pageSearch)
-     // calling on Submit on VendorPurchaseForm
-     //const { selection, getRow } = this.props
-     // if (selection && selection.length>0 ) {
-     //   // creating multiple orders
-     //   selection.map(key => {
-     //     var poInfo = getRow(key)
-     //     console.log('update=>',poInfo)
-     //     this.mutateVendorPurchase(poInfo)
-     //   })
-     // } else {
-     //      this.mutateVendorPurchase(this.state.poInfo)
-     // }
+
      const { selectedPoList, bulkUpdate } = this.state
      var newSelectedPoList = []
      if (bulkUpdate) {
@@ -328,7 +302,7 @@ handleDateChange = date => {
        selectedPoList.map(poInfo => {
 
         //console.log('update=>',poInfo)
-        var newPoInfo =  this.mutateVendorPurchase(poInfo)
+        var newPoInfo =  this.mutateAction(poInfo)
          //poInfo.message = res.message;
          console.log("newPoInfo returned:",newPoInfo)
          if (newPoInfo) newSelectedPoList.push(newPoInfo)
@@ -340,14 +314,14 @@ handleDateChange = date => {
          selectedPoList: newSelectedPoList
        })
      } else {
-          this.mutateVendorPurchase(this.state.poInfo)
+          this.mutateAction(this.state.poInfo)
      }
 
 
   }
 
-  async mutateVendorPurchase (selectedPo)  {
-    console.log('=> mutateVendorPurchase selectedPo:', selectedPo)
+  async mutateAction (selectedPo)  {
+    console.log('=> mutateAction selectedPo:', selectedPo)
     var message =  ""
     var sucess = false
     var rtnPoInfo = selectedPo;
@@ -359,37 +333,27 @@ handleDateChange = date => {
         po_no: selectedPo.po_no,
         _id:  selectedPo.purchase_id && parseInt(selectedPo.purchase_id)>0?
             parseInt(selectedPo.purchase_id):null,
-        purchased_qty:  parseInt(selectedPo.set_purchased_qty),
+        purchased_qty:  parseInt(selectedPo.purchased_qty),
       }:
       {
-        po_no: this.state.vendorPurchaseInfo.po_no,
-        _id:  parseInt(this.state.vendorPurchaseInfo.purchase_id)?
-         parseFloat(this.state.vendorPurchaseInfo.purchase_id):null,
-         purchased_qty: this.state.vendorPurchaseInfo.purchased_qty &&
-               parseInt(this.state.vendorPurchaseInfo.purchased_qty)>0 ?
-               parseInt(this.state.vendorPurchaseInfo.purchased_qty) :
-               parseInt(this.state.vendorPurchaseInfo.po_qty)-
-               parseInt(this.state.vendorPurchaseInfo.total_purchased_qty),
+        po_no: this.state.formEditInfo.po_no,
+        _id:  parseInt(this.state.formEditInfo.purchase_id)?
+         parseFloat(this.state.formEditInfo.purchase_id):null,
+         purchased_qty: this.state.formEditInfo.purchased_qty &&
+               parseInt(this.state.formEditInfo.purchased_qty)>0 ?
+               parseInt(this.state.formEditInfo.purchased_qty) :
+               parseInt(this.state.formEditInfo.po_qty)-
+               parseInt(this.state.formEditInfo.total_purchased_qty),
 
       }
       console.log('updateInfo:',updateInfo)
        const response = await mutate({
 
          variables: {
-           "vendorPurchase": {
+           "cancelPoInput": {
             "po_no": updateInfo.po_no,
-            "_id":  updateInfo._id,
-            "order_no": this.state.vendorPurchaseInfo.order_no,
-            "source": this.state.vendorPurchaseInfo.source != this.props.poInfo.source?
-                this.state.vendorPurchaseInfo.source: null,
-            "purchased_qty":  updateInfo.purchased_qty,
 
-            "delivery_days_from": parseInt(this.state.vendorPurchaseInfo.delivery_days_from),
-            "delivery_days_to":  parseInt(this.state.vendorPurchaseInfo.delivery_days_to),
-            "order_date":this.state.vendorPurchaseInfo.order_date?
-             moment(this.state.vendorPurchaseInfo.order_date,'MM-DD-YYYY').
-                format('DD/MM/YYYY'):moment().format('DD/MM/YYYY'),
-            "notes":this.state.vendorPurchaseInfo.notes,
+            "notes":this.state.formEditInfo.notes,
           }
         },
         refetchQueries: [
@@ -400,43 +364,43 @@ handleDateChange = date => {
      })
      .then( res => {
        console.log("mutation result:",res)
-       if (!res || !res.data || !res.data.createVendorPurchase) {
+       if (!res || !res.data || !res.data.cancelPurchaseOrder) {
           this.setState({message: "DB Error",
           allowSave: true})
             rtnPoInfo.message = rtnPoInfo.message==""? rtnPoInfo.message:rtnPoInfo.message+'\n'+
              "DB Error";
               return rtnPoInfo;
-       } else if (!res.data.createVendorPurchase._id ||
-             res.data.createVendorPurchase._id == -99) {
+       } else if (!res.data.cancelPurchaseOrder._id ||
+             res.data.cancelPurchaseOrder._id == -99) {
            this.setState(
-               {message: res.data.createVendorPurchase.message ,
+               {message: res.data.cancelPurchaseOrder.message ,
                allowSave: true},
              )
                rtnPoInfo.message = rtnPoInfo.message==""? rtnPoInfo.message:rtnPoInfo.message+'\n'+
-                    res.data.createVendorPurchase.message;
+                    res.data.cancelPurchaseOrder.message;
              return rtnPoInfo;
        }  else     {
          console.log("created/updated vendor purchase - now setting state")
          this.setState(
            { message: "Updated Successfully.Purchase Id is " +
-                 res.data.createVendorPurchase._id + " info:"+
-                 res.data.createVendorPurchase.message ,
+                 res.data.cancelPurchaseOrder._id + " info:"+
+                 res.data.cancelPurchaseOrder.message ,
              poInfo: {
                  ...this.state.poInfo,
-                order_no: this.state.vendorPurchaseInfo.order_no,
-                purchased_qty: this.state.vendorPurchaseInfo.purchased_qty,
-                delivery_days_from: this.state.vendorPurchaseInfo.delivery_days_from,
-                delivery_days_to: this.state.vendorPurchaseInfo.delivery_days_to,
+                order_no: this.state.formEditInfo.order_no,
+                purchased_qty: this.state.formEditInfo.purchased_qty,
+                delivery_days_from: this.state.formEditInfo.delivery_days_from,
+                delivery_days_to: this.state.formEditInfo.delivery_days_to,
 
-                order_date: this.state.vendorPurchaseInfo.order_date,
-                source: this.state.vendorPurchaseInfo.source,
-                order_notes:this.state.vendorPurchaseInfo.order_notes,
-                purchase_id: res.data.createVendorPurchase._id
+                order_date: this.state.formEditInfo.order_date,
+                source: this.state.formEditInfo.source,
+                order_notes:this.state.formEditInfo.order_notes,
+                purchase_id: res.data.cancelPurchaseOrder._id
 
              },
-             vendorPurchaseInfo: {
-               ...this.state.vendorPurchaseInfo,
-                purchase_id: res.data.createVendorPurchase._id,
+             formEditInfo: {
+               ...this.state.formEditInfo,
+                purchase_id: res.data.cancelPurchaseOrder._id,
 
              },
              allowSave: true
@@ -447,15 +411,15 @@ handleDateChange = date => {
            console.log('new state:',this.state)
 
            // console.log("Call registerPurchase in order-details")
-           // this.props.registerPurchase(res.data.createVendorPurchase._id,
+           // this.props.registerPurchase(res.data.cancelPurchaseOrder._id,
            //   this.props.rowIndex)
 
          rtnPoInfo.message = rtnPoInfo.message==""? rtnPoInfo.message:rtnPoInfo.message+'\n'+
                 "Updated Successfully.Purchase Id is " +
-                   res.data.createVendorPurchase._id + " info:"+
-                   res.data.createVendorPurchase.message;
-          rtnPoInfo.order_no=this.state.vendorPurchaseInfo.order_no;
-            rtnPoInfo.purchase_id=res.data.createVendorPurchase._id
+                   res.data.cancelPurchaseOrder._id + " info:"+
+                   res.data.cancelPurchaseOrder.message;
+          rtnPoInfo.order_no=this.state.formEditInfo.order_no;
+            rtnPoInfo.purchase_id=res.data.cancelPurchaseOrder._id
         return rtnPoInfo;
      }
 
@@ -510,7 +474,7 @@ handleDateChange = date => {
     };
 
   renderExistingOrders(orderList){
-      console.log('=> in vendorPurchaseForm  renderExistingOrders orderList:',orderList)
+      console.log('=> in OrderCancelForm  renderExistingOrders orderList:',orderList)
     const {orders} = orderList
     console.log('=> in renderExistingOrders:',orders)
     var tmpVal = typeof orders != 'undefined'? orders:'No orders'
@@ -529,8 +493,8 @@ handleDateChange = date => {
 
   }
   render() {
-    console.log('render vendorPurchaseForm props:',this.props)
-    console.log('render vendorPurchaseForm state:',this.state)
+    console.log('render OrderCancelForm props:',this.props)
+    console.log('render OrderCancelForm state:',this.state)
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
     const { classes, history, selection, getRow} = this.props;
     //const { classes, history, selection, getRow, notPurchased} = this.props;
@@ -555,24 +519,12 @@ handleDateChange = date => {
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
      const { purchased_qty,purchase_id,order_notes,order_date,
-          order_no,delivery_days_to,delivery_days_from} = this.state.vendorPurchaseInfo
+          order_no,delivery_days_to,delivery_days_from} = this.state.formEditInfo
 
-      const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
+      const {message, bulkUpdate,selectedPoList} = this.state
      console.log("render new message:",message, " purchase_id:",purchase_id)
 
-    // if (!order_date || order_date == '') {
-    //     order_date=moment(new Date()).format('YYYY/MM/DD')
-    // }
-       // <div className="m2">
-       // <a href = {link} target = "_blank" > {link  } </a>}
-       // </div>
-       // <Button disabled={this.props.history||this.props.history1? false:true}
-       // className="col-3"
-       // onClick={() => {this.props.history?
-       //    this.props.history.goBack():
-       //    this.props.history1? this.props.history1.goBack():null}}>
-       //    Go Back
-       // </Button>
+
     return (
     <div className="popup">
       <div className="popup_inner">
@@ -581,6 +533,7 @@ handleDateChange = date => {
 
           <div className="flex flex-wrap  ml2">
             <TextField
+              disabled={bulkUpdate}
               name="poNo"
               type="String"
               label="PO #"
@@ -597,6 +550,7 @@ handleDateChange = date => {
               }}
             />
             <TextField
+              disabled={bulkUpdate}
               name="title"
               type="String"
               label="Title"
@@ -618,6 +572,7 @@ handleDateChange = date => {
               className={classes.textField}
             />
             <TextField
+              disabled={bulkUpdate}
               name="options"
               type="String"
               label="options"
@@ -746,16 +701,12 @@ handleDateChange = date => {
           </div>
 
         </div>
-        :
-        <div>
-        {/* bulkUpdate */}
-        <ReactTable
-
+        :<ReactTable
           column={columnDefaults}
           data={selectedPoList}
           columns={[
             {
-              Header: "Selected Purchase Orders",
+              Header: "Selected Orders",
               columns: [
                 {
                   Header: "PO#",
@@ -791,7 +742,7 @@ handleDateChange = date => {
                 },
                 {
                   Header: "Set Pur Qty",
-                  id: "set_purchased_qty",
+                  id: "purchased_qty",
                   accessor: d => d.purchased_qty,
                   style: {
                     backgroundColor: 'lightblue',
@@ -821,8 +772,6 @@ handleDateChange = date => {
           defaultPageSize={5}
           className="-striped -highlight"
         />
-          {/* end ReactTable */}
-        </div>
        }
 
         <div  className="flex flex-column ml2 p0 ">
@@ -838,11 +787,10 @@ handleDateChange = date => {
           </Fab>
         </div> {/* Fab div */}
         <div className="flex-auto px1 lightblue ">
-          <form  className="ml2" onSubmit={this.handlePurchase} autoComplete="off">
+          <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
 
             <div className="flex flex-row ml2 ">
             <TextField
-              disabled={bulkUpdate && !validBulkUpdate}
               name="order_no"
               required
               type="String"
@@ -854,7 +802,6 @@ handleDateChange = date => {
               className="col-5 ml2"
             />
             <TextField
-              disabled={bulkUpdate }
               name="purchased_qty"
               required
               type="Number"
@@ -865,7 +812,6 @@ handleDateChange = date => {
               className="col-1 ml2"
             />
             <DatePicker className="pickers"
-            disabled={bulkUpdate && !validBulkUpdate}
                     autoOk
                     disableFuture
                     value={order_date}
@@ -876,7 +822,6 @@ handleDateChange = date => {
 
             <div className="flex flex-wrap ml2">
             <TextField
-            disabled={bulkUpdate && !validBulkUpdate}
               name="delivery_days_from"
               required
               type="Number"
@@ -888,7 +833,6 @@ handleDateChange = date => {
             />
              -
             <TextField
-            disabled={bulkUpdate && !validBulkUpdate}
               name="delivery_days_to"
               required
               type="Number"
@@ -901,7 +845,6 @@ handleDateChange = date => {
             />
 
             <TextField
-            disabled={bulkUpdate && !validBulkUpdate}
               name="order_notes"
               type="String"
               label="Order Cust Note"
@@ -912,7 +855,6 @@ handleDateChange = date => {
               className="col-4 ml2"
             />
             <TextField
-            disabled={bulkUpdate && !validBulkUpdate}
               name="source"
               type="String"
               label="Actual Source"
@@ -923,7 +865,7 @@ handleDateChange = date => {
             />
 
             <Button
-              disabled={!(this.state.allowSave && (bulkUpdate && validBulkUpdate))}
+              disabled={!this.state.allowSave}
               size="medium"
               type="submit"
               variant="contained"
@@ -939,6 +881,7 @@ handleDateChange = date => {
           <div className="flex flex-wrap col3">
                   <TextField
                     name="message"
+                    error
                     label="message"
                     value={message? message:''}
                     multiline
@@ -950,10 +893,11 @@ handleDateChange = date => {
                     style={{
                       //backgroundColor:'pink',
                        //'whiteSpace': 'unset',
-                        'fontSize': '10px' ,
+                        'fontSize': '12px' ,
                         'font': 'bold',
-                      'width' : 800,
+                      'width' : 600,
                     }}
+
                     margin="dense"
 
             />
@@ -974,44 +918,26 @@ handleDateChange = date => {
   }
 }
 
-VendorPurchaseForm.propTypes = {
+OrderCancelForm.propTypes = {
   onSubmit: PropTypes.func,
 
 };
 
-VendorPurchaseForm.defaultProps = {
+OrderCancelForm.defaultProps = {
   onSubmit: () => {},
 };
 
-const createVendorPurchase = gql`
-  mutation createVendorPurchase($vendorPurchase: VendorPurchaseInput!) {
-    createVendorPurchase (input: $vendorPurchase) {
+const cancelPurchaseOrder = gql`
+  mutation cancelPurchaseOrder($cancelPoInput: CancelPoInput!) {
+    cancelPurchaseOrder (input: $cancelPoInput) {
      _id
       message
    }
   }
 `;
 
-const VendorPurchaseFormWithMutation =
-graphql( createVendorPurchase)
-(VendorPurchaseForm);
+const OrderCancelFormWithMutation =
+graphql( cancelPurchaseOrder)
+(OrderCancelForm);
 
-// const VendorPurchaseFormWithMutation =  compose(
-//    graphql(createVendorPurchase, {
-//       name: "createVendorPurchase"
-//    }),
-//    graphql(orderDetailsQuery,
-//      {
-//      name: 'notPurchased',
-//      // options are props passed from order-details-page
-//      options: ({poInfo} ) => ({
-//        variables: {
-//          poNo: poInfo && poInfo.po_no,
-//          purchase_id: poInfo && poInfo.purchase_id,
-//          stage: "purchase"
-//        },
-//      }),
-//    })
-// )(VendorPurchaseForm);
-//export default withStyles(styles)(VendorPurchaseForm)
-export default withStyles(styles)(VendorPurchaseFormWithMutation)
+export default withStyles(styles)(OrderCancelFormWithMutation)

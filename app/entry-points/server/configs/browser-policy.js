@@ -8,6 +8,7 @@ BrowserPolicy.content.disallowEval();
 BrowserPolicy.content.disallowConnect();
 
 // Google fonts
+
 BrowserPolicy.content.allowEval('http://fonts.googleapis.com');
 BrowserPolicy.content.allowFontDataUrl('http://fonts.googleapis.com');
 
