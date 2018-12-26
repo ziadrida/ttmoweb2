@@ -92,8 +92,8 @@ clearFilter = (evt) => {
   }
 
   render() {
-    console.log('order-details-form props:',this.props)
-    console.log('order-details-form state:',this.state)
+    console.log('render order-details-form props:',this.props)
+    console.log('render order-details-form state:',this.state)
     const { classes } = this.props;
 
     const { poNo,status,orderNo, trackingNo,awbNo,username,search } = this.state;
@@ -118,7 +118,7 @@ clearFilter = (evt) => {
         <TextField
           name="status"
           type="String"
-          label="Order Status"
+          label="Status"
           value={status}
           onChange={this.handleChange}
           margin="dense"

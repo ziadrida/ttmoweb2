@@ -22,6 +22,14 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import FilledInput from '@material-ui/core/FilledInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 // refetch option to mutate
 import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';
@@ -48,11 +56,18 @@ const styles = theme => ({
     marginTop: 19,
     width: 120,
   },
+  formControl: {
+    margin: theme.spacing.unit,
+    minWidth: 300,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing.unit * 2,
+  },
   dense: {
-    marginTop: 19,
+    marginTop: 10,
   },
   menu: {
-    width: 180,
+    width: 300,
   },
 });
 
@@ -63,26 +78,23 @@ class OrderCancelForm extends React.Component {
   this.state = {
     copySuccess: '',
     bulkUpdate: false,
+    validBulkUpdate: false,
     refresh: false,
     selectedPoList: [],
     allowSave: true,
     message: '',
   formEditInfo: {
     po_no:'',
-    order_no: '',
-    purchased_qty: 0,
-    delivery_days_from: 0,
-    delivery_days_to: 0,
-    purchase_id: -99,
-    order_date:  moment().format("MM-DD-YYYY"),
-    source: '',
-    notes:'',
+    edit_notes:'',
+    edit_status:'',
+    edit_delivered_qty:0,
   },
 
   poInfo: {
     rowIndex:0,
     po_no: '',
     title: '',
+    option:'',
     link: '',
     price: 0,
     sale_price: 0,
@@ -90,9 +102,12 @@ class OrderCancelForm extends React.Component {
     username:'',
     total_purchased_qty: 0,
     po_qty: 0,
+    status:'',
+    notes:'',
     order_no: '',
     delivery_days_from: 0,
     delivery_days_to: 0,
+    delivered_qty:0,
     purchase_id: -99,
     order_date:  moment().format("MM-DD-YYYY"),
   }
@@ -105,15 +120,22 @@ static getDerivedStateFromProps(props, state) {
   console.log("OrderCancelForm getDerivedStateFromProps \nprops",props, "\nstate",state)
   const {selection,getRow} = props
   const bulkUpdate = selection && selection.length > 1
+    var validUpdate = true;
   var tmpSelectedPoList = []
   var changedList = false;
+
   if (bulkUpdate && props.poInfo) {
+    var tmpStatus = '';
     selection.map(key => {
       console.log('build update list ', key)
       var row = getRow(key)
       if (row) {
         row.message = ""
-        row.purchased_qty = parseInt(row.po_qty) - parseInt(row.total_purchased_qty)
+        // to do bulk update, all selected items do not share the same status
+        if (tmpStatus == '') tmpStatus = row.status?row.status:'';
+        else if (tmpStatus != row.status) validUpdate = false
+
+        row.edit_delivered_qty = parseInt(row.po_qty) - parseInt(row.delivered_qty?row.delivered_qty:0)
 
         tmpSelectedPoList.push(row)
         if (!changedList)  {
@@ -137,6 +159,7 @@ static getDerivedStateFromProps(props, state) {
     if ( changedList ) {
       returnState =  {
         bulkUpdate: bulkUpdate,
+        validBulkUpdate: validUpdate,
         selectedPoList: tmpSelectedPoList,
         refresh: false,
       }
@@ -147,27 +170,16 @@ static getDerivedStateFromProps(props, state) {
         refresh: false,
       }
     }
-      if (props.poInfo && state.poInfo && props.poInfo.po_no !== state.poInfo.po_no) {
+    if (props.poInfo && state.poInfo && props.poInfo._id !== state.poInfo._id) {
       returnState =  {
         ...returnState,
+        message:props.poInfo.po_no?'Loaded PO#'+props.poInfo.po_no:'',
         poInfo: props.poInfo ,
         formEditInfo: {
-          purchase_id: props.poInfo.purchase_id,
           po_no:props.poInfo.po_no,
-          order_no: props.poInfo.order_no,
-          purchased_qty:  parseInt(props.poInfo.purchase_id)>0?
-             parseInt(props.poInfo.purchased_qty):
-              parseInt(props.poInfo.po_qty)-parseInt(props.poInfo.total_purchased_qty) ,
-          delivery_days_from: props.poInfo.delivery_days_from,
-          delivery_days_to: props.poInfo.delivery_days_to,
-          purchase_id: props.poInfo.purchase_id,
-          order_date: props.poInfo.order_date && props.poInfo.order_date!=''?
-           moment(props.poInfo.order_date,'DD/MM/YYYY').format("MM-DD-YYYY"):
-           moment().format("MM-DD-YYYY"),
-          // moment(props.poInfo.order_date,'DD/MM/YYYY').format('DD-MM-YYYY') :
-          //   moment().format("DD-MM-YYYY"),
-          source: props.poInfo.source,
-          notes:props.poInfo.order_notes,
+          edit_notes:props.poInfo.notes? props.poInfo.notes:'',
+          edit_delivered_qty: props.poInfo.delivered_qty,
+          edit_status:props.poInfo.status?props.poInfo.status:'' ,
         },
 
       };
@@ -236,54 +248,6 @@ handleDateChange = date => {
     //    }
   }
 
-  addNew = (evt) => {
-    console.log("=> addNew")
-    //reset formEditInfo
-    this.setState({
-      formEditInfo: {
-        po_no:this.props.poInfo.po_no,
-        order_no: '',
-        purchased_qty: 0,
-        delivery_days_from: 0,
-        delivery_days_to: 0,
-        purchase_id: -99,
-        order_date:   moment().format("MM-DD-YYYY"),
-        source: this.props.poInfo.source,
-        notes:'',
-      },
-      allowSave: true,
-    })
-    }
-
-  cancelAddNew = (evt) => {
-    console.log("=> cancelAddNew")
-    setState({
-    formEditInfo: {
-      purchase_id: this.state.poInfo.purchase_id,
-      po_no:this.state.poInfo.po_no,
-      order_no: this.state.poInfo.order_no,
-      purchased_qty: this.state.poInfo.purchase_id? parseInt(this.state.poInfo.purchased_qty):
-      parseInt(this.state.poInfo.po_qty) - parseInt(this.state.poInfo.total_purchased_qty),
-      delivery_days_from: this.state.poInfo.delivery_days_from,
-      delivery_days_to: this.state.poInfo.delivery_days_to,
-      purchase_id: this.state.poInfo.purchase_id,
-      order_date: this.state.poInfo.order_date?
-      moment(this.state.poInfo.order_date,'DD/MM/YYYY').format('MM-DD-YYYY'):
-       moment().format('MM-DD-YYYY'),
-      // moment(this.state.poInfo.order_date,'DD/MM/YYYY').format('MM-DD-YYYY'):
-      //   moment().format('MM-DD-YYYY') ,
-      source: this.state.poInfo.source,
-      notes:this.state.poInfo.order_notes,
-    },
-    allowSave: true
-      })
-  }
-
-  deleteRecord = (evt) => {
-    console.log("=> deleteRecord")
-    // simply clear the purchase_id!
-    this.setState({message:"not working yet Call me if you need it!"}) // revert back to existing purchase_id
-  }
 
   handleAction = (evt) => {
     evt.preventDefault();
@@ -295,7 +259,7 @@ handleDateChange = date => {
                 allowSave: false})
 
 
-     const { selectedPoList, bulkUpdate } = this.state
+     const { selectedPoList, bulkUpdate,  validBulkUpdate } = this.state
      var newSelectedPoList = []
      if (bulkUpdate) {
        // creating multiple orders
@@ -330,30 +294,27 @@ handleDateChange = date => {
       console.log("call mutate")
       var updateInfo = this.state.bulkUpdate?
        {
+         // fiels that come from the list of PO to be changed
         po_no: selectedPo.po_no,
-        _id:  selectedPo.purchase_id && parseInt(selectedPo.purchase_id)>0?
-            parseInt(selectedPo.purchase_id):null,
-        purchased_qty:  parseInt(selectedPo.purchased_qty),
+        delivered_qty: selectedPo.edit_delivered_qty? parseInt(selectedPo.edit_delivered_qty):null,
+        delivered:selectedPo.delivered,
       }:
       {
         po_no: this.state.formEditInfo.po_no,
-        _id:  parseInt(this.state.formEditInfo.purchase_id)?
-         parseFloat(this.state.formEditInfo.purchase_id):null,
-         purchased_qty: this.state.formEditInfo.purchased_qty &&
-               parseInt(this.state.formEditInfo.purchased_qty)>0 ?
-               parseInt(this.state.formEditInfo.purchased_qty) :
-               parseInt(this.state.formEditInfo.po_qty)-
-               parseInt(this.state.formEditInfo.total_purchased_qty),
-
+        delivered:this.state.poInfo.delivered,
+        delivered_qty: this.state.formEditInfo.edit_delivered_qty?
+          parseInt(this.state.formEditInfo.edit_delivered_qty):null,
       }
       console.log('updateInfo:',updateInfo)
        const response = await mutate({
 
          variables: {
-           "cancelPoInput": {
+           "updateStatusInput": {
             "po_no": updateInfo.po_no,
-
-            "notes":this.state.formEditInfo.notes,
+            "notes":this.state.formEditInfo.edit_notes,
+            "status":this.state.formEditInfo.edit_status,
+            "delivered_qty":updateInfo.delivered_qty,
+            "delivered":updateInfo.delivered, // if -1 then cannot change status unless cancelled
           }
         },
         refetchQueries: [
@@ -380,28 +341,21 @@ handleDateChange = date => {
                     res.data.cancelPurchaseOrder.message;
              return rtnPoInfo;
        }  else     {
-         console.log("created/updated vendor purchase - now setting state")
+         console.log("got response from mutation")
          this.setState(
-           { message: "Updated Successfully.Purchase Id is " +
-                 res.data.cancelPurchaseOrder._id + " info:"+
-                 res.data.cancelPurchaseOrder.message ,
+           { message:  res.data.cancelPurchaseOrder.message ,
              poInfo: {
                  ...this.state.poInfo,
-                order_no: this.state.formEditInfo.order_no,
-                purchased_qty: this.state.formEditInfo.purchased_qty,
-                delivery_days_from: this.state.formEditInfo.delivery_days_from,
-                delivery_days_to: this.state.formEditInfo.delivery_days_to,
 
-                order_date: this.state.formEditInfo.order_date,
-                source: this.state.formEditInfo.source,
-                order_notes:this.state.formEditInfo.order_notes,
-                purchase_id: res.data.cancelPurchaseOrder._id
-
+                   status:res.data.cancelPurchaseOrder.status,
+                   notes:res.data.cancelPurchaseOrder.notes,
+                   delivered_qty:res.data.cancelPurchaseOrder.delivered_qty,
              },
              formEditInfo: {
                ...this.state.formEditInfo,
-                purchase_id: res.data.cancelPurchaseOrder._id,
-
+                edit_status: res.data.cancelPurchaseOrder.status,
+                edit_notes:res.data.cancelPurchaseOrder.notes,
+                edit_delivered_qty:res.data.cancelPurchaseOrder.delivered_qty
              },
              allowSave: true
              }
@@ -415,11 +369,9 @@ handleDateChange = date => {
            //   this.props.rowIndex)
 
          rtnPoInfo.message = rtnPoInfo.message==""? rtnPoInfo.message:rtnPoInfo.message+'\n'+
-                "Updated Successfully.Purchase Id is " +
-                   res.data.cancelPurchaseOrder._id + " info:"+
-                   res.data.cancelPurchaseOrder.message;
-          rtnPoInfo.order_no=this.state.formEditInfo.order_no;
-            rtnPoInfo.purchase_id=res.data.cancelPurchaseOrder._id
+                     res.data.cancelPurchaseOrder.message;
+          rtnPoInfo.status=res.data.cancelPurchaseOrder.status;
+
         return rtnPoInfo;
      }
 
@@ -473,6 +425,25 @@ handleDateChange = date => {
     textField.remove()
     };
 
+    renderExistingTrackings(trackingList){
+        console.log('=> in renderExistingTrackings trackingList:',trackingList)
+      const {trackings} = trackingList
+      console.log('=> in renderExistingTrackings:',trackings)
+      var tmpVal = typeof trackings != 'undefined'? trackings:'No trackings'
+         return  tmpVal!='' &&
+                typeof tmpVal !== 'string'?
+            trackings.map(trackingNo => {
+                return <ListItem button key={trackingNo}     >
+                  <ListItemText primary={trackingNo}    onClick={(e) => {this.copyToClipboard(e, trackingNo)}}  />
+                  </ListItem>
+
+        }):
+        <ListItem button   onClick={(e) => {this.copyToClipboard(e, trackingNo)}} >
+          <ListItemText primary={tmpVal} key={tmpVal}   onClick={(e) => {this.copyToClipboard(e, tmpVal)}}  />
+          </ListItem>
+
+    }
+
   renderExistingOrders(orderList){
       console.log('=> in OrderCancelForm  renderExistingOrders orderList:',orderList)
     const {orders} = orderList
@@ -513,23 +484,22 @@ handleDateChange = date => {
     const {_id, po_no,
        title, link, po_qty, total_purchased_qty,
        price,sale_price,first_payment,total_amount,options
-       ,source, notes,orders,destination
+       ,source, notes,orders,trackings,destination,status,username,delivered_qty
     } = this.state.poInfo;
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { purchased_qty,purchase_id,order_notes,order_date,
-          order_no,delivery_days_to,delivery_days_from} = this.state.formEditInfo
+     const { edit_notes,edit_status,edit_delivered_qty} = this.state.formEditInfo
 
-      const {message, bulkUpdate,selectedPoList} = this.state
-     console.log("render new message:",message, " purchase_id:",purchase_id)
+      const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
+     console.log("render new message:",message)
 
 
     return (
     <div className="popup">
       <div className="popup_inner">
         {   !bulkUpdate ?
-        <div className=" flex flex-column  flex-wrap p1 m1 border">
+        <div className=" flex flex-wrap   p1 m1 border">
 
           <div className="flex flex-wrap  ml2">
             <TextField
@@ -550,7 +520,7 @@ handleDateChange = date => {
               }}
             />
             <TextField
-              disabled={bulkUpdate}
+
               name="title"
               type="String"
               label="Title"
@@ -565,14 +535,14 @@ handleDateChange = date => {
               style={{
                 //backgroundColor:'pink',
                 'whiteSpace': 'unset',
-                 'fontSize': '12px' ,
+                 'fontSize': '10px' ,
                  'fontWeight':'bold',
-                'width' : '32em',
+                'width' : '42em',
               }}
               className={classes.textField}
             />
             <TextField
-              disabled={bulkUpdate}
+
               name="options"
               type="String"
               label="options"
@@ -586,17 +556,30 @@ handleDateChange = date => {
                //backgroundColor:'pink',
                'whiteSpace': 'unset',
                 'fontSize': '10px' ,
-               'width' : '40em',
+               'width' : '32em',
              }}
               margin="dense"
             />
             <div className="border"
               style={{'overflowX': 'hidden',
               'overflowY':'scroll',
-               width:'500px',height:'4em'}}>
+              'fontSize': '10px' ,
+               width:'80em',height:'3em'}}>
             {  <a href = { link } target = "_blank" > {link  } </a>}
             </div> {/* link */}
+          </div>
+          <TextField
+            name="username"
+            type="String"
+            label="User"
+            value={username}
+            InputProps={{
+             readOnly: true,
+            }}
+            margin="dense"
 
+            className="col-1"
+          />
           <TextField
             name="Price"
             type="Number"
@@ -642,9 +625,19 @@ handleDateChange = date => {
             margin="dense"
             className="col-1"
           />
-          </div>
+          <TextField
+            name="status"
+            type="String"
+            label="Status"
+            value={status}
 
-          <div className="flex flex-wrap block ml2">
+            InputProps={{
+             readOnly: true,
+           }}
+            width='8em'
+            margin="dense"
+            className="col-1"
+          />
           <TextField
             name="poQty"
             type="Number"
@@ -655,6 +648,7 @@ handleDateChange = date => {
              readOnly: true,
            }}
             margin="dense"
+            width='4em'
             className="col-1"
           />
           <TextField
@@ -666,6 +660,19 @@ handleDateChange = date => {
              readOnly: true,
             }}
             margin="dense"
+              width='4em'
+            className="col-1"
+          />
+          <TextField
+            name="delivered_qty"
+            type="String"
+            label="Delv Qty"
+            value={delivered_qty}
+            InputProps={{
+             readOnly: true,
+            }}
+            margin="dense"
+            width='6em'
             className="col-1"
           />
           <TextField
@@ -677,27 +684,46 @@ handleDateChange = date => {
              readOnly: true,
             }}
             margin="dense"
+            width='6em'
             className="col-1"
           />
           <TextField
-            name="notes"
+            name="ponotes"
             type="String"
-            label="Notes"
+            label="All Notes"
             value={notes}
-            onChange={this.handleChange}
+            onClick={(e) => {this.copyToClipboard(e, notes)}}
             margin="dense"
+              width='32em'
             className="col-3 ml2"
           />
 
+          <div className="flex flex-wrap">
             <List
-            className="col-3 border "
+            style={{
+            'fontSize': '10px' ,
+             margin:'0pm',
+             width:'20em'}}
+            className=" border "
             component="nav"
             subheader={<ListSubheader component="div">Orders List</ListSubheader>}
             >
                     {this.renderExistingOrders({orders})}
             </List>
+            <List
+            style={{
+            'fontSize': '10px' ,
+            margin:'0pm',
+             width:'20em'}}
+            className="border "
+            component="nav"
+            subheader={<ListSubheader component="div">Trackings List</ListSubheader>}
+            >
+                    {this.renderExistingTrackings({trackings})}
+            </List>
+
             {/* poQty block*/}
-            <p> {this.state.copySuccess} </p>
+
           </div>
 
         </div>
@@ -725,30 +751,35 @@ handleDateChange = date => {
 
                 },
                 {
+                  Header: "Status",
+                  id: "status",
+                  accessor: d => d.status
+                },
+                {
                   Header: "PO Qty",
                   id: "po_qty",
                   accessor: d => d.po_qty
                 },
                 {
-                  Header: "T. Pur Qty",
-                  id: "total_purchased_qty",
-                  accessor: d => d.total_purchased_qty
+                  Header: "Delv Qty",
+                  id: "delivered_qty",
+                  accessor: d => d.delivered_qty
                 },
-                ,
+                {
+                  Header: "Set Delv Qty",
+                  id: "edit_delivered_qty",
+                  accessor: d => d.edit_delivered_qty
+                },
                 {
                   Header: "Order#",
                   id: "order_no",
                   accessor: d => d.order_no
                 },
                 {
-                  Header: "Set Pur Qty",
-                  id: "purchased_qty",
-                  accessor: d => d.purchased_qty,
-                  style: {
-                    backgroundColor: 'lightblue',
-                    font: "bold"
+                  Header: "notes",
+                  id: "notes",
+                  accessor: d => d.notes,
 
-                  }
                 },
                 {
                   Header: "source",
@@ -769,103 +800,86 @@ handleDateChange = date => {
               ]
             }
           ]}
+          getTdProps={(state, rowInfo, column, instance) => {
+             return {
+
+               onClick: (e, handleOriginal) => {
+                 console.log("A Td Element was clicked!");
+                 console.log("it produced this event:", e);
+                 console.log("It was in this column:", column);
+                 console.log("It was in this row:", rowInfo);
+                 console.log("It was in this table instance:", instance);
+                 console.log('VALUE==>', rowInfo.row[column.id])
+
+                 this.copyToClipboard(e, rowInfo.row[column.id])
+                // this.setState({ oldVal: rowInfo.row[column.id] })
+
+                 // IMPORTANT! React-Table uses onClick internally to trigger
+                 // events like expanding SubComponents and pivots.
+                 // By default a custom 'onClick' handler will override this functionality.
+                 // If you want to fire the original onClick handler, call the
+                 // 'handleOriginal' function.
+                  if (handleOriginal || true) {
+                    handleOriginal();
+                 }
+               }
+             };
+           }}
+
           defaultPageSize={5}
+          noDataText="nothing selected"
           className="-striped -highlight"
         />
        }
 
-        <div  className="flex flex-column ml2 p0 ">
-        <div className=" flex flex-auto lightgray  p0 boarder-bottom m0">
-          <Fab size="small" color="primary" aria-label="Add" className={classes.fab}>
-            <AddIcon size="small" onClick={this.addNew} />
-          </Fab>
-          <Fab size="small" color="secondary" aria-label="Cancel" className={classes.fab}>
-            <CancelIcon size="small" onClick={this.cancelAddNew} />
-          </Fab>
-          <Fab size="small" disabled aria-label="Delete" className={classes.fab}>
-            <DeleteIcon size="small" onClick={this.deleteRecord} />
-          </Fab>
-        </div> {/* Fab div */}
+
         <div className="flex-auto px1 lightblue ">
           <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
 
-            <div className="flex flex-row ml2 ">
-            <TextField
-              name="order_no"
-              required
-              type="String"
-              label={"Order # [" + (!purchase_id||purchase_id==-99? "New":"Edit")+"]"}
-              autoFocus={true}
-              value={order_no}
-              onChange={this.handleChange}
-              margin="dense"
-              className="col-5 ml2"
-            />
-            <TextField
-              name="purchased_qty"
-              required
-              type="Number"
-              label="Qty"
-              value={purchased_qty}
-              onChange={this.handleChange}
-              margin="dense"
-              className="col-1 ml2"
-            />
-            <DatePicker className="pickers"
-                    autoOk
-                    disableFuture
-                    value={order_date}
-                    onChange={this.handleDateChange}
-                    format="DD-MMM-YYYY"
-              />
-            </div> {/* div for order_no and purchased_qty */}
 
             <div className="flex flex-wrap ml2">
-            <TextField
-              name="delivery_days_from"
-              required
-              type="Number"
-              label="Days from"
-              value={delivery_days_from}
-              onChange={this.handleChange}
-              margin="dense"
-              className="col-1"
-            />
-             -
-            <TextField
-              name="delivery_days_to"
-              required
-              type="Number"
-              label="Days to"
-
-              value={delivery_days_to}
-              onChange={this.handleChange}
-              margin="dense"
-              className="col-2 ml2"
-            />
 
             <TextField
-              name="order_notes"
+              name="edit_notes"
               type="String"
-              label="Order Cust Note"
-
-              value={order_notes}
+              label="Customer Note"
+              value={edit_notes}
               onChange={this.handleChange}
               margin="dense"
               className="col-4 ml2"
             />
-            <TextField
-              name="source"
-              type="String"
-              label="Actual Source"
-              value={source}
+            <FormControl required className={classes.formControl}>
+            <InputLabel htmlFor="status-required">Status</InputLabel>
+            <Select
+              value={edit_status}
               onChange={this.handleChange}
-              margin="dense"
-              className="col-2 ml2"
-            />
-
+              name="edit_status"
+              inputProps={{
+                id: 'status-required',
+              }}
+              className={classes.selectEmpty}
+            >
+              <MenuItem value={"active"}>active</MenuItem>
+              <MenuItem value={"awaiting-payment"}>awaiting-payment</MenuItem>
+              <MenuItem value={"cancelled"}>cancelled</MenuItem>
+              <MenuItem value={"delivered"}>delivered</MenuItem>
+              <MenuItem value={"closed"}>closed</MenuItem>
+            </Select>
+            <FormHelperText>Required</FormHelperText>
+          </FormControl>
+          <TextField
+            name="edit_delivered_qty"
+            type="String"
+            label="Delivered Qty"
+            disabled={edit_status == "delivered" || edit_status == "active" ?
+            bulkUpdate :true}
+            value={edit_delivered_qty}
+            onChange={this.handleChange}
+            margin="dense"
+            className="col-1 ml2"
+          />
             <Button
-              disabled={!this.state.allowSave}
+              disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
               size="medium"
               type="submit"
               variant="contained"
@@ -878,7 +892,7 @@ handleDateChange = date => {
           </form>
           </div> {/* end of form div*/}
 
-          <div className="flex flex-wrap col3">
+          <div className="flex flex-wrap col3 ml2">
                   <TextField
                     name="message"
                     error
@@ -906,8 +920,8 @@ handleDateChange = date => {
               margin="dense" onClick={this.props.closePopup}>
               Close
             </Button>
-          </div>
-        </div> {/* close div which includes Fabs, foem and message */}
+
+        </div> {/* close div which includes Fabs, form and message */}
       </div>  {/* popup_inner */}
 
     </div>  // close div popup
@@ -928,10 +942,13 @@ OrderCancelForm.defaultProps = {
 };
 
 const cancelPurchaseOrder = gql`
-  mutation cancelPurchaseOrder($cancelPoInput: CancelPoInput!) {
-    cancelPurchaseOrder (input: $cancelPoInput) {
+  mutation cancelPurchaseOrder($updateStatusInput: UpdateStatusInput!) {
+    cancelPurchaseOrder (input: $updateStatusInput) {
      _id
       message
+      status
+      delivered_qty
+      closed
    }
   }
 `;

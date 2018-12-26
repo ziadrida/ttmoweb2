@@ -1,4 +1,5 @@
 import cancelPurchaseOrder from './cancel-purchase-order';
+
 const Mutation = {
   cancelPurchaseOrder
 };

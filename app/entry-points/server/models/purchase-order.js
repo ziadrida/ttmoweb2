@@ -44,6 +44,10 @@ const schema = mongoose.Schema({
     orign_facility_arrival_date: String,
     status: String,
     notes: String,
+    date_created: Date,
+    created_by: String,
+    last_updated: Date,
+    updated_by: String,
     //vendorPurchase: [VendorPurchase]
   }
 

@@ -24,7 +24,7 @@ const styles = theme => ({
 
 class OrderStageFilter extends React.Component {
   state = {
-    value: 'purchase',
+    value: 'all',
   };
 
   handleChange = event => {

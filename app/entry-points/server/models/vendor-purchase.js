@@ -21,7 +21,10 @@ const schema = mongoose.Schema({
   options: String,
   notes: String,
   date_created: Date,
+  created_by: String,
   last_updated: Date,
+  updated_by: String,
+
 })
 
 const VendorPurchase = mongoose.model('vendor_purchases', schema);

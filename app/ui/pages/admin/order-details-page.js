@@ -38,7 +38,7 @@ class OrderDetailsPage extends React.PureComponent {
       search: '',
 
     },
-    stage: 'purchase'
+    stage: 'all'
 
   }
 

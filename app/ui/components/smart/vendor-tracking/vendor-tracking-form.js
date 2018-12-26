@@ -77,13 +77,18 @@ class VendorTrackingForm extends React.Component {
     purchase_id:-99,
     tracking_no: '',
     shipped_qty: 0,
-    ship_date: moment().format("MM-DD-YYYY"),
+    ship_date: '',//moment().format("MM-DD-YYYY"),
     seller_ship_id: -99,
     time_in_transit_to:0,
     time_in_transit_from:0,
     message:'',
+    purchase_id: -99,
+    delivered_qty:0,
+    options:'',
+    order_date:'',
+    status:'',
+    notes:''  ,
 
-    notes:'',
   },
 
   poInfo: {
@@ -332,7 +337,7 @@ handleDateChange = date => {
         seller_ship_id: -99,
         ship_date:   moment().format("MM-DD-YYYY"),
         carrier: '',
-        status: 'active',
+
         notes:'',
       },
       allowSave: true,
@@ -638,6 +643,7 @@ handleDateChange = date => {
         </ListItem>
 
   }
+
   render() {
     console.log('render vendorTrackingForm props:',this.props)
     console.log('render vendorTrackingForm state:',this.state)
@@ -884,7 +890,7 @@ handleDateChange = date => {
             type="String"
             label="Notes"
             value={notes}
-            onChange={this.handleChange}
+            onClick={(e) => {this.copyToClipboard(e, notes)}}
             margin="dense"
             className="col-3 ml2"
           />
@@ -1119,7 +1125,7 @@ handleDateChange = date => {
             />
 
             <Button
-              disabled={!(this.state.allowSave && (bulkUpdate && validBulkUpdate))}
+            disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
               size="medium"
               type="submit"
               variant="contained"

@@ -69,7 +69,8 @@ const getPurchaseOrder = async (root, args, context) => {
   try {
     console.log('purchaseOrder queryStr:',queryStr)
     const result = await PurchaseOrder.findOne(queryStr).sort({"-id":-1}).limit(1).exec();
-    console.log("result.length:",result.length)
+
+    console.log("result.length:",result && result.length)
    //console.log("result:",JSON.stringify(result))
     return result;
   } catch (exc) {

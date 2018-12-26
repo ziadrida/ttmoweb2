@@ -59,7 +59,6 @@ const types = gql`
     date_received: String
     ship_id: String
     packing: [Packing]
-    last_updated: String
     purchase_last_updated: String
     tracking_last_updated: String
     notes: String
@@ -77,6 +76,10 @@ const types = gql`
     awb_status:String
     awb_no:String
     received: String
+    date_created: String
+    created_by: String
+    last_updated: String
+    updated_by: String
   }
 
   type Packing {

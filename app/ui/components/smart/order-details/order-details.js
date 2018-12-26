@@ -142,6 +142,7 @@ const SelectTable=selectTableHOC(ReactTable)
           selectAll: false,
           showPurchase:false,
           showTracking:false,
+          showCancel: false,
           refreshData: false,
           currentRow: {},
           currentKey: "",
@@ -318,24 +319,35 @@ const SelectTable=selectTableHOC(ReactTable)
 
           },
           {
-                  id: "cancel",
-                  Header: "Cancel",
+                  id: "set_status",
+                  Header: "",
                   accessor: d => d.po_no,
                 //  Cell: this.renderEditable,
                 Cell: (row) => (
                   <div>
 
-                 <svg  onClick={() => this.handleCancel(row)} color='red' width="30" height="30"
-                    viewBox="0 0 1024 1024">
-<path xmlns="http://www.w3.org/2000/svg" d="M512 0c-282.77 0-512 229.23-512 512s229.23 512 512 512 512-229.23 512-512-229.23-512-512-512zM512 928c-229.75 0-416-186.25-416-416s186.25-416 416-416 416 186.25 416 416-186.25 416-416 416z"/>
-<path xmlns="http://www.w3.org/2000/svg" d="M685.333 234.667l-173.333 173.333-173.333-173.333-104 104 173.333 173.333-173.333 173.333 104 104 173.333-173.333 173.333 173.333 104-104-173.333-173.333 173.333-173.333z"/>
-       </svg>
-                  </div>
+                  <svg  onClick={() => this.handleCancel(row)} color='gray' width="24" height="24"
+                    viewBox="0 0 24 24">
+        <path xmlns="http://www.w3.org/2000/svg" d="M21.886 14.303c-1.259-2.181-0.502-4.976 1.691-6.246l-2.358-4.085c-0.674 0.395-1.457 0.622-2.293 0.622-2.52 0-4.563-2.057-4.563-4.594h-4.717c0.006 0.783-0.189 1.577-0.608 2.303-1.259 2.181-4.058 2.923-6.255 1.658l-2.358 4.085c0.679 0.386 1.267 0.951 1.685 1.675 1.257 2.178 0.504 4.967-1.681 6.24l2.358 4.085c0.671-0.391 1.451-0.615 2.283-0.615 2.512 0 4.55 2.044 4.563 4.569h4.717c-0.002-0.775 0.194-1.56 0.609-2.279 1.257-2.177 4.049-2.92 6.244-1.664l2.358-4.085c-0.675-0.386-1.258-0.949-1.674-1.669zM12 16.859c-2.684 0-4.859-2.176-4.859-4.859s2.176-4.859 4.859-4.859c2.684 0 4.859 2.176 4.859 4.859s-2.176 4.859-4.859 4.859z"/>
+                  </svg>
+
+                    </div>
                   ),
-                  width:70,
+                    filterable:false,
+                  width:32,
                   views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
           },
+          {
+
+            Header: "Status",
+            accessor: "status",
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["status"] }),
+            filterAll: true,
+            views:[view.all,view.payment,view.order,view.deliver,view.close],
+          },
+
           {
                   id: "order_no",
                   Header: "Order No",
@@ -354,6 +366,7 @@ const SelectTable=selectTableHOC(ReactTable)
                   filterMethod: (filter, rows) =>
                               matchSorter(rows, filter.value, { keys: ["order_no"] }),
                   filterAll: true,
+
                   views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
                   width:200,
                 },
@@ -390,15 +403,6 @@ const SelectTable=selectTableHOC(ReactTable)
             maxWidth: 100,
 
             views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
-          },
-          {
-
-            Header: "Status",
-            accessor: "status",
-            filterMethod: (filter, rows) =>
-                        matchSorter(rows, filter.value, { keys: ["status"] }),
-            filterAll: true,
-            views:[view.all,view.payment,view.deliver,view.close],
           },
 
         ]
@@ -531,7 +535,7 @@ const SelectTable=selectTableHOC(ReactTable)
              {
               id: "price",
               Header: "Price ($)",
-              accessor: d => d.price.toFixed(1),
+              accessor: d => d.price? d.price.toFixed(1):0,
               filterMethod: (filter, rows) =>
                         row[filter.id] >= filter.value,
               filterAll: true,
@@ -595,10 +599,10 @@ const SelectTable=selectTableHOC(ReactTable)
           },
           {
             Header: "Order Notes",
-            accessor: "order_notes",
+            accessor: "notes",
             filterMethod: (filter, rows) =>
               matchSorter(rows, filter.value, {
-                keys: ["order_notes"]
+                keys: ["notes"]
               }),
             filterAll: true,
             views:[view.all,view.payment,view.order,view.purchase,view.deliver],
@@ -802,8 +806,11 @@ const SelectTable=selectTableHOC(ReactTable)
               getProps:  (state, rowInfo) => ({
                style: {
                    backgroundColor: (rowInfo && rowInfo.row &&
+
                       parseFloat(rowInfo.row.total_order_shipped_qty)<
-                      parseFloat(rowInfo.row.purchased_qty) ? 'orange' : 'lightgreen')
+                      parseFloat(rowInfo.row.purchased_qty) ? 'orange' :
+                      rowInfo && rowInfo.row &&  parseFloat(rowInfo.row.total_order_shipped_qty)>parseFloat(rowInfo.row.purchased_qty)?
+                        'red':'lightgreen' )
                }
               }),
               style: {
@@ -1020,18 +1027,18 @@ const SelectTable=selectTableHOC(ReactTable)
 
     handleCancel(rowInfo) {
       console.log("handleCancel rowInfo:", rowInfo)
-      // if (rowInfo && rowInfo.row) {
-      //   this.setState({
-      //     showCancel: !this.state.showCancel,
-      //     currentRow: rowInfo.row,
-      //     rowIndex: rowInfo.index,
-      //     currentKey: rowInfo.row._id
-      //   });
-      // } else {
-      //   this.setState({
-      //     showCancel: !this.state.showCancel,
-      //   });
-      // }
+      if (rowInfo && rowInfo.row) {
+        this.setState({
+          showCancel: !this.state.showCancel,
+          currentRow: rowInfo.row,
+          rowIndex: rowInfo.index,
+          currentKey: rowInfo.row._id
+        });
+      } else {
+        this.setState({
+          showCancel: !this.state.showCancel,
+        });
+      }
     }
     handlePurchase (rowInfo ) {
       //const { history } = this.props
@@ -1502,3 +1509,6 @@ export default withStyles(styles)(OrderDetailsWithData)
 //   graphql(...), // some GraphQL
 //   withTracker(...), // some Tracker data
 // )(Foo);
+//cancel svg
+// <path xmlns="http://www.w3.org/2000/svg" d="M512 0c-282.77 0-512 229.23-512 512s229.23 512 512 512 512-229.23 512-512-229.23-512-512-512zM512 928c-229.75 0-416-186.25-416-416s186.25-416 416-416 416 186.25 416 416-186.25 416-416 416z"/>
+// <path xmlns="http://www.w3.org/2000/svg" d="M685.333 234.667l-173.333 173.333-173.333-173.333-104 104 173.333 173.333-173.333 173.333 104 104 173.333-173.333 173.333 173.333 104-104-173.333-173.333 173.333-173.333z"/>

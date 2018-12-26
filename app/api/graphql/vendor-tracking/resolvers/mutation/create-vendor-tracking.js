@@ -5,7 +5,7 @@ import VendorPurchase from '/app/entry-points/server/models/vendor-purchase';
 
 import moment from 'moment';
   import updateOrInsert from './helper'
-import {removeEmpty} from '/app/api/graphql/utils'
+
 import {getNextSequenceValue} from '/app/api/graphql/utils'
 
 const debugOn = true;

@@ -48,25 +48,29 @@ const types = gql`
     orign_facility_arrival_date: String
     status: String
     notes: String
-
+    message: String
+    date_created: String
+    created_by: String
+    last_updated: String
+    updated_by: String
   }
 
-  input CancelPoInput {
+  input UpdateStatusInput {
     po_no: String
     notes: String
+    status: String
+    delivered_qty: Int
     senderID: String
+    delivered:Int
 
   }
 
   type Query {
         getPurchaseOrder(poNo: String!): PurchaseOrder
-
-
-
   }
-  type Mutation {
 
-    cancelPurchaseOrder (input: CancelPoInput!): PurchaseOrder
+  type Mutation {
+    cancelPurchaseOrder (input: UpdateStatusInput!): PurchaseOrder
   }
 
 `;

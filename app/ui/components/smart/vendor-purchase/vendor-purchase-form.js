@@ -83,6 +83,7 @@ class VendorPurchaseForm extends React.Component {
   poInfo: {
     rowIndex:0,
     po_no: '',
+
     title: '',
     link: '',
     price: 0,
@@ -95,7 +96,11 @@ class VendorPurchaseForm extends React.Component {
     delivery_days_from: 0,
     delivery_days_to: 0,
     purchase_id: -99,
-    order_date:  moment().format("MM-DD-YYYY"),
+    delivered_qty:0,
+    options:'',
+    order_date:'',
+    status:'',
+    notes:''  ,
   }
 }
     // TODO: add errors field
@@ -641,7 +646,14 @@ handleDateChange = date => {
                width:'500px',height:'4em'}}>
             {  <a href = { link } target = "_blank" > {link  } </a>}
             </div> {/* link */}
-
+            <TextField
+              name="order_date"
+              type="String"
+              label="PO Date"
+              value={order_date}
+              margin="dense"
+              className={classes.textField}
+            />
           <TextField
             name="Price"
             type="Number"
@@ -729,7 +741,7 @@ handleDateChange = date => {
             type="String"
             label="Notes"
             value={notes}
-            onChange={this.handleChange}
+            onClick={(e) => {this.copyToClipboard(e, notes)}}
             margin="dense"
             className="col-3 ml2"
           />
@@ -819,6 +831,7 @@ handleDateChange = date => {
             }
           ]}
           defaultPageSize={5}
+
           className="-striped -highlight"
         />
           {/* end ReactTable */}
@@ -923,7 +936,7 @@ handleDateChange = date => {
             />
 
             <Button
-              disabled={!(this.state.allowSave && (bulkUpdate && validBulkUpdate))}
+              disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
               size="medium"
               type="submit"
               variant="contained"

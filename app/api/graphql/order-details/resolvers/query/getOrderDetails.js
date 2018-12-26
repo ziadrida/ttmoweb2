@@ -272,22 +272,21 @@ const getOrderDetails = async (root, args, context) => {
       received: args.received
     })
   }
-
   if (args.closed!= undefined)   {
       matchArray.push ( {closed: args.closed  }  )
   }
 
-    matchArray.push({
-      closed: false
-    })
+
     if (args && args.stage) {
-      if (args.stage == 'includeClosed') {
-        matchArray.closed = true
-      } else if (args.stage == 'all') {
+      if (args.stage == 'close'  ) {
+        // do not filter for closed
+        console.log('do not add closed check')
+      } else //if (args.stage == 'all' && args.closed== undefined)
+      {
 
-        matchArray.closed = false;
-
-      } else if (args.stage == 'payment') {
+        matchArray.push ( {closed: false  }  )
+      }
+      if (args.stage == 'payment') {
 
         matchArray.push({
           "status": {
@@ -475,7 +474,8 @@ const getOrderDetails = async (root, args, context) => {
             payment_status:1,
             customer_delivery_date:1,
             delivered_qty:1,
-            status:1,
+            status:"$status",
+            purchase_status:"$po_purchases.status",
             closed:1,
             purchase_notes: "$po_purchases.notes",
             notes: {
@@ -546,6 +546,8 @@ const getOrderDetails = async (root, args, context) => {
             membership_amount:1,
             payment_status:1,
             status:1,
+              purchase_status:1,
+            tracking_status:"$po_tracking.status",
             closed:1,
             order_no: 1,
             orders:1,
@@ -643,6 +645,8 @@ const getOrderDetails = async (root, args, context) => {
           membership_amount:1,
           payment_status:1,
           status:1,
+          purchase_status:1,
+          tracking_status:1,
           closed:1,
           order_no: 1,
           orders:1,
@@ -743,6 +747,8 @@ const getOrderDetails = async (root, args, context) => {
             membership_amount:1,
             payment_status:1,
             status:1,
+            purchase_status:1,
+            tracking_status:1,
             closed:1,
           order_no: 1,
           orders:1,
@@ -870,6 +876,8 @@ const getOrderDetails = async (root, args, context) => {
           membership_amount:1,
           payment_status:1,
           status:1,
+          purchase_status:1,
+          tracking_status:1,
           closed:1,
           order_no: 1,
           orders:1,
