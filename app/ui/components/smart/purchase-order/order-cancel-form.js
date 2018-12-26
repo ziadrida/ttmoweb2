@@ -860,7 +860,7 @@ handleDateChange = date => {
               className={classes.selectEmpty}
             >
               <MenuItem value={"active"}>active</MenuItem>
-              <MenuItem value={"awaiting-payment"}>awaiting-payment</MenuItem>
+              <MenuItem value={"awaiting_payment"}>awaiting_payment</MenuItem>
               <MenuItem value={"cancelled"}>cancelled</MenuItem>
               <MenuItem value={"delivered"}>delivered</MenuItem>
               <MenuItem value={"closed"}>close PO</MenuItem>
