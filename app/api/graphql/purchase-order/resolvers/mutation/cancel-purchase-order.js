@@ -40,7 +40,12 @@ async function cancelPurchaseOrder(root, args, context) {
   order.updated_by = senderID ? senderID : 'admin'
   order.status =  args.input.status?  args.input.status:'hold'
   order.delivered_qty =  args.input.delivered_qty?parseInt(args.input.delivered_qty):null;
-  order.closed =   order.status == "closed"? true:false; // can reopen PO
+  if (order.status == "closed") {
+    order.closed =  true
+    order.status = null; // keep last status
+  }
+
+
   order.notes = args.input.notes ? args.input.notes : "status set to "+order.status+" by " + senderID
   order.last_updated = moment().toDate();
 
@@ -81,17 +86,19 @@ async function cancelPurchaseOrder(root, args, context) {
       console.log('return result 6 ',result)
       return result;
     }
-  else  if (order.status == 'closed' &&
-      ((existingPo.status == "active"|| existingPo.status == "delivered")
-       &&
-        ( order.delivered_qty?order.delivered_qty:-1 < existingPo.po_qty&&
-         existingPo.delivered_qty < existingPo.po_qty)
-      ))
-   {
-    result.message = "Cannot close active or delivered PO that is not fully delivered"
-    console.log('return result 4 ',result)
-    return result;
-  }
+    else if (args.input.status == 'closed') {
+      if  (!["cancelled","delivered"].includes(existingPo.status) )  {
+        result.message = "Only cancelled or delivered POs can be closed"
+        console.log('return result 5 ',result)
+        return result;
+      }
+      else  if ( existingPo.status == "delivered" &&  existingPo.delivered_qty != existingPo.po_qty) {
+        result.message = "Cannot close delivered PO that is not properly delivered. Check delivered qty"
+        console.log('return result 4 ',result)
+        return result;
+      }
+    }
+
 
   // cannot set status of delivered PO unless to cancelled or from cancelled to any
   if((args.input.delivered && args.input.delivered >0 && order.status != "cancelled" )&&

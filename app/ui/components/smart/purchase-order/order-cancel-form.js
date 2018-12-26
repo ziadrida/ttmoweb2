@@ -863,7 +863,7 @@ handleDateChange = date => {
               <MenuItem value={"awaiting-payment"}>awaiting-payment</MenuItem>
               <MenuItem value={"cancelled"}>cancelled</MenuItem>
               <MenuItem value={"delivered"}>delivered</MenuItem>
-              <MenuItem value={"closed"}>closed</MenuItem>
+              <MenuItem value={"closed"}>close PO</MenuItem>
             </Select>
             <FormHelperText>Required</FormHelperText>
           </FormControl>
