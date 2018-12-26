@@ -1495,7 +1495,7 @@ const withData = graphql(orderDetailsQuery,
       stage: (stage && stage != ''? stage:"purchase"),
     },
   }),
-},{ options: { pollInterval: 2000 }});
+},{ options: { pollInterval: 500 }});
 
 const OrderDetailsWithData = withData(OrderDetails);
 export default withStyles(styles)(OrderDetailsWithData)
