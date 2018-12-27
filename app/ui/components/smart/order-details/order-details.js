@@ -410,7 +410,10 @@ const SelectTable=selectTableHOC(ReactTable)
           {
             id: 'po_date',
             Header: "PO Date",
-            accessor: d => d.po_date? moment(d.po_date, 'YYYY-MM-DD').format('DD/MM/YYYY'):"",
+            accessor: d => d.po_date? moment(d.po_date, 'YYYY-MM-DD').toDate():"",
+
+            Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+
             filterMethod: (filter, rows) =>
               matchSorter(rows, filter.value, {
                 keys: ["po_date"]
@@ -469,9 +472,9 @@ const SelectTable=selectTableHOC(ReactTable)
               id: "sale_price",
               Header: "Sale Price",
               accessor: d => d.sale_price,
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                 row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               style: {
                 textAlign: 'right'
               },
@@ -527,9 +530,9 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "T Amount",
               accessor: "total_amount" ,
               Cell: ({ value }) => (value >= 9999 ? 0 : value),
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll:false,
               //width: 50,
               views:[view.all,view.payment,view.purchase,view.order,view.deliver,view.close],
             },
@@ -543,18 +546,18 @@ const SelectTable=selectTableHOC(ReactTable)
                       parseFloat(rowInfo.row.first_payment) == 0 ? 'orange' : null)
                }
               }),
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                 row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               views: [view.all,view.payment, view.order,view.purchase, view.deliver, view.close],
             },
              {
               id: "price",
               Header: "Price ($)",
               accessor: d => d.price? d.price.toFixed(1):0,
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               style: {
                 textAlign: 'right'
               },
@@ -603,9 +606,9 @@ const SelectTable=selectTableHOC(ReactTable)
              }
             }),
             Cell: ({ value }) => (value >= 9999 ? 0 : value),
-            filterMethod: (filter, rows) =>
+            filterMethod: (filter, row) =>
                       row[filter.id] >= filter.value,
-            filterAll: true,
+            filterAll: false,
             style: {
               textAlign: 'right',
               width: '4em',
@@ -642,9 +645,9 @@ const SelectTable=selectTableHOC(ReactTable)
               {
                 Header: "T Purch Qty",
                 accessor: "total_purchased_qty",
-                filterMethod: (filter, rows) =>
+                filterMethod: (filter, row) =>
                           row[filter.id] >= filter.value,
-                filterAll: true,
+                filterAll: false,
                 style: {
                   textAlign: 'right',
                   width: '5em',
@@ -688,7 +691,8 @@ const SelectTable=selectTableHOC(ReactTable)
               id: 'order_date',
               Header: "Order Date",
 
-              accessor: d => d.order_date? moment(d.order_date, 'DD/MM/YYYY').format('DD/MM/YYYY'):null,
+             accessor: d => d.order_date? moment(d.order_date, 'DD/MM/YYYY').toDate():null,
+             Cell: row => <span>{moment(row.value,'DD/MM/YYYY').format('DD-MMM-YYYY')}</span>,
             //  Cell: this.renderEditable,
               filterMethod: (filter, rows) =>
                 matchSorter(rows, filter.value, {
@@ -703,9 +707,9 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Order Qty",
               accessor: "purchased_qty",
             //  Cell: this.renderEditable,
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               getProps:  (state, rowInfo) => ({
                style: {
                    backgroundColor: (rowInfo && rowInfo.row &&
@@ -790,7 +794,8 @@ const SelectTable=selectTableHOC(ReactTable)
             {
               id: 'ship_date',
               Header: "Packg Ship Date",
-              accessor: d => d.ship_date? moment(d.ship_date, 'DD/MM/YYYY').format('DD/MM/YYYY'):"",
+              accessor: d => d.ship_date? moment(d.ship_date, 'DD/MM/YYYY').toDate():"",
+                Cell: row => <span>{moment(row.value,'DD/MM/YYYY').format('DD-MMM-YYYY')}</span>,
               filterMethod: (filter, rows) =>
                 matchSorter(rows, filter.value, {
                   keys: ["ship_date"]
@@ -802,9 +807,9 @@ const SelectTable=selectTableHOC(ReactTable)
             {
               Header: "Ship Qty",
               accessor: "shipped_qty",
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               style: {
                 textAlign: 'right'
               },
@@ -816,9 +821,9 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "O.Ship Qty",
               id: "total_order_shipped_qty",
               accessor: d => d.total_order_shipped_qty ,
-              filterMethod: (filter, rows) =>
+              filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
-              filterAll: true,
+              filterAll: false,
               getProps:  (state, rowInfo) => ({
                style: {
                    backgroundColor: (rowInfo && rowInfo.row &&
@@ -871,8 +876,10 @@ const SelectTable=selectTableHOC(ReactTable)
                 accessor: d => {
                     return
                     moment(d.ship_date,'DD/MM/YYYY').
-                    add(d.time_in_transit_to,'day').format('DD/MM')
+                    add(d.time_in_transit_to,'day').toDate()
                 },
+                Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["expected_date"] }),
               filterAll: true,
@@ -963,7 +970,10 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Delivery Date",
-              accessor: "customer_delivery_date",
+              id: "customer_delivery_date",
+              accessor: d => d.customer_delivery_date&&d.customer_delivery_date!='0'? moment(d.customer_delivery_date, 'DD/MM/YYYY').toDate():"",
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["customer_delivery_date"] }),
               filterAll: true,
@@ -972,7 +982,9 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Amm Customs",
-              accessor: "amm_customs_arrival_date",
+              id: "amm_customs_arrival_date",
+              accessor: d => parseInt(d.amm_customs_arrival_date) ,
+               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["amm_customs_arrival_date"] }),
               filterAll: true,
@@ -981,7 +993,9 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Aq Customs",
-              accessor: "aq_customs_arrival_date",
+              id: "aq_customs_arrival_date",
+              accessor: d => parseInt(d.aq_customs_arrival_date),
+               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["aq_customs_arrival_date"] }),
               filterAll: true,
@@ -990,7 +1004,10 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Amm Showroom",
-              accessor: "amm_showroom_arrival_date",
+              id: "amm_showroom_arrival_date",
+              accessor: d => parseInt(d.amm_showroom_arrival_date),
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["amm_showroom_arrival_date"] }),
               filterAll: true,
@@ -999,7 +1016,10 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Aq Showroom",
-              accessor: "aq_showroom_arrival_date",
+              id: "aq_showroom_arrival_date",
+              accessor: d => parseInt(d.aq_showroom_arrival_date),
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["aq_showroom_arrival_date"] }),
               filterAll: true,
@@ -1409,7 +1429,7 @@ render() {
 
             filterable
             defaultFilterMethod={(filter, row) =>
-            String(row[filter.id]) === filter.value}
+            String(rows[filter.id]) === filter.value}
 
           //  pivotBy= {['tracking_no']}
 

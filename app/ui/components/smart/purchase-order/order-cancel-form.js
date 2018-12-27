@@ -299,6 +299,7 @@ handleDateChange = date => {
          // fiels that come from the list of PO to be changed
         po_no: selectedPo.po_no,
         delivered_qty: selectedPo.edit_delivered_qty && selectedPo.edit_delivered_qty!='' ? parseInt(selectedPo.edit_delivered_qty):null,
+
         delivered:selectedPo.delivered,
       }:
       {
@@ -316,6 +317,7 @@ handleDateChange = date => {
             "notes":this.state.formEditInfo.edit_notes,
             "status":this.state.formEditInfo.edit_status,
             "delivered_qty":updateInfo.delivered_qty,
+            //  "customer_delivery_date": state.formEdit.edit_customer_delivery_date,
             "first_payment":this.state.formEditInfo.edit_first_payment && this.state.formEditInfo.edit_first_payment!=''?
                 parseInt(this.state.formEditInfo.edit_first_payment):null,
             "delivered":updateInfo.delivered, // if -1 then cannot change status unless cancelled
