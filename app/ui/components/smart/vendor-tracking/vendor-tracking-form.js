@@ -531,6 +531,7 @@ handleDateChange = date => {
              return rtnPoInfo;
        }  else     {
          console.log("created/updated vendor tracking - now setting state")
+         try {
          this.setState(
            { message: "Updated Successfully.Tracking Id is " +
                  res.data.createVendorTracking._id + " info:"+
@@ -556,6 +557,9 @@ handleDateChange = date => {
              allowSave: true
              }
            );
+         } catch(stateErr) {
+           console.log("Error setting state:",stateErr)
+         }
 
         //   setRow(poInfo)
            console.log('new state:',this.state)

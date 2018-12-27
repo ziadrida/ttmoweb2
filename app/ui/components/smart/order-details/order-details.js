@@ -45,6 +45,12 @@ const SelectTable=selectTableHOC(ReactTable)
       color: 'red',
     },
   },
+  statusline: {
+    width: "15px",
+    height: "15px",
+    margin: 0,
+    align: 'center',
+  },
 
   });
 
@@ -336,6 +342,16 @@ const SelectTable=selectTableHOC(ReactTable)
                     filterable:false,
                   width:32,
                   views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+
+          },
+          {
+
+            Header: "Type",
+            accessor: "order_type",
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["order_type"] }),
+            filterAll: true,
+            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
           },
           {
@@ -908,6 +924,15 @@ const SelectTable=selectTableHOC(ReactTable)
               width: 100,
             },
             {
+              Header: "AWB Dest",
+              accessor: "awb_destination",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["awb_destination"] }),
+              filterAll: true,
+              views:[view.all,view.ship,view.deliver,view.close],
+              width: 100,
+            },
+            {
               Header: "Shipment Ref",
               accessor: "shipment_ref",
               filterMethod: (filter, rows) =>
@@ -944,7 +969,44 @@ const SelectTable=selectTableHOC(ReactTable)
               filterAll: true,
             //  width: 80,
               views:[view.all,view.ship,view.deliver,view.close],
-              },
+            },
+            {
+              Header: "Amm Customs",
+              accessor: "amm_customs_arrival_date",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["amm_customs_arrival_date"] }),
+              filterAll: true,
+            //  width: 80,
+              views:[view.all,view.ship,view.deliver,view.close],
+            },
+            {
+              Header: "Aq Customs",
+              accessor: "aq_customs_arrival_date",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["aq_customs_arrival_date"] }),
+              filterAll: true,
+            //  width: 80,
+              views:[view.all,view.ship,view.deliver,view.close],
+            },
+            {
+              Header: "Amm Showroom",
+              accessor: "amm_showroom_arrival_date",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["amm_showroom_arrival_date"] }),
+              filterAll: true,
+            //  width: 80,
+              views:[view.all,view.ship,view.deliver,view.close],
+            },
+            {
+              Header: "Aq Showroom",
+              accessor: "aq_showroom_arrival_date",
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["aq_showroom_arrival_date"] }),
+              filterAll: true,
+            //  width: 80,
+              views:[view.all,view.ship,view.deliver,view.close],
+            },
+
             {
 
               Header: "Closed",
@@ -1278,6 +1340,7 @@ render() {
   //  this.state.stage = stage;
   console.log("--->>>>> Render order-details -> \nnew stage\n: ", stage)
     const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
+    const recordCount = getOrderDetails? getOrderDetails.length:0;
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
 
@@ -1286,9 +1349,9 @@ render() {
     console.log('variables:',variables)
     console.log('order-details props:',this.props)
       console.log('order-details state:',this.state)
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //    <Loading />;
+  // }
   if (error) {
     return <p>{error.message}</p>;
   }
@@ -1331,6 +1394,12 @@ render() {
 
   return (
         <div className="data">
+         {loading?
+           <Loading />:
+           <div className="statusline">
+           <a>Found {recordCount<200? recordCount:'at least '+recordCount} records</a>
+           </div>
+         }
           <SelectTable { ...otherProps}
            ref={(r) => this.selectTable = r}
             data={this.state.data}
@@ -1494,8 +1563,9 @@ const withData = graphql(orderDetailsQuery,
       search: (orderDetailsSearch && orderDetailsSearch.search),
       stage: (stage && stage != ''? stage:"purchase"),
     },
+    pollInterval: 1000*60*3
   }),
-},{ options: { pollInterval: 500 }});
+});
 
 const OrderDetailsWithData = withData(OrderDetails);
 export default withStyles(styles)(OrderDetailsWithData)

@@ -422,6 +422,7 @@ handleDateChange = date => {
              return rtnPoInfo;
        }  else     {
          console.log("created/updated vendor purchase - now setting state")
+         try {
          this.setState(
            { message: "Updated Successfully.Purchase Id is " +
                  res.data.createVendorPurchase._id + " info:"+
@@ -447,6 +448,9 @@ handleDateChange = date => {
              allowSave: true
              }
            );
+         } catch(stateErr) {
+            console.log("Error setting state:",stateErr)
+         }
 
           // setRow(poInfo)
            console.log('new state:',this.state)
@@ -804,7 +808,7 @@ handleDateChange = date => {
                 {
                   Header: "Set Pur Qty",
                   id: "set_purchased_qty",
-                  accessor: d => d.purchased_qty,
+                  accessor: d => d.set_purchased_qty,
                   style: {
                     backgroundColor: 'lightblue',
                     font: "bold"

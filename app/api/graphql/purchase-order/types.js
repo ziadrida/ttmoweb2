@@ -60,6 +60,7 @@ const types = gql`
     notes: String
     status: String
     delivered_qty: Int
+    first_payment: Int
     senderID: String
     delivered:Int
 

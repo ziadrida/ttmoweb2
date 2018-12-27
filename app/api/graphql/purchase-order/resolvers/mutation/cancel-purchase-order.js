@@ -40,6 +40,7 @@ async function cancelPurchaseOrder(root, args, context) {
   order.updated_by = senderID ? senderID : 'admin'
   order.status =  args.input.status?  args.input.status:'hold'
   order.delivered_qty =  args.input.delivered_qty?parseInt(args.input.delivered_qty):null;
+    order.first_payment =  args.input.first_payment?parseInt(args.input.first_payment):null;
   if (order.status == "closed") {
     order.closed =  true
     order.status = null; // keep last status
@@ -63,6 +64,7 @@ async function cancelPurchaseOrder(root, args, context) {
   } else {
 
     result.delivered_qty = existingPo.delivered_qty;
+    result.first_payment = existingPo.first_payment;
     result.status = existingPo.status
     result.notes = existingPo.notes;
     result.closed = existingPo.closed;
@@ -70,23 +72,32 @@ async function cancelPurchaseOrder(root, args, context) {
 
     console.log("set result 2:",result)
     console.log("set order 2:",order)
-  if (order.status == 'delivered' && (!order.delivered_qty || order.delivered_qty <existingPo.po_qty))
-  {
-    result.message = "Invalid delivered qty. Po Qty is "
-    console.log('return result   result.message1:',  result.message)
-    result.message =   result.message+   existingPo.po_qty +  " but delivered qty is "
-    result.message =   result.message+  (order.delivered_qty?order.delivered_qty:'not set')
-    console.log('return result   result.message2:',  result.message)
-    console.log('return result 3:',result)
-    return result;
-  }   if (order.status == 'delivered' &&
-    (args.input.delivered && args.input.delivered <0))
+  if (order.status == 'active' ) {
+      if (order.delivered_qty && order.delivered_qty > existingPo.po_qty) {
+          result.message = "Invalid delivered qty "+order.delivered_qty+" for active status. Po qty is "+ existingPo.po_qty;
+          return result;
+      } else   if (order.delivered_qty && order.delivered_qty == existingPo.po_qty) {
+            result.message = "Invalid delivered qty "+order.delivered_qty+" for active status. (same as PO qty! - set status to delivered)";
+            return result;
+      }
+  }
+  else if (order.status == 'delivered' ) {
+    if (!order.delivered_qty || order.delivered_qty != existingPo.po_qty)
     {
-      result.message = "Did not arrive to final destination! Check packing"
-      console.log('return result 6 ',result)
+      result.message = "Invalid delivered qty. Po Qty is "
+      console.log('return result   result.message1:',  result.message)
+      result.message =   result.message+   existingPo.po_qty +  " but delivered qty is "
+      result.message =   result.message+  (order.delivered_qty?order.delivered_qty:'not set')
+      console.log('result.message2:',  result.message)
+      console.log('return result 3:',result)
       return result;
+    }  else if (args.input.delivered && args.input.delivered <0)  {
+        result.message = "Did not arrive to final destination! Check packing"
+        console.log('return result 6 ',result)
+        return result;
     }
-    else if (args.input.status == 'closed') {
+  }
+  else if (args.input.status == 'closed') {
       if  (!["cancelled","delivered"].includes(existingPo.status) )  {
         result.message = "Only cancelled or delivered POs can be closed"
         console.log('return result 5 ',result)
@@ -126,8 +137,13 @@ async function cancelPurchaseOrder(root, args, context) {
   if (debugOn) console.log("purchaseOrder findOneAndUpdate doc:", JSON.stringify(doc));
   if (doc) {
     result = doc;
-
-    result.message = "Status Updated"
+    result._id = doc._id;
+    result.delivered_qty = doc.delivered_qty;
+    result.first_payment = doc.first_payment;
+    result.status = doc.status
+    result.notes = doc.notes;
+    result.closed = doc.closed;
+    result.message = "Status Updated";
     console.log("success result:",result)
     return result;
   } else {

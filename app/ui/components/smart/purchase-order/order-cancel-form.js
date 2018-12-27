@@ -87,7 +87,8 @@ class OrderCancelForm extends React.Component {
     po_no:'',
     edit_notes:'',
     edit_status:'',
-    edit_delivered_qty:0,
+    edit_delivered_qty:'',
+    edit_first_payment:'',
   },
 
   poInfo: {
@@ -178,7 +179,8 @@ static getDerivedStateFromProps(props, state) {
         formEditInfo: {
           po_no:props.poInfo.po_no,
           edit_notes:props.poInfo.notes? props.poInfo.notes:'',
-          edit_delivered_qty: props.poInfo.delivered_qty,
+          edit_delivered_qty: '', //props.poInfo.delivered_qty,
+          edit_first_payment:'',//props.poInfo.first_payment? parseInt(props.poInfo.first_payment):0,
           edit_status:props.poInfo.status?props.poInfo.status:'' ,
         },
 
@@ -239,7 +241,7 @@ handleDateChange = date => {
         allowSave: true
       });
 
-    console.log('cancelPurhaseOrder handleChange',this.state)
+    console.log('cancelPurchaseOrder handleChange',this.state)
     //let order-detail-page set the state so when page filter is
     // used the form values are correct
     // this means we actually don't need to pass form values onSubmit (but we do!)
@@ -296,13 +298,13 @@ handleDateChange = date => {
        {
          // fiels that come from the list of PO to be changed
         po_no: selectedPo.po_no,
-        delivered_qty: selectedPo.edit_delivered_qty? parseInt(selectedPo.edit_delivered_qty):null,
+        delivered_qty: selectedPo.edit_delivered_qty && selectedPo.edit_delivered_qty!='' ? parseInt(selectedPo.edit_delivered_qty):null,
         delivered:selectedPo.delivered,
       }:
       {
         po_no: this.state.formEditInfo.po_no,
         delivered:this.state.poInfo.delivered,
-        delivered_qty: this.state.formEditInfo.edit_delivered_qty?
+        delivered_qty: this.state.formEditInfo.edit_delivered_qty && selectedPo.edit_delivered_qty!=''?
           parseInt(this.state.formEditInfo.edit_delivered_qty):null,
       }
       console.log('updateInfo:',updateInfo)
@@ -314,6 +316,8 @@ handleDateChange = date => {
             "notes":this.state.formEditInfo.edit_notes,
             "status":this.state.formEditInfo.edit_status,
             "delivered_qty":updateInfo.delivered_qty,
+            "first_payment":this.state.formEditInfo.edit_first_payment && this.state.formEditInfo.edit_first_payment!=''?
+                parseInt(this.state.formEditInfo.edit_first_payment):null,
             "delivered":updateInfo.delivered, // if -1 then cannot change status unless cancelled
           }
         },
@@ -324,7 +328,7 @@ handleDateChange = date => {
         }],
      })
      .then( res => {
-       console.log("mutation result:",res)
+       console.log("==> mutation result:",res)
        if (!res || !res.data || !res.data.cancelPurchaseOrder) {
           this.setState({message: "DB Error",
           allowSave: true})
@@ -333,6 +337,7 @@ handleDateChange = date => {
               return rtnPoInfo;
        } else if (!res.data.cancelPurchaseOrder._id ||
              res.data.cancelPurchaseOrder._id == -99) {
+               console.log('errors result id is -99 ')
            this.setState(
                {message: res.data.cancelPurchaseOrder.message ,
                allowSave: true},
@@ -341,28 +346,41 @@ handleDateChange = date => {
                     res.data.cancelPurchaseOrder.message;
              return rtnPoInfo;
        }  else     {
-         console.log("got response from mutation")
+         console.log("OK=>got response from mutation - set state and message response")
+         console.log("=>res:",res&&res.data)
+         try {
          this.setState(
            { message:  res.data.cancelPurchaseOrder.message ,
              poInfo: {
                  ...this.state.poInfo,
 
                    status:res.data.cancelPurchaseOrder.status,
-                   notes:res.data.cancelPurchaseOrder.notes,
-                   delivered_qty:res.data.cancelPurchaseOrder.delivered_qty,
+                   notes:res.data.cancelPurchaseOrder.notes?res.data.cancelPurchaseOrder.notes:'',
+                   delivered_qty:res.data.cancelPurchaseOrder.delivered_qty?
+                      parseInt(res.data.cancelPurchaseOrder.delivered_qty):0,
+                   first_payment:res.data.cancelPurchaseOrder.first_payment  ?
+                    parseInt(res.data.cancelPurchaseOrder.first_payment):0,
+
              },
              formEditInfo: {
                ...this.state.formEditInfo,
                 edit_status: res.data.cancelPurchaseOrder.status,
                 edit_notes:res.data.cancelPurchaseOrder.notes,
-                edit_delivered_qty:res.data.cancelPurchaseOrder.delivered_qty
-             },
+                edit_delivered_qty:res.data.cancelPurchaseOrder.delivered_qty?
+                   parseInt(res.data.cancelPurchaseOrder.delivered_qty):0,
+                edit_first_payment:res.data.cancelPurchaseOrder.first_payment  ?
+                 parseInt(res.data.cancelPurchaseOrder.first_payment):0,
+              },
              allowSave: true
              }
+
            );
+         } catch(stateErr) {
+           console.log("Error setting state:",stateErr)
+         }
 
           // setRow(poInfo)
-           console.log('new state:',this.state)
+           console.log('done with setState =>new state:\n',this.state)
 
            // console.log("Call registerPurchase in order-details")
            // this.props.registerPurchase(res.data.cancelPurchaseOrder._id,
@@ -429,7 +447,7 @@ handleDateChange = date => {
         console.log('=> in renderExistingTrackings trackingList:',trackingList)
       const {trackings} = trackingList
       console.log('=> in renderExistingTrackings:',trackings)
-      var tmpVal = typeof trackings != 'undefined'? trackings:'No trackings'
+      var tmpVal = typeof trackings != 'undefined' || trackings.length>0? trackings:'No trackings'
          return  tmpVal!='' &&
                 typeof tmpVal !== 'string'?
             trackings.map(trackingNo => {
@@ -448,7 +466,7 @@ handleDateChange = date => {
       console.log('=> in OrderCancelForm  renderExistingOrders orderList:',orderList)
     const {orders} = orderList
     console.log('=> in renderExistingOrders:',orders)
-    var tmpVal = typeof orders != 'undefined'? orders:'No orders'
+    var tmpVal = typeof orders != 'undefined' || orders.length>0? orders:'No orders'
        return  tmpVal!='' &&
               typeof tmpVal !== 'string'?
           orders.map(orderNo => {
@@ -489,7 +507,7 @@ handleDateChange = date => {
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { edit_notes,edit_status,edit_delivered_qty} = this.state.formEditInfo
+     const { edit_notes,edit_status,edit_delivered_qty,edit_first_payment} = this.state.formEditInfo
 
       const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
      console.log("render new message:",message)
@@ -573,6 +591,7 @@ handleDateChange = date => {
             type="String"
             label="User"
             value={username}
+            onClick={(e) => {this.copyToClipboard(e, title)}}
             InputProps={{
              readOnly: true,
             }}
@@ -873,7 +892,18 @@ handleDateChange = date => {
             label="Delivered Qty"
             disabled={edit_status == "delivered" || edit_status == "active" ?
             bulkUpdate :true}
-            value={edit_delivered_qty}
+            value={edit_status == "delivered" || edit_status == "active"?  edit_delivered_qty:''}
+            onChange={this.handleChange}
+            margin="dense"
+            className="col-1 ml2"
+          />
+          <TextField
+            name="edit_first_payment"
+            type="String"
+            label="First Payment"
+            disabled={edit_status == "active"   ?
+            bulkUpdate :true}
+            value={edit_status =='active' ? edit_first_payment:''}
             onChange={this.handleChange}
             margin="dense"
             className="col-1 ml2"
@@ -948,6 +978,7 @@ const cancelPurchaseOrder = gql`
       message
       status
       delivered_qty
+      first_payment
       closed
    }
   }
