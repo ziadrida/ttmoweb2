@@ -68,7 +68,7 @@ class VendorPurchaseForm extends React.Component {
     selectedPoList: [],
     allowSave: true,
     message: '',
-  vendorPurchaseInfo: {
+  formEditInfo: {
     po_no:'',
     order_no: '',
     purchased_qty: 0,
@@ -76,6 +76,7 @@ class VendorPurchaseForm extends React.Component {
     delivery_days_to: 0,
     purchase_id: -99,
     order_date:  moment().format("MM-DD-YYYY"),
+    customer_delivery_date:'',
     source: '',
     notes:'',
   },
@@ -99,6 +100,7 @@ class VendorPurchaseForm extends React.Component {
     delivered_qty:0,
     options:'',
     order_date:'',
+    customer_delivery_date:'',
     status:'',
     notes:''  ,
   }
@@ -164,7 +166,7 @@ static getDerivedStateFromProps(props, state) {
       returnState =  {
         ...returnState,
         poInfo: props.poInfo ,
-        vendorPurchaseInfo: {
+        formEditInfo: {
           purchase_id: props.poInfo.purchase_id,
           po_no:props.poInfo.po_no,
           order_no: props.poInfo.order_no,
@@ -219,8 +221,8 @@ static getDerivedStateFromProps(props, state) {
 handleDateChange = date => {
 
       this.setState({
-          vendorPurchaseInfo: {
-          ...this.state.vendorPurchaseInfo,
+          formEditInfo: {
+          ...this.state.formEditInfo,
           order_date: date
         },
         allowSave: true
@@ -233,8 +235,8 @@ handleDateChange = date => {
 
     this.setState(
         {
-          vendorPurchaseInfo: {
-          ...this.state.vendorPurchaseInfo,
+          formEditInfo: {
+          ...this.state.formEditInfo,
             [name]: value
         },
         allowSave: true
@@ -251,9 +253,9 @@ handleDateChange = date => {
 
   addNew = (evt) => {
     console.log("=> addNew")
-    //reset vendorPurchaseInfo
+    //reset formEditInfo
     this.setState({
-      vendorPurchaseInfo: {
+      formEditInfo: {
         po_no:this.props.poInfo.po_no,
         order_no: '',
         purchased_qty: 0,
@@ -271,7 +273,7 @@ handleDateChange = date => {
   cancelAddNew = (evt) => {
     console.log("=> cancelAddNew")
     setState({
-    vendorPurchaseInfo: {
+    formEditInfo: {
       purchase_id: this.state.poInfo.purchase_id,
       po_no:this.state.poInfo.po_no,
       order_no: this.state.poInfo.order_no,
@@ -367,14 +369,14 @@ handleDateChange = date => {
         purchased_qty:  parseInt(selectedPo.set_purchased_qty),
       }:
       {
-        po_no: this.state.vendorPurchaseInfo.po_no,
-        _id:  parseInt(this.state.vendorPurchaseInfo.purchase_id)?
-         parseFloat(this.state.vendorPurchaseInfo.purchase_id):null,
-         purchased_qty: this.state.vendorPurchaseInfo.purchased_qty &&
-               parseInt(this.state.vendorPurchaseInfo.purchased_qty)>0 ?
-               parseInt(this.state.vendorPurchaseInfo.purchased_qty) :
-               parseInt(this.state.vendorPurchaseInfo.po_qty)-
-               parseInt(this.state.vendorPurchaseInfo.total_purchased_qty),
+        po_no: this.state.formEditInfo.po_no,
+        _id:  parseInt(this.state.formEditInfo.purchase_id)?
+         parseFloat(this.state.formEditInfo.purchase_id):null,
+         purchased_qty: this.state.formEditInfo.purchased_qty &&
+               parseInt(this.state.formEditInfo.purchased_qty)>0 ?
+               parseInt(this.state.formEditInfo.purchased_qty) :
+               parseInt(this.state.formEditInfo.po_qty)-
+               parseInt(this.state.formEditInfo.total_purchased_qty),
 
       }
       console.log('updateInfo:',updateInfo)
@@ -384,17 +386,17 @@ handleDateChange = date => {
            "vendorPurchase": {
             "po_no": updateInfo.po_no,
             "_id":  updateInfo._id,
-            "order_no": this.state.vendorPurchaseInfo.order_no,
-            "source": this.state.vendorPurchaseInfo.source != this.props.poInfo.source?
-                this.state.vendorPurchaseInfo.source: null,
+            "order_no": this.state.formEditInfo.order_no,
+            "source": this.state.formEditInfo.source != this.props.poInfo.source?
+                this.state.formEditInfo.source: null,
             "purchased_qty":  updateInfo.purchased_qty,
 
-            "delivery_days_from": parseInt(this.state.vendorPurchaseInfo.delivery_days_from),
-            "delivery_days_to":  parseInt(this.state.vendorPurchaseInfo.delivery_days_to),
-            "order_date":this.state.vendorPurchaseInfo.order_date?
-             moment(this.state.vendorPurchaseInfo.order_date,'MM-DD-YYYY').
+            "delivery_days_from": parseInt(this.state.formEditInfo.delivery_days_from),
+            "delivery_days_to":  parseInt(this.state.formEditInfo.delivery_days_to),
+            "order_date":this.state.formEditInfo.order_date?
+             moment(this.state.formEditInfo.order_date,'MM-DD-YYYY').
                 format('DD/MM/YYYY'):moment().format('DD/MM/YYYY'),
-            "notes":this.state.vendorPurchaseInfo.notes,
+            "notes":this.state.formEditInfo.notes,
           }
         },
         refetchQueries: [
@@ -429,19 +431,19 @@ handleDateChange = date => {
                  res.data.createVendorPurchase.message ,
              poInfo: {
                  ...this.state.poInfo,
-                order_no: this.state.vendorPurchaseInfo.order_no,
-                purchased_qty: this.state.vendorPurchaseInfo.purchased_qty,
-                delivery_days_from: this.state.vendorPurchaseInfo.delivery_days_from,
-                delivery_days_to: this.state.vendorPurchaseInfo.delivery_days_to,
+                order_no: this.state.formEditInfo.order_no,
+                purchased_qty: this.state.formEditInfo.purchased_qty,
+                delivery_days_from: this.state.formEditInfo.delivery_days_from,
+                delivery_days_to: this.state.formEditInfo.delivery_days_to,
 
-                order_date: this.state.vendorPurchaseInfo.order_date,
-                source: this.state.vendorPurchaseInfo.source,
-                order_notes:this.state.vendorPurchaseInfo.order_notes,
+                order_date: this.state.formEditInfo.order_date,
+                source: this.state.formEditInfo.source,
+                order_notes:this.state.formEditInfo.order_notes,
                 purchase_id: res.data.createVendorPurchase._id
 
              },
-             vendorPurchaseInfo: {
-               ...this.state.vendorPurchaseInfo,
+             formEditInfo: {
+               ...this.state.formEditInfo,
                 purchase_id: res.data.createVendorPurchase._id,
 
              },
@@ -463,7 +465,7 @@ handleDateChange = date => {
                 "Updated Successfully.Purchase Id is " +
                    res.data.createVendorPurchase._id + " info:"+
                    res.data.createVendorPurchase.message;
-          rtnPoInfo.order_no=this.state.vendorPurchaseInfo.order_no;
+          rtnPoInfo.order_no=this.state.formEditInfo.order_no;
             rtnPoInfo.purchase_id=res.data.createVendorPurchase._id
         return rtnPoInfo;
      }
@@ -564,7 +566,7 @@ handleDateChange = date => {
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
      const { purchased_qty,purchase_id,order_notes,order_date,
-          order_no,delivery_days_to,delivery_days_from} = this.state.vendorPurchaseInfo
+          order_no,delivery_days_to,delivery_days_from} = this.state.formEditInfo
 
       const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
      console.log("render new message:",message, " purchase_id:",purchase_id)

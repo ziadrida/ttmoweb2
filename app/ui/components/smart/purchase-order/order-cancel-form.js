@@ -50,6 +50,12 @@ const styles = theme => ({
     width: 100,
     font: 'bold',
   },
+  datePickers: {
+    display: 'flex',
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    'justify-content': 'space-around',
+  },
   button: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
@@ -58,7 +64,7 @@ const styles = theme => ({
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 300,
+    minWidth: 250,
   },
   selectEmpty: {
     marginTop: theme.spacing.unit * 2,
@@ -89,6 +95,7 @@ class OrderCancelForm extends React.Component {
     edit_status:'',
     edit_delivered_qty:'',
     edit_first_payment:'',
+    edit_customer_delivery_date: moment().format("MM-DD-YYYY"),
   },
 
   poInfo: {
@@ -111,6 +118,7 @@ class OrderCancelForm extends React.Component {
     delivered_qty:0,
     purchase_id: -99,
     order_date:  moment().format("MM-DD-YYYY"),
+    customer_delivery_date: moment().format("MM-DD-YYYY"),
   }
 }
     // TODO: add errors field
@@ -179,9 +187,11 @@ static getDerivedStateFromProps(props, state) {
         formEditInfo: {
           po_no:props.poInfo.po_no,
           edit_notes:props.poInfo.notes? props.poInfo.notes:'',
-          edit_delivered_qty: '', //props.poInfo.delivered_qty,
-          edit_first_payment:'',//props.poInfo.first_payment? parseInt(props.poInfo.first_payment):0,
+          edit_delivered_qty: props.poInfo.delivered_qty,
+          edit_first_payment:props.poInfo.first_payment? parseInt(props.poInfo.first_payment):0,
+          edit_customer_delivery_date: moment(props.poInfo.order_date,'DD/MM/YYYY').add(14,'day').format('MM/DD/YYYY'),
           edit_status:props.poInfo.status?props.poInfo.status:'' ,
+
         },
 
       };
@@ -222,7 +232,7 @@ handleDateChange = date => {
       this.setState({
           formEditInfo: {
           ...this.state.formEditInfo,
-          order_date: date
+          edit_customer_delivery_date: date
         },
         allowSave: true
       });
@@ -317,9 +327,11 @@ handleDateChange = date => {
             "notes":this.state.formEditInfo.edit_notes,
             "status":this.state.formEditInfo.edit_status,
             "delivered_qty":updateInfo.delivered_qty,
-            //  "customer_delivery_date": state.formEdit.edit_customer_delivery_date,
+            "customer_delivery_date":this.state.formEditInfo.edit_customer_delivery_date?
+              moment(this.state.formEditInfo.edit_customer_delivery_date,'MM-DD-YYYY').format('DD/MM/YYYY'):null,
             "first_payment":this.state.formEditInfo.edit_first_payment && this.state.formEditInfo.edit_first_payment!=''?
                 parseInt(this.state.formEditInfo.edit_first_payment):null,
+
             "delivered":updateInfo.delivered, // if -1 then cannot change status unless cancelled
           }
         },
@@ -372,6 +384,8 @@ handleDateChange = date => {
                    parseInt(res.data.cancelPurchaseOrder.delivered_qty):0,
                 edit_first_payment:res.data.cancelPurchaseOrder.first_payment  ?
                  parseInt(res.data.cancelPurchaseOrder.first_payment):0,
+                 edit_customer_delivery_date: res.data.cancelPurchaseOrder.customer_delivery_date?
+                  moment(res.data.cancelPurchaseOrder.customer_delivery_date,"DD/MM/YYYY").fomrat('MM/DD/YYYY'):'',
               },
              allowSave: true
              }
@@ -501,15 +515,15 @@ handleDateChange = date => {
     // }
 
 
-    const {_id, po_no,
+    const {_id, po_no,order_date,
        title, link, po_qty, total_purchased_qty,
        price,sale_price,first_payment,total_amount,options
-       ,source, notes,orders,trackings,destination,status,username,delivered_qty
+       ,source, notes,orders,trackings,destination,status,username,delivered_qty,customer_delivery_date
     } = this.state.poInfo;
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { edit_notes,edit_status,edit_delivered_qty,edit_first_payment} = this.state.formEditInfo
+     const { edit_notes,edit_status,edit_delivered_qty,edit_first_payment,edit_customer_delivery_date} = this.state.formEditInfo
 
       const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
      console.log("render new message:",message)
@@ -594,6 +608,19 @@ handleDateChange = date => {
             label="User"
             value={username}
             onClick={(e) => {this.copyToClipboard(e, title)}}
+            InputProps={{
+             readOnly: true,
+            }}
+            margin="dense"
+
+            className="col-1"
+          />
+          <TextField
+            name="order_date"
+            type="String"
+            label="Order Date"
+            value={moment(order_date,"DD/MM/YYYY").format('DD-MMM-YYYY')}
+
             InputProps={{
              readOnly: true,
             }}
@@ -694,6 +721,19 @@ handleDateChange = date => {
             }}
             margin="dense"
             width='6em'
+            className="col-1"
+          />
+          <TextField
+            name="customer_delivery_date"
+            type="String"
+            label="F. Del Date"
+            value={customer_delivery_date && customer_delivery_date!=0?
+              moment(customer_delivery_date,'DD/MM/YYYY').format('DD-MMM-YYYY'):''}
+            InputProps={{
+             readOnly: true,
+            }}
+            margin="dense"
+            width='10em'
             className="col-1"
           />
           <TextField
@@ -867,7 +907,7 @@ handleDateChange = date => {
               value={edit_notes}
               onChange={this.handleChange}
               margin="dense"
-              className="col-4 ml2"
+              className="col-3 ml2"
             />
             <FormControl required className={classes.formControl}>
             <InputLabel htmlFor="status-required">Status</InputLabel>
@@ -898,7 +938,21 @@ handleDateChange = date => {
             onChange={this.handleChange}
             margin="dense"
             className="col-1 ml2"
+            width="100px"
           />
+          { edit_status=='delivered' ?
+
+          <DatePicker className="datePickers"
+                  disabled={bulkUpdate && !validBulkUpdate}
+                  autoOk
+                  label="Final Delivery Date"
+                  disableFuture
+                  value={edit_customer_delivery_date && edit_customer_delivery_date!='0'?
+                    edit_customer_delivery_date:moment(order_date,'MM/DD/YYYY').add(14,'day')}
+                  onChange={this.handleDateChange}
+                  format="DD-MMM-YYYY"
+            />:null
+          }
           <TextField
             name="edit_first_payment"
             type="String"
@@ -909,6 +963,7 @@ handleDateChange = date => {
             onChange={this.handleChange}
             margin="dense"
             className="col-1 ml2"
+            width="100px"
           />
             <Button
               disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
@@ -982,6 +1037,7 @@ const cancelPurchaseOrder = gql`
       delivered_qty
       first_payment
       closed
+      customer_delivery_date
    }
   }
 `;

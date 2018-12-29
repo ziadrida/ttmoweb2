@@ -63,6 +63,7 @@ const types = gql`
     first_payment: Int
     senderID: String
     delivered:Int
+    customer_delivery_date: String
 
   }
 
