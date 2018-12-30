@@ -56,9 +56,10 @@ async function cancelPurchaseOrder(root, args, context) {
     queryStr = {
       _id: args.input.po_no
   }
-  console.log('queryStr:', queryStr)
+  //console.log('queryStr:', queryStr)
   var existingPo = await PurchaseOrder.findOne(queryStr);
-  console.log("existingPo:",existingPo)
+
+  //console.log("existingPo:",existingPo)
   if (!existingPo) {
     result.message  = "PO not found";
     console.log('return result 1:',result)
@@ -139,26 +140,24 @@ async function cancelPurchaseOrder(root, args, context) {
       upsert: false
     });
 
-  if (debugOn) console.log("purchaseOrder findOneAndUpdate doc:", JSON.stringify(doc));
+  //if (debugOn) console.log("purchaseOrder findOneAndUpdate doc:", JSON.stringify(doc));
   if (doc) {
-    result = doc;
-    result._id = doc._id;
-    result.delivered_qty = doc.delivered_qty;
-    result.first_payment = doc.first_payment;
-    result.customer_delivery_date = doc.customer_delivery_date;
-    result.status = doc.status
-    result.notes = doc.notes;
-    result.closed = doc.closed;
-    result.message = "Status Updated";
-    console.log("success result:",result)
-    return result;
-  } else {
-    result.message = "Error - count not update status"
+      result = doc;
+      result._id = doc._id;
+      result.delivered_qty = doc.delivered_qty;
+      result.first_payment = doc.first_payment;
+      result.customer_delivery_date = doc.customer_delivery_date;
+      result.status = doc.status
+      result.notes = doc.notes;
+      result.closed = doc.closed;
+      result.message = "Status Updated";
+      //console.log("success result:",result)
+      return result;
+    }  else {
+      result.message = "Error - count not update status"
 
-    return result;
+      return result;
+    }
   }
 }
-
-}
-
 export default cancelPurchaseOrder;
