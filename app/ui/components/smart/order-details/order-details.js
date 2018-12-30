@@ -114,9 +114,8 @@ const SelectTable=selectTableHOC(ReactTable)
   // purchase_id: "2860"
   //... purchased_qty: "25"
   // received: "true"
-  // sale_price: 36
-  // sales_person: "IS"
-  // seller: null
+
+
   // seller_ship_id: "3084"
   // ship_date: "07/08/2018"
   // ship_id: "30652"
@@ -362,6 +361,15 @@ const SelectTable=selectTableHOC(ReactTable)
                         matchSorter(rows, filter.value, { keys: ["status"] }),
             filterAll: true,
             views:[view.all,view.payment,view.order,view.deliver,view.close],
+          },
+          {
+
+            Header: "Sales person",
+            accessor: "sales_person",
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["sales_person"] }),
+            filterAll: true,
+            views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
           },
 
           {
@@ -684,7 +692,17 @@ const SelectTable=selectTableHOC(ReactTable)
               width:200,
             },
 
+            {
+              id: "seller",
+              Header: "Seller Info",
+              accessor: d => d.seller,
 
+              filterMethod: (filter, rows) =>
+                          matchSorter(rows, filter.value, { keys: ["seller"] }),
+              filterAll: true,
+              views:[view.track,view.arrive],
+              width:200,
+            },
 
             {
               id: 'order_date',

@@ -95,7 +95,7 @@ class OrderCancelForm extends React.Component {
     edit_status:'',
     edit_delivered_qty:'',
     edit_first_payment:'',
-    edit_customer_delivery_date: moment().format("MM-DD-YYYY"),
+    edit_customer_delivery_date: moment().toDate(),
   },
 
   poInfo: {
@@ -117,8 +117,8 @@ class OrderCancelForm extends React.Component {
     delivery_days_to: 0,
     delivered_qty:0,
     purchase_id: -99,
-    order_date:  moment().format("MM-DD-YYYY"),
-    customer_delivery_date: moment().format("MM-DD-YYYY"),
+    order_date:  moment().toDate(),
+    customer_delivery_date: moment().toDate(),
   }
 }
     // TODO: add errors field
@@ -189,7 +189,9 @@ static getDerivedStateFromProps(props, state) {
           edit_notes:props.poInfo.notes? props.poInfo.notes:'',
           edit_delivered_qty: props.poInfo.delivered_qty,
           edit_first_payment:props.poInfo.first_payment? parseInt(props.poInfo.first_payment):0,
-          edit_customer_delivery_date: moment(props.poInfo.order_date,'DD/MM/YYYY').add(14,'day').format('MM/DD/YYYY'),
+          edit_customer_delivery_date: props.poInfo.customer_delivery_date &&props.poInfo.customer_delivery_date!='0' ?
+            moment(props.poInfo.customer_delivery_date,'DD/MM/YYYY').toDate():
+            moment(props.poInfo.order_date,'DD/MM/YYYY').add(14,'day'),
           edit_status:props.poInfo.status?props.poInfo.status:'' ,
 
         },
@@ -328,7 +330,7 @@ handleDateChange = date => {
             "status":this.state.formEditInfo.edit_status,
             "delivered_qty":updateInfo.delivered_qty,
             "customer_delivery_date":this.state.formEditInfo.edit_customer_delivery_date?
-              moment(this.state.formEditInfo.edit_customer_delivery_date,'MM-DD-YYYY').format('DD/MM/YYYY'):null,
+              moment(this.state.formEditInfo.edit_customer_delivery_date).format('DD/MM/YYYY'):null,
             "first_payment":this.state.formEditInfo.edit_first_payment && this.state.formEditInfo.edit_first_payment!=''?
                 parseInt(this.state.formEditInfo.edit_first_payment):null,
 
@@ -384,8 +386,10 @@ handleDateChange = date => {
                    parseInt(res.data.cancelPurchaseOrder.delivered_qty):0,
                 edit_first_payment:res.data.cancelPurchaseOrder.first_payment  ?
                  parseInt(res.data.cancelPurchaseOrder.first_payment):0,
-                 edit_customer_delivery_date: res.data.cancelPurchaseOrder.customer_delivery_date?
-                  moment(res.data.cancelPurchaseOrder.customer_delivery_date,"DD/MM/YYYY").fomrat('MM/DD/YYYY'):'',
+                 edit_customer_delivery_date: res.data.cancelPurchaseOrder.customer_delivery_date &&
+                 res.data.cancelPurchaseOrder.customer_delivery_date!='0'?
+                  moment(res.data.cancelPurchaseOrder.customer_delivery_date,"DD/MM/YYYY").toDate():
+                  this.state.formEditInfo.edit_customer_delivery_date,
               },
              allowSave: true
              }
@@ -619,7 +623,7 @@ handleDateChange = date => {
             name="order_date"
             type="String"
             label="Order Date"
-            value={moment(order_date,"DD/MM/YYYY").format('DD-MMM-YYYY')}
+            value={order_date}
 
             InputProps={{
              readOnly: true,
@@ -947,8 +951,8 @@ handleDateChange = date => {
                   autoOk
                   label="Final Delivery Date"
                   disableFuture
-                  value={edit_customer_delivery_date && edit_customer_delivery_date!='0'?
-                    edit_customer_delivery_date:moment(order_date,'MM/DD/YYYY').add(14,'day')}
+                  value={ edit_customer_delivery_date && edit_customer_delivery_date!='0'?
+                    edit_customer_delivery_date:moment(order_date).add(14,'day')}
                   onChange={this.handleDateChange}
                   format="DD-MMM-YYYY"
             />:null
