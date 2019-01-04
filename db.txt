@@ -1,0 +1,130 @@
+
+mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet pricing.js > pricingOut2018.js
+mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet getPOs.js > POsept1-9.js
+
+-- create staging heroku environments
+heroku create --remote staging
+git push staging develop:master
+
+heroku ps:stop worker
+  heroku ps:restart --app protected-thicket-49120
+
+logging
+heroku logs -n 2500 --app protected-thicket-49120
+
+mongodb commands
+______________________
+ mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the.
+
+DB Stuff
+db.user_messages.aggregate([
+{
+  $lookup: {
+    from: "users",
+    localField: "senderId",
+    foreignField: "userId",
+    as: "users"
+  }
+},
+{ $unwind: { "path": "$users", "preserveNullAndEmptyArrays": true }},
+{
+    $project: {
+
+       _id:"$_id",
+       userId:"$users.userId",
+       name:"$users.name",
+       first_name: "$users.first_name",
+       last_name:"$users.last_name",
+       gender:"$users.gender",
+       city:"$users.city",
+       userDateCreated:"$users.dateCreated",
+       messageText: "$messageText",
+       messageAttachments: "$messageAttachments",
+       timestamp: "$timestamp",
+       dateCreated: "$dateCreated"
+    }
+},
+     { $sort :    { dateCreated :  -1 } },
+      { $match : { userId: "1626970454071457" } }
+  ])
+
+{
+$match: {"$and":
+[{dateCreated:
+{"$gte":"2019-01-02T15:27:00.000Z",
+  "$lt":"2019-01-03T15:27:00.000Z"}}
+  ]}
+}
+
+])
+
+db.users.aggregate([
+ { $match : { userId: "1626970454071457" } },
+{
+  $lookup: {
+    from: "user_messages",
+    localField: "userId",
+    foreignField: "senderId",
+    as: "messages"
+  }
+},
+{ $unwind: { "path": "$messages", "preserveNullAndEmptyArrays": true }},
+{
+    $project: {
+       userId:1,
+       name:1,
+       first_name: 1,
+       last_name: 1,
+       gender:1,
+       city:1,
+       userDateCreated:"$dateCreated",
+       messageText: "$messages.messageText",
+       messageAttachments: "$messages.messageAttachments",
+       timestamp: "$messages.timestamp",
+       dateCreated: "$messages.dateCreated"
+    }
+}
+])
+
+i= TT99519 last used
+db.users.find({userId: "-99"}).forEach(function(row) {
+i = i+1
+print(row._id, "-",row.userId, "TT"+i)
+row.userId = "TT"+i
+db.users.save(row)
+    })
+
+db.users.aggregate(
+    { $group: {
+        _id: { "userId": "$userId"},
+        count: { $sum:  1 },
+        docs: { $push: "$_id" }
+    }},
+    { $match: {
+        count: { $gt : 1 }
+    }}
+)
+
+{
+  "po_no": 1,
+  "order_no": 1,
+  "tracking_no": 1
+}
+
+db.vendor_order_tracking.aggregate(
+    { $group: {
+        _id: { "po_no": "$po_no", "order_no": "$order_no", "tracking_no": "$tracking_no"},
+        count: { $sum:  1 },
+        docs: { $push: "$_id" }
+    }},
+    { $match: {
+        count: { $gt : 1 }
+    }}
+)
+
+userDateCreated:"$dateCreated",
+messageText: "$messages.messageText",
+messageAttachments: "$messages.messageAttachments",
+timestamp: "$messages.timestamp",
+dateCreated: "$messages.dateCreated"
+ { $unwind: { "path": "$messages", "preserveNullAndEmptyArrays": true },
