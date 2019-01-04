@@ -305,22 +305,32 @@ handleDateChange = date => {
     var rtnPoInfo = selectedPo;
     const { mutate, setRow} = this.props
     if (mutate) {
-      console.log("call mutate")
+      console.log("**** call mutate")
+      console.log("+>>>selectedPo.edit_delivered_qty:",selectedPo.edit_delivered_qty)
+      try {
       var updateInfo = this.state.bulkUpdate?
        {
          // fiels that come from the list of PO to be changed
         po_no: selectedPo.po_no,
-        delivered_qty: selectedPo.edit_delivered_qty && selectedPo.edit_delivered_qty!='' ? parseInt(selectedPo.edit_delivered_qty):null,
-
-        delivered:selectedPo.delivered,
+        delivered:selectedPo.delivered!= null? selectedPo.delivered:null,
+        delivered_qty:
+              selectedPo.edit_delivered_qty==0 || selectedPo.edit_delivered_qty != null ?
+               selectedPo.edit_delivered_qty:null,
       }:
       {
         po_no: this.state.formEditInfo.po_no,
         delivered:this.state.poInfo.delivered,
-        delivered_qty: this.state.formEditInfo.edit_delivered_qty && selectedPo.edit_delivered_qty!=''?
+        delivered_qty: this.state.formEditInfo.edit_delivered_qty!=null &&
+              this.state.formEditInfo.edit_delivered_qty!=''?
           parseInt(this.state.formEditInfo.edit_delivered_qty):null,
       }
-      console.log('updateInfo:',updateInfo)
+     }
+     catch(err) {
+        console.log("ERROR setting updateInfo")
+        rtnPoInfo.message = "Internal Error. Error setting bulk update"
+          return rtnPoInfo;
+      }
+      console.log('***** updateInfo:',updateInfo)
        const response = await mutate({
 
          variables: {
@@ -382,12 +392,11 @@ handleDateChange = date => {
                ...this.state.formEditInfo,
                 edit_status: res.data.cancelPurchaseOrder.status,
                 edit_notes:res.data.cancelPurchaseOrder.notes,
-                edit_delivered_qty:res.data.cancelPurchaseOrder.delivered_qty?
+                edit_delivered_qty:res.data.cancelPurchaseOrder.delivered_qty!=null?
                    parseInt(res.data.cancelPurchaseOrder.delivered_qty):0,
                 edit_first_payment:res.data.cancelPurchaseOrder.first_payment  ?
                  parseInt(res.data.cancelPurchaseOrder.first_payment):0,
-                 edit_customer_delivery_date: res.data.cancelPurchaseOrder.customer_delivery_date &&
-                 res.data.cancelPurchaseOrder.customer_delivery_date!='0'?
+                 edit_customer_delivery_date: res.data.cancelPurchaseOrder.customer_delivery_date != null?
                   moment(res.data.cancelPurchaseOrder.customer_delivery_date,"DD/MM/YYYY").toDate():
                   this.state.formEditInfo.edit_customer_delivery_date,
               },
@@ -951,6 +960,9 @@ handleDateChange = date => {
                   autoOk
                   label="Final Delivery Date"
                   disableFuture
+                  leftArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/></svg>
+                  rightArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/></svg>
+
                   value={ edit_customer_delivery_date && edit_customer_delivery_date!='0'?
                     edit_customer_delivery_date:moment(order_date).add(14,'day')}
                   onChange={this.handleDateChange}

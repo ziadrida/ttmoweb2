@@ -12,20 +12,22 @@ const errorOn = true;
 
 async function cancelPurchaseOrder(root, args, context) {
 
-  console.log("=> in cancelPurchaseOrder")
-  console.log('root:', root)
-  console.log('args:', args)
-  console.log('context:', context)
+  console.log("=> in cancelPurchaseOrder args:",args)
+  //console.log('root:', root)
+//  console.log('args:', args)
+  //console.log('context:', context)
 
-  if (debugOn) console.log("=> in cancelPurchaseOrder:", JSON.stringify(args.input));
-  console.log("  context.user.profile.name:",  context.user.profile.name)
+  //if (debugOn) console.log("=> in cancelPurchaseOrder:", JSON.stringify(args.input));
+//  console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
+  //        context.user.profile.name)
   var senderID = context.user && context.user.profile && context.user.profile.name?
     context.user.profile.name: 'wedadmin';
 
   // Peform a simple find and return one  documents
   var result = {}
-  if (!args.input.po_no || args.input.po_no == undefined || !args.input.status ) {
+  if (!args.input.po_no || typeof args.input.po_no == 'undefined' || !args.input.status ) {
     result.message = "Must pass PO number and status (po_no)"
+    console.log("error with po_no")
     result._id = -99;
     return result;
   }
@@ -37,15 +39,25 @@ async function cancelPurchaseOrder(root, args, context) {
   // set update fields
   var order = {}
 
+try {
   order.updated_by = senderID ? senderID : 'admin'
-  order.status =  args.input.status?  args.input.status:'hold'
-  order.delivered_qty =  args.input.delivered_qty?parseInt(args.input.delivered_qty):null;
-  order.first_payment =  args.input.first_payment?parseInt(args.input.first_payment):null;
+  order.status =  args.input.status?  args.input.status:'unknown'
+  order.delivered_qty =  args.input.delivered_qty !=null ?parseInt(args.input.delivered_qty):null;
+  order.first_payment =  args.input.first_payment !=null ?parseInt(args.input.first_payment):null;
   order.customer_delivery_date =  args.input.customer_delivery_date?args.input.customer_delivery_date:null;
-
+} catch(err) {
+  console.log("Error setting order: ",err)
+  result.message = "Internal error. Error setting order"
+  return result;
+}
+  if ( order.delivered_qty === 0) {
+    order.customer_delivery_date = '0';
+  }
   if (order.status == "closed") {
     order.closed =  true
     order.status = null; // keep last status
+  } else if (order.status == "reopen" ) {
+    order.closed =  false
   }
 
 
@@ -56,7 +68,7 @@ async function cancelPurchaseOrder(root, args, context) {
     queryStr = {
       _id: args.input.po_no
   }
-  //console.log('queryStr:', queryStr)
+  console.log('queryStr:', queryStr)
   var existingPo = await PurchaseOrder.findOne(queryStr);
 
   //console.log("existingPo:",existingPo)
@@ -65,7 +77,7 @@ async function cancelPurchaseOrder(root, args, context) {
     console.log('return result 1:',result)
     return result
   } else {
-
+    console.log("Found PO")
     result.delivered_qty = existingPo.delivered_qty;
     result.first_payment = existingPo.first_payment;
     result.customer_delivery_date = existingPo.customer_delivery_date;

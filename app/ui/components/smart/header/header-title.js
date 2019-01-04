@@ -17,8 +17,8 @@ const HeaderTitle = ({
   dataTestUrl,
   adminUrl,
   quotationsUrl,
+  chatMessagesUrl,
   orderDetailsUrl,
-  vendorPurchaseUrl,
 }) => (
   <Switch>
     <Route path={homeUrl()} exact render={() => <T id="homeHeaderTitle" />} />
@@ -31,8 +31,8 @@ const HeaderTitle = ({
     <Route path={dataTestUrl()} render={() => <T id="dataTestTitle" />} />
     <Route path={adminUrl()} render={() => <T id="adminHeaderTitle" />} />
     <Route path={quotationsUrl()} render={() => <T id="quotationsHeaderTitle" />} />
+    <Route path={chatMessagesUrl()} render={() => <T id="chatMessagesHeaderTitle" />} />
     <Route path={orderDetailsUrl()} render={() => <T id="orderDetailsHeaderTitle" />} />
-  //  <Route path={vendorPurchaseUrl()} render={() => <T id="vendorPurchaseHeaderTitle" />} />
     <Route render={() => <T id="notFoundTitle" />} />
   </Switch>
 );

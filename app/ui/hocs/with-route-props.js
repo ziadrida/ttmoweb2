@@ -58,7 +58,7 @@ const withRouteProps = withHandlers(
   adminUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin'),
   quotationsUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/quotations'),
   orderDetailsUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/order-details'),
-  vendorPurchaseUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/vendor-purchase'),
+  chatMessagesUrl: ({ intl: { locale } }) => () => urlWithLocale(locale, '/admin/chat-messages'),
 
 });
 

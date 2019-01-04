@@ -113,7 +113,7 @@ class OrderDetailsPage extends React.PureComponent {
 // </div>
 OrderDetailsPage.propTypes = {
 //  curUser: propType(userFragment),
-  vendorPurchaseUrl:PropTypes.func.isRequired,
+
 
 };
 

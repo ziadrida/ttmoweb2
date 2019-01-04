@@ -5,7 +5,7 @@ const debugOn = true;
 removeEmpty = (obj) => {
     if (debugOn) console.log("removeEmpty in: ",obj)
     Object.keys(obj).forEach((key) => (obj[key] == null || obj[key]==undefined) && delete obj[key]);
-     if (debugOn) console.log("removeEmpty out: ",obj)
+  //   if (debugOn) console.log("removeEmpty out: ",obj)
      return obj;
 
  }
@@ -29,7 +29,7 @@ removeEmpty = (obj) => {
 
  async function getNextSequenceValue (name) {
    console.log('==>getNextSequenceValue[2]:',name)
-   
+
    result = await Counter.findOneAndUpdate(
      {  '_id': name},
      { $inc: {sequence: 1}},

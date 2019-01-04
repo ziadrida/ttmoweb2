@@ -16,7 +16,7 @@ import {
 
 import {
   HomePage, WelcomePage, LoginPage, SignupPage, VerifyEmailPage, LinkExpiredPage,
-  ForgotPasswordPage, LoggedOutPage, DataTestPage, AdminPage, NotFoundPage, QuotationsPage,
+  ForgotPasswordPage, LoggedOutPage, DataTestPage, AdminPage, NotFoundPage, QuotationsPage,ChatMessagesPage,
   OrderDetailsPage,
   //VendorPurchasePage
 } from './loadables';
@@ -32,7 +32,8 @@ const Routes = ({
   dataTestUrl,
   adminUrl,
   quotationsUrl,
-  orderDetailsUrl,
+  chatMessagesUrl,
+   orderDetailsUrl,
   //vendorPurchaseUrl,
   ...otherProps
 }) => (
@@ -113,20 +114,19 @@ const Routes = ({
       />
       <LoggedInRoute
         exact
+        path={chatMessagesUrl()}
+        component={ChatMessagesPage}
+        redirectTo={homeUrl()}
+        {...otherProps}
+      />
+      <LoggedInRoute
+        exact
         path={orderDetailsUrl()}
         component={OrderDetailsPage}
         redirectTo={homeUrl()}
         {...otherProps}
       />
-        {/*
-      <LoggedInRoute
-        exact
-        path={vendorPurchaseUrl()}
-        component={VendorPurchasePage}
-        redirectTo={homeUrl()}
-        {...otherProps}
-      />
-        */}
+      
 
       {/* NOT FOUND */}
       <Route
@@ -150,8 +150,9 @@ Routes.propTypes = {
   dataTestUrl: PropTypes.func.isRequired,
   adminUrl: PropTypes.func.isRequired,
   quotationsUrl: PropTypes.func.isRequired,
+  chatMessagesUrl: PropTypes.func.isRequired,
   orderDetailsUrl:PropTypes.func.isRequired,
-  vendorPurchaseUrl:PropTypes.func.isRequired,
+
 };
 
 export default compose(

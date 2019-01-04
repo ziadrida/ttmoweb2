@@ -10,19 +10,22 @@ import { LogoutBtn } from './auth';
 const Menu = ({ curUser, homeUrl,
   //dataTestUrl,
   //adminUrl,
-  quotationsUrl,orderDetailsUrl,
+  quotationsUrl,
+  chatMessagesUrl,
+  orderDetailsUrl,
 //  vendorPurchaseUrl
 }) => {
   const menuRoutes = [
     { path: homeUrl(), label: 'Home', menu: true, auth: true },
   //  { path: dataTestUrl(), label: 'Data test', menu: true },
 
-  //  { path: vendorPurchaseUrl(), label: 'Vendor Purchase', menu: true },
+
   ];
 
   if (curUser && curUser.roles.includes('admin')) {
     //menuRoutes.push({ path: adminUrl(), label: 'Admin', menu: true, admin: true });
     menuRoutes.push(  { path: quotationsUrl(), label: 'Quotations', menu: true })
+    menuRoutes.push(  { path: chatMessagesUrl(), label: 'Chat Messages', menu: true })
     menuRoutes.push(  { path: orderDetailsUrl(), label: 'Order Details', menu: true })
   }
 

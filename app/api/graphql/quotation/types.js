@@ -73,7 +73,9 @@ const types = gql`
     }
 
   type Query {
-        getQuotation(quote_no: Int, search: String): [Quotation]
+        getQuotation(
+              quote_no: Int,
+              search: String): [Quotation]
         user: User
 
   }

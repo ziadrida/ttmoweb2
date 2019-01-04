@@ -49,20 +49,3 @@ class PasswordAuthViews extends React.Component
 
 
 ---------------
-DB Stuff
-{
-  "po_no": 1,
-  "order_no": 1,
-  "tracking_no": 1
-}
-
-    db.vendor_order_tracking.aggregate(
-    { $group: {
-        _id: { "po_no": "$po_no", "order_no": "$order_no", "tracking_no": "$tracking_no"},
-        count: { $sum:  1 },
-        docs: { $push: "$_id" }
-    }},
-    { $match: {
-        count: { $gt : 1 }
-    }}
-)

@@ -6,6 +6,21 @@ import mongoose  from 'mongoose';
 
 console.log('Importing user')
 
+const MessageAttachments = mongoose.Schema({
+  title: String,
+  url: String,
+  type: String,
+  payload: String
+})
+
+const Messages = mongoose.Schema({
+  messageText: String,
+  messageAttachments: [MessageAttachments],
+  timestamp: String,
+  dateCretaed: String
+})
+
+
 const schema = mongoose.Schema({
 _id: String,
 name: String,
@@ -23,9 +38,10 @@ role: String,
 location: String,
 order_status_subscription: Boolean,
 price_drop_subscription: Boolean,
-date_created: String
+date_created: String,
+messages: [Messages]
 
-});
+},{ collection: 'users' });
 
 //const User = mongoose.model('User', schema);
 
