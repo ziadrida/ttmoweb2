@@ -87,6 +87,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["senderId"] }),
       filterAll: true,
+      width:150,
     },
     {
       id: 'username',
@@ -109,6 +110,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       Header: "PO#",
       accessor: d =>
               d.quotation.po_no?d.quotation.po_no:'',
+        filterAll: false,
         filterMethod: (filter, row) => {
                       //console.log(filter)
                       //console.log(row)
@@ -121,7 +123,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       }
 
                     },
-                    Filter: ({ filter, onChange }) =>
+            Filter: ({ filter, onChange }) =>
                       <select
                         onChange={event => onChange(event.target.value)}
                         style={{ width: "100%" }}
@@ -135,6 +137,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: 'po',
       Header: "Active/Final/PO",
+        filterAll: false,
       accessor: d =>
         (d.quotation.active != undefined && d.quotation.active ? d.quotation.active:'false')+ '/' +
         (d.quotation.final != undefined && d.quotation.final? d.quotation.final:'false') ,
@@ -145,22 +148,21 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       if (filter.value === "all") {
 
                         return true;
-                      }
-
-                      if (filter.value === "DIS") {
+                      } else  if (filter.value === "DIS") {
                         return row[filter.id].includes('false/') ;
-                      }
-                      return row[filter.id].includes('/false/');
+                      } else     if (filter.value === "INC") {
+                      return row[filter.id].includes('/false');
+                    }
                     },
-                    Filter: ({ filter, onChange }) =>
+        Filter: ({ filter, onChange }) =>
                       <select
                         onChange={event => onChange(event.target.value)}
                         style={{ width: "100%" }}
                         value={filter ? filter.value : "all"}
                       >
                         <option value="all">Show All</option>
-                        <option value="DIS">Discarded</option>
-                        <option value="INC">Incomplete</option>
+                        <option value="DIS">ملغى</option>
+                        <option value="INC">غير مكتمل</option>
                       </select>
       },
       {
@@ -181,6 +183,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
           'width':'540px',
           'height':'4em'
          },
+        width:340,
       },
     {
       id: 'url',
@@ -197,9 +200,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       style: { 'whiteSpace': 'unset',
         'fontSize': '12px',
         'overflowY':'scroll',
-        'width':'540px',
+        'width':'440px',
         'height':'4em'
        },
+        width:440,
     },
     {
       id: "category",
@@ -228,10 +232,12 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     }, {
       id: "price",
       Header: "Price ($)",
-      accessor: d => d.quotation.item.price? d.quotation.item.price.toFixed(1):0,
+      accessor: d => d.quotation.item.price? d.quotation.item.price.toFixed(2):'',
 
-      filterMethod: (filter, row) =>
-                  row[filter.id] >= filter.value,
+      filterMethod: (filter, row) => {
+                return    row[filter.id] && row[filter.id] != '' &&
+                parseFloat(row[filter.id]) >= parseFloat(filter.value)
+              } ,
       filterAll: false,
       style: {
                   textAlign: 'right'
@@ -244,7 +250,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       accessor: d => d.quotation.item.qty ,
       Cell: ({ value }) => (value >= 9999 ? 0 : value),
       filterMethod: (filter, row) =>
-                row[filter.id] >= filter.value,
+                  row[filter.id] && row[filter.id] != '' && parseInt(row[filter.id]) >= parseInt(filter.value),
       filterAll: false,
       style: {
                   textAlign: 'right'
@@ -256,7 +262,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       accessor: d => d.quotation.price_selection &&d.quotation.prices && d.quotation.prices.amm_exp ?
         d.quotation.prices[d.quotation.price_selection].price : '',
         filterMethod: (filter, row) =>
-                  row[filter.id] >= filter.value,
+                    row[filter.id] && row[filter.id] != '' && parseFloat(row[filter.id]) >= parseFloat(filter.value),
         filterAll: false,
         style: {
                     textAlign: 'right'
@@ -274,16 +280,23 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: "priceOpt",
       Header: "Price Opts",
-      accessor: d => d.quotation.prices? 'amm_exp:' + d.quotation.prices['amm_exp'].price + '\n' +
-        'amm_std:' + d.quotation.prices['amm_std'].price + '\n' +
-        'aq_std:' + d.quotation.prices['aq_std'].price + '\n':''
+      accessor: d => d.quotation.prices? 'amm_exp:' + d.quotation.prices['amm_exp'].price +
+        'amm_std:' + d.quotation.prices['amm_std'].price  +
+        'aq_std:' + d.quotation.prices['aq_std'].price :'',
+      style: { 'whiteSpace': 'unset',
+          'fontSize': '12px',
+          'overflowY':'scroll',
+          'width':'300x',
+          'height':'4em'
+         },
+      width:210,
     },
     {
       id: "chgWt",
       Header: "Chg Wt",
-      accessor: d => d.quotation.item.chargeableWeight? d.quotation.item.chargeableWeight.toFixed(1):'',
+      accessor: d => d.quotation.item.chargeableWeight? d.quotation.item.chargeableWeight.toFixed(2):'',
       filterMethod: (filter, row) =>
-                row[filter.id] >= filter.value,
+                  row[filter.id] && row[filter.id] != '' && parseFloat(row[filter.id]) >= parseFloat(filter.value),
       filterAll: false,
     },
 
