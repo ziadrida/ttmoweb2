@@ -52,17 +52,19 @@ const getChatMessages = async (root, args, context) => {
           console.log("new Date(dateFrom):",new Date(dateFrom))
         matchArray.push ({
           "dateCreated": {
-            "$gte": dateFrom
+            "$gte": dateFrom,
+            "$lt":  dateTo
           }
         })
+
         //   matchArray.push({
         //     "dateCreated.": {
-        //       "$lt":  new Date(dateTo)
+        //       "$lt":  dateTo
         //     }
         // })
 
     andOr =andOr.toLowerCase()
-    queryStr = {}
+    var queryStr ={}
 
     queryStr[andOr] = matchArray.length == 0? [{ _id : { $exists: true } }]:matchArray
   // Query current logged in quotation

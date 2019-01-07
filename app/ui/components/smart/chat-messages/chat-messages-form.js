@@ -34,7 +34,7 @@ class ChatMessagesForm extends React.Component {
   state = {
     username: '',
     search: '',
-    dateFrom:moment().toDate(),
+    dateFrom:moment().add(1,'days').toDate(),
     dateTo:moment().toDate(),
     data:[],
     // TODO: add errors field
@@ -86,7 +86,7 @@ class ChatMessagesForm extends React.Component {
         {/* Material-UI example usage */}
 
         <DateTimePicker className="pickers"
-                ampm={false}
+                ampm={true}
                 autoOk
                 disableFuture
                 okLabel="OK"
@@ -97,7 +97,7 @@ class ChatMessagesForm extends React.Component {
                 format="DD-MMM-YYYY HH:mm"
           />
           <DateTimePicker className="pickers"
-                  ampm={false}
+                  ampm={true}
                   okLabel="OK"
                   autoOk
                   disableFuture

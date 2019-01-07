@@ -15,6 +15,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import matchSorter from 'match-sorter'
+import moment from 'moment';
 
   // Import React Table
   import ReactTable from "react-table";
@@ -46,9 +47,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
   const { loading, error, getQuotation ,variables  } = quotationsData;
 
   if (!getQuotation) return <p>Search for quotation</p>
-  this.state = {
-      data: getQuotation
-  };
+
   console.log('variables:',variables)
 
   nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
@@ -66,15 +65,33 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: 'quote_date',
       Header: "Date",
-      accessor: d => d.quotation.quote_date.substring(0, 21),
+      accessor: d => (d.quotation.quote_date? d.quotation.quote_date:d.date_created),
+        Cell: row => <span>{row.value? moment(parseInt(row.value)).format('DD-MMM-YYYY HH:mm:ss'):null}</span>,
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["quote_date"] }),
+      filterAll: true,
+      width: 200,
+    },
+    {
+      id: "sales_person",
+      Header: "Sales Person",
+      accessor: d => d.sales_person,
+      filterMethod: (filter, rows) =>
+                  matchSorter(rows, filter.value, { keys: ["sales_person"] }),
+      filterAll: true,
+    },
+    {
+      id: 'senderId',
+      Header: "User ID",
+      accessor: d => d.senderId,
+      filterMethod: (filter, rows) =>
+                  matchSorter(rows, filter.value, { keys: ["senderId"] }),
       filterAll: true,
     },
     {
       id: 'username',
       Header: "Username",
-      accessor: d => d.quotation.item.username,
+      accessor: d => d.quotation.username,
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["username"] }),
       filterAll: true,
@@ -88,12 +105,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       filterAll: true,
     },
     {
-      id: 'po',
-      Header: "Active/Final/PO",
+      id: 'po_no',
+      Header: "PO#",
       accessor: d =>
-        (d.quotation.active != undefined && d.quotation.active ? d.quotation.active:'false')+ '/' +
-        (d.quotation.final != undefined && d.quotation.final? d.quotation.final:'false') + '/' +
-        (d.quotation.po_no?d.quotation.po_no:'-'),
+              d.quotation.po_no?d.quotation.po_no:'',
         filterMethod: (filter, row) => {
                       //console.log(filter)
                       //console.log(row)
@@ -104,6 +119,34 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       if (filter.value === "PO") {
                         return row[filter.id].includes('T') ;
                       }
+
+                    },
+                    Filter: ({ filter, onChange }) =>
+                      <select
+                        onChange={event => onChange(event.target.value)}
+                        style={{ width: "100%" }}
+                        value={filter ? filter.value : "all"}
+                      >
+                        <option value="all">Show All</option>
+                        <option value="PO">PO Created</option>
+
+                      </select>
+      },
+    {
+      id: 'po',
+      Header: "Active/Final/PO",
+      accessor: d =>
+        (d.quotation.active != undefined && d.quotation.active ? d.quotation.active:'false')+ '/' +
+        (d.quotation.final != undefined && d.quotation.final? d.quotation.final:'false') ,
+
+        filterMethod: (filter, row) => {
+                      //console.log(filter)
+                      //console.log(row)
+                      if (filter.value === "all") {
+
+                        return true;
+                      }
+
                       if (filter.value === "DIS") {
                         return row[filter.id].includes('false/') ;
                       }
@@ -116,16 +159,34 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                         value={filter ? filter.value : "all"}
                       >
                         <option value="all">Show All</option>
-                        <option value="PO">PO Created</option>
                         <option value="DIS">Discarded</option>
                         <option value="INC">Incomplete</option>
                       </select>
-                      },
+      },
+      {
+        id: 'title',
+        Header: "Title",
+        accessor: d =>(d.quotation.item && d.quotation.item.title? d.quotation.item.title: d.quotation.title),
+
+        filterMethod: (filter, rows) => {
+                  //  console.log('rows:',rows)
+                    //console.log('filter:',filter)
+
+                    return matchSorter(rows, filter.value, { keys: ["title"] })
+                  },
+        filterAll: true,
+        style: { 'whiteSpace': 'unset',
+          'fontSize': '12px',
+          'overflowY':'scroll',
+          'width':'540px',
+          'height':'4em'
+         },
+      },
     {
       id: 'url',
-      Header: "URL/HTTP link",
-      accessor: d => < a href = {d.quotation.item.url}
-      target = "_blank" > {d.quotation.item.url} < /a>,
+      Header: "URL",
+      accessor: d => < a href = {d.quotation.item && d.quotation.item.url? d.quotation.item.url: d.quotation.url}
+      target = "_blank" > {d.quotation.item && d.quotation.item.url? d.quotation.item.url: d.quotation.url} < /a>,
       filterMethod: (filter, rows) => {
                 //  console.log('rows:',rows)
                   //console.log('filter:',filter)
@@ -133,11 +194,25 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                   return matchSorter(rows, filter.value, { keys: ["url.props.href"] })
                 },
       filterAll: true,
+      style: { 'whiteSpace': 'unset',
+        'fontSize': '12px',
+        'overflowY':'scroll',
+        'width':'540px',
+        'height':'4em'
+       },
+    },
+    {
+      id: "category",
+      Header: "Category",
+      accessor: d => d.quotation.item.category? d.quotation.item.category[0]:'',
+      filterMethod: (filter, rows) =>
+                  matchSorter(rows, filter.value, { keys: ["category"] }),
+      filterAll: true,
     },
     {
       id: "source",
       Header: "Source",
-      accessor: d => d.quotation.item.source,
+      accessor: d => (d.quotation.item && d.quotation.item.source? d.quotation.item.source: d.quotation.source),
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["source"] }),
       filterAll: true,
@@ -153,10 +228,14 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     }, {
       id: "price",
       Header: "Price ($)",
-      accessor: d => d.quotation.item.price.toFixed(1),
-      filterMethod: (filter, rows) =>
-                row[filter.id] >= filter.value,
-      filterAll: true,
+      accessor: d => d.quotation.item.price? d.quotation.item.price.toFixed(1):0,
+
+      filterMethod: (filter, row) =>
+                  row[filter.id] >= filter.value,
+      filterAll: false,
+      style: {
+                  textAlign: 'right'
+      },
 
     },
     {
@@ -164,18 +243,24 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       Header: "Qty",
       accessor: d => d.quotation.item.qty ,
       Cell: ({ value }) => (value >= 9999 ? 0 : value),
-      filterMethod: (filter, rows) =>
+      filterMethod: (filter, row) =>
                 row[filter.id] >= filter.value,
-      filterAll: true,
+      filterAll: false,
+      style: {
+                  textAlign: 'right'
+      },
     },
     {
       id: "salePrice",
       Header: "Sale Price",
-      accessor: d => d.quotation.price_selection && d.quotation.prices.amm_exp ?
+      accessor: d => d.quotation.price_selection &&d.quotation.prices && d.quotation.prices.amm_exp ?
         d.quotation.prices[d.quotation.price_selection].price : '',
-        filterMethod: (filter, rows) =>
+        filterMethod: (filter, row) =>
                   row[filter.id] >= filter.value,
-        filterAll: true,
+        filterAll: false,
+        style: {
+                    textAlign: 'right'
+        },
     },
     {
       id: "dest",
@@ -189,88 +274,35 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: "priceOpt",
       Header: "Price Opts",
-      accessor: d => 'amm_exp:' + d.quotation.prices['amm_exp'].price + '\n' +
+      accessor: d => d.quotation.prices? 'amm_exp:' + d.quotation.prices['amm_exp'].price + '\n' +
         'amm_std:' + d.quotation.prices['amm_std'].price + '\n' +
-        'aq_std:' + d.quotation.prices['aq_std'].price + '\n'
+        'aq_std:' + d.quotation.prices['aq_std'].price + '\n':''
     },
     {
       id: "chgWt",
       Header: "Chg Wt",
-      accessor: d => d.quotation.item.chargeableWeight.toFixed(1),
-      filterMethod: (filter, rows) =>
+      accessor: d => d.quotation.item.chargeableWeight? d.quotation.item.chargeableWeight.toFixed(1):'',
+      filterMethod: (filter, row) =>
                 row[filter.id] >= filter.value,
-      filterAll: true,
+      filterAll: false,
     },
-    {
-      id: "salesPerson",
-      Header: "Sales Person",
-      accessor: d => d.quotation.sales_person,
-      filterMethod: (filter, rows) =>
-                  matchSorter(rows, filter.value, { keys: ["salesPerson"] }),
-      filterAll: true,
-    }
+
   ]
-
-    // const columns = ["quote_no","Quote Date","username", "Reason","Active/Final/PO",
-    //        {
-    //        name: "URL/HTTP link",
-    //        options: {
-    //          filter: true,
-    //          customBodyRender: (value, tableMeta, updateValue) => {
-    //            return (
-    //              <a href={value} target="_blank">{value} </a>
-    //            );
-    //          }
-    //        }
-    //      },
-    //      "source","MPN[ASIN]","price","Qty","Sale Price","Dest","Price Opts","Chg Wt","sales_person"];
-
-
-  //   var myData = []
-  // myData =  getQuotation.map(quotation => {
-  //    item = (quotation.quotation && quotation.quotation.item?  quotation.quotation.item:null)
-  //    quote = (quotation.quotation? quotation.quotation: null)
-  //     salePrice = (quote && quote.prices &&quote.price_selection && quote.prices.amm_exp? quote.prices[quote.price_selection].price:'')
-  //    return([
-  //     quotation.quote_no,
-  //      (quote.quote_date? quote.quote_date.substring(0, 21):''),
-  //     (item &&item.username ? item.username:''),
-  //     (quote&&quote.reason? quote.reason:''),
-  //     (quote&&quote.active ? quote.active + (quote.final!= undefined?  '/' +quote.final:'/'+false)+(quote.po_no? '/' +quote.po_no:''):''),
-  //     (item && item.url ?item.url: ''),
-  //     (item &&item.source ? item.source: ''),
-  //     (item &&item.MPN || item.asin ? item.MPN+'['+item.asin+']': ''),
-  //     (item &&item.price? item.price.toFixed(1):''),
-  //       (item &&item.qty? (item.qty>9999?9999:item.qty):''),
-  //     salePrice,
-  //     (quote.price_selection? quote.price_selection:''),
-  //     (quote.price_selection?
-  //       'amm_exp:'+quote.prices['amm_exp'].price+'\n'+
-  //       'amm_std:'+quote.prices['amm_std'].price+'\n'+
-  //       'aq_std:'+ quote.prices['aq_std'].price+'\n'
-  //       :''),
-  //     (item &&item.chargeableWeight? item.chargeableWeight.toFixed(1): ''),
-  //     (quotation.sales_person? quotation.sales_person: ''),
-  //
-  //
-  //         ])
-  //       })
 
       //  console.log("myData:",myData)
         //    {(quotation.quotation? JSON.stringify(quotation.quotation.item,2,null):"")})
 
-  if (!variables.quoteNo && !variables.search ) return <p> Enter search </p>
 
-  if (loading) {
-    return <Loading />;
-  }
   if (error) {
     return <p>{error.message}</p>;
   }
 
 
   return (
-        <div>
+        <div >
+        {loading?
+           <Loading />: null
+        }
           <ReactTable
             data={getQuotation}
             filterable
@@ -311,6 +343,8 @@ const withData = graphql(quotationsQuery, {
   options: ({ quotationSearch }) => ({
     variables: {
       quoteNo: (quotationSearch && Number(quotationSearch.quoteNo)),
+      dateFrom: (quotationSearch && quotationSearch.dateFrom),
+      dateTo: (quotationSearch && quotationSearch.dateTo),
       search: (quotationSearch && quotationSearch.search)
     },
   }),

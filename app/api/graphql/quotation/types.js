@@ -12,6 +12,8 @@ const types = gql`
     sales_person: String
     user:  User
     quotation: QuotationInstance
+    date_created: String
+    created_by: String
   }
 
   type QuotationInstance {
@@ -19,14 +21,31 @@ const types = gql`
     quote_date: String
     price_selection: String
     notes: String
-    final: Boolean
+
     active: Boolean
     po_no: String
     sales_person: String
-    username: String
+
     message: String
     reason: String
+    ownderId: String
+    url: String
+    title: String
+    thumbnailImage: String
+    source: String,
+    price: Float
+    qty: Float
+    shipping: Float
+    category: [String]
 
+    weight: Float
+    height: Float
+    length: Float
+    width: Float
+    username: String
+    chargeableWeight: Float
+    final: Boolean
+    requestor: String
     item: Item
     prices: PriceOptions
   }
@@ -75,6 +94,8 @@ const types = gql`
   type Query {
         getQuotation(
               quote_no: Int,
+              dateFrom:String,
+              dateTo:String,
               search: String): [Quotation]
         user: User
 

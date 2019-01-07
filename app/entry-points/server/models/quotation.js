@@ -8,6 +8,28 @@ const PriceDest = mongoose.Schema({
   price: Number
 })
 
+// const QuoteInput = mongoose.Schema({
+//   ownderId: String,
+//   url: String,
+//   thumbnailImage: String,
+//   source: String,
+//   price: Number,
+//   qty: Number,
+//   shipping: Number,
+//   category: [String],
+//   title: String,
+//   weight: Number,
+//   height: Number,
+//   length: Number,
+//   width: Number,
+//   language: String,
+//   username: String,
+//   chargeableWeight: Number,
+//   final: Boolean,
+//   requestor: String,
+//   quote_no: Number,
+// })
+
 const PriceOptions = mongoose.Schema({
         amm_exp: PriceDest,
         amm_std: PriceDest,
@@ -20,20 +42,44 @@ const schema = mongoose.Schema({
   quote_no: Number,
   senderId: String,
   sales_person: String,
+
+
   quotation: {
-      quote_no: Number,
-      quote_date: String,
+    ownderId: String,
+    url: String,
+    thumbnailImage: String,
+    source: String,
+    price: Number,
+    qty: Number,
+    shipping: Number,
+    category: [String],
+    title: String,
+    weight: Number,
+    height: Number,
+    length: Number,
+    width: Number,
+    language: String,
+    username: String,
+    chargeableWeight: Number,
+    final: Boolean,
+    requestor: String,
+    quote_no: Number,
+
+
+      quote_date: Date,
       price_selection: String,
       prices: PriceOptions,
       notes: String,
-      final: Boolean,
+
       active: Boolean,
       po_no: String,
-      username: String,
+
       sales_person: String,
       message: String,
       reason: String,
+
       item: {
+
           recipientID: String,
           ownderId: String,
           source: String,
@@ -82,12 +128,12 @@ const schema = mongoose.Schema({
       },
       date_created:{ type: Date, default: Date.now },
       create_by: String,
-      last_updated: String,
+      last_updated: Date,
       updated_by: String,
   }
-);
+,{ collection: 'quotation' });
 
-const Quotation = mongoose.model('Quotation1', schema);
+const Quotation = mongoose.model('quotation', schema);
 console.log('NEW Quotation collection:',Quotation)
 if (!Quotation) console.log("quotation.js Quotation is null!")
 

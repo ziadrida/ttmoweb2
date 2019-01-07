@@ -11,19 +11,41 @@ fragment quotationFragment on Quotation {
   quote_no
   senderId
   sales_person
+  date_created
+  created_by
 
   quotation {
     quote_no
     quote_date
+    ownderId
+    url
+    thumbnailImage
+    source
+    price
+    qty
+    shipping
+    category
+    title
+    weight
+    height
+    length
+    width
+    username
+    chargeableWeight
+    final
+    requestor
+
+
     price_selection
     notes
     final
     active
     po_no
-    username
+
     sales_person
     message
     reason
+
     item {
       recipientID
       ownderId

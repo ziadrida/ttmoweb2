@@ -223,8 +223,8 @@ header {
 }
 
 .quotations__container {
-  max-width: 96em;
-  min-width: 86em;
+  max-width: 86em;
+  min-width: 62em;
   max-height: 36em;
   margin-right: auto;
   margin-bottom: auto;
