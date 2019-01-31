@@ -28,8 +28,15 @@ fragment orderDetailsFragment on OrderDetails {
   source
   category
   first_payment
+  first_payment_date
+  final_payment
+  final_payment_date
+  discount
   total_amount
   payment_method
+  paid_in_full
+  booked
+  accounting_note
   vip
   trc
   membership_amount

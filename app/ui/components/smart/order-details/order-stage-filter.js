@@ -97,9 +97,15 @@ class OrderStageFilter extends React.Component {
             />
             <FormControlLabel
             value="deliver"
-  className={classes.label}
+            className={classes.label}
               control={ <Radio  />}
               label="Deliver"
+            />
+            <FormControlLabel
+            value="book"
+            className={classes.label}
+              control={ <Radio  />}
+              label="Book"
             />
             <FormControlLabel
               value="close"

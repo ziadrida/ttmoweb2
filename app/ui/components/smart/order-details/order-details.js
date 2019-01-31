@@ -312,15 +312,18 @@ const SelectTable=selectTableHOC(ReactTable)
         columns: [
 
           {
+            id: "po_no",
             Header: "PO No",
-            accessor: "po_no",
+            accessor:  d => {  var p = d.po_no.split('-');
+              return d.po_no? p[0]+'-'+ "00".substring(p[1].length) + p[1]:''
+            },
             filterMethod: (filter, rows) =>
               matchSorter(rows, filter.value, {
                 keys: ["po_no"]
               }),
             filterAll: true,
             maxWidth: 120,
-            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
           },
           {
@@ -340,18 +343,20 @@ const SelectTable=selectTableHOC(ReactTable)
                   ),
                     filterable:false,
                   width:32,
-                  views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+                  views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
 
           },
           {
 
             Header: "Type",
-            accessor: "order_type",
+            id: "order_type",
+            accessor: d => d.order_type? d.order_type.toLowerCase():'',
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["order_type"] }),
             filterAll: true,
-            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
-
+            views:[view.all,view.payment,view.purchase,view.track,
+              view.arrive,view.pack,view.ship,view.deliver,view.close],
+            width:40,
           },
           {
 
@@ -360,7 +365,7 @@ const SelectTable=selectTableHOC(ReactTable)
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["status"] }),
             filterAll: true,
-            views:[view.all,view.payment,view.order,view.deliver,view.close],
+            views:[view.all,view.payment,view.deliver,view.close],
           },
           {
 
@@ -369,7 +374,8 @@ const SelectTable=selectTableHOC(ReactTable)
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["sales_person"] }),
             filterAll: true,
-            views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
+            views:[view.all,view.payment,view.purchase,view.deliver,view.close],
+            width:70,
           },
 
           {
@@ -420,7 +426,7 @@ const SelectTable=selectTableHOC(ReactTable)
             Header: "PO Date",
             accessor: d => d.po_date? moment(d.po_date, 'YYYY-MM-DD').toDate():"",
 
-            Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+            Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
 
             filterMethod: (filter, rows) =>
               matchSorter(rows, filter.value, {
@@ -429,10 +435,117 @@ const SelectTable=selectTableHOC(ReactTable)
             filterAll: true,
             maxWidth: 100,
 
-            views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
           },
         ]
         },
+        {
+            Header: "Accounting Info",
+            id: "accountingInfo",
+              show:true,
+            columns: [
+              {
+                id: "first_payment",
+                Header: "Init Pymnt",
+                accessor: d => d.first_payment?  parseFloat(d.first_payment):0,
+                getProps:  (state, rowInfo) => ({
+                 style: {
+                     backgroundColor: (rowInfo && rowInfo.row &&
+                        parseFloat(rowInfo.row.first_payment) == 0 ? 'orange' : null),
+
+                          textAlign: 'right'
+
+                 }
+                }),
+                width: 70,
+                filterMethod: (filter, row) =>
+                  row[filter.id] >= filter.value,
+                filterAll: false,
+                views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+              },
+              {
+                id: 'first_payment_date',
+                Header: "Int Pymt Date",
+
+               accessor: d => d.first_payment_date &&  d.first_payment_date!='0'? d.first_payment_date:
+               d.last_updated,
+               Cell: row => <span>{row.value?moment(row.value).format('DD-MMM-YY'):null}</span>,
+              //  Cell: this.renderEditable,
+                filterMethod: (filter, rows) =>
+                  matchSorter(rows, filter.value, {
+                    keys: ["first_payment_date"]
+                  }),
+                filterAll: true,
+                width: 100,
+              //  width:(d) => getColumnWidth(this.state.data, d.order, "Order No."),
+                  views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+              },
+              {
+                id: "final_payment",
+                Header: "Final Pymnt",
+                accessor: d => d.final_payment? parseFloat(d.final_payment):0,
+                getProps:  (state, rowInfo) => ({
+                 style: {
+                     backgroundColor: (rowInfo && rowInfo.row &&
+                        parseFloat(rowInfo.row.final_payment) == 0 ? 'orange' : null),
+
+                          textAlign: 'right'
+
+                 }
+                }),
+                width: 70,
+                filterMethod: (filter, row) =>
+                  row[filter.id] >= filter.value,
+                filterAll: false,
+                views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+              },
+              {
+                id: 'final_payment_date',
+                Header: "Final Pymt Date",
+
+               accessor: d => d.final_payment_date &&  d.final_payment_date!='0'? d.final_payment_date:
+                null,
+               Cell: row => <span>{row.value?moment(row.value).format('DD-MMM-YY'):null}</span>,
+              //  Cell: this.renderEditable,
+                filterMethod: (filter, rows) =>
+                  matchSorter(rows, filter.value, {
+                    keys: ["first_payment_date"]
+                  }),
+                filterAll: true,
+                width: 100,
+              //  width:(d) => getColumnWidth(this.state.data, d.order, "Order No."),
+                  views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+              },
+              {
+                id: 'paid_in_full',
+                Header: "Paid",
+                accessor: d =>  d.paid_in_full != null ?d.paid_in_full: false,
+                filterMethod: (filter, rows) =>
+                            matchSorter(rows, filter.value, { keys: ["paid_in_full"] }),
+                filterAll: true,
+                views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+              },
+              {
+
+                Header: "Booked",
+                id:"booked",
+                accessor: d =>  d.booked != null ?d.booked: false,
+                filterMethod: (filter, rows) =>
+                            matchSorter(rows, filter.value, { keys: ["booked"] }),
+                filterAll: true,
+                  views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+              },
+              {
+                id: 'accounting_note',
+                Header: "RV/Inv/notes",
+                accessor: d => d.accounting_note,
+                filterMethod: (filter, rows) =>
+                            matchSorter(rows, filter.value, { keys: ["accounting_note"] }),
+                filterAll: true,
+                views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+              },
+          ]
+        }, // end of accounting
         {
             Header: "Customer Info",
             id: "custInfo",
@@ -445,7 +558,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["username"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.order,view.purchase,view.deliver,view.close],
+                views:[view.all,view.payment,view.purchase,view.deliver,view.close],
               },
               {
                 Header: "Address",
@@ -453,7 +566,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["address"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.order,view.deliver,view.close],
+                views:[view.all,view.payment,view.deliver,view.close],
             },
             {
               Header: "Phone",
@@ -464,7 +577,7 @@ const SelectTable=selectTableHOC(ReactTable)
                         return  matchSorter(rows, filter.value, { keys: ["phone_no"] })
                         },
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.deliver,view.close],
+              views:[view.all,view.payment,view.deliver,view.close],
             },
           ]
         },
@@ -484,7 +597,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views: [view.all,view.payment, view.order, view.ship, view.deliver, view.close],
+              views: [view.all,view.payment,  view.ship, view.deliver, view.close],
             },
 
             {
@@ -495,10 +608,16 @@ const SelectTable=selectTableHOC(ReactTable)
                   keys: ["title"]
                 }),
               filterAll: true,
-              views:[view.all,view.payment,view.order,
+              views:[view.all,view.payment,
                 view.purchase,view.track,view.arrive,
                 view.pack,view.ship,view.deliver,view.close],
-                width:400,
+                style: { 'whiteSpace': 'unset',
+                  'fontSize': '10px',
+                  'overflowY':'scroll',
+                  'width':'440px',
+                  'height':'3em'
+                 },
+                width:300,
             },
             {
               id: 'link',
@@ -516,10 +635,10 @@ const SelectTable=selectTableHOC(ReactTable)
                 'fontSize': '10px',
                 'overflowY':'scroll',
                 'width':'440px',
-                'height':'2.5em'
+                'height':'3em'
                },
-              width:400,
-              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              width:350,
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
             },
             {
               Header: "Options",
@@ -529,7 +648,7 @@ const SelectTable=selectTableHOC(ReactTable)
                   keys: ["options"]
                 }),
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.deliver],
+              views:[view.all,view.payment,view.purchase,view.deliver],
               //maxWidth: 200
             },
             {
@@ -540,35 +659,25 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, row) =>
                         row[filter.id] >= filter.value,
               filterAll:false,
-              //width: 50,
-              views:[view.all,view.payment,view.purchase,view.order,view.deliver,view.close],
+              style: {
+                textAlign: 'right'
+              },
+              width: 70,
+              views:[view.all,view.payment,view.purchase,view.deliver,view.close],
             },
-            {
-              id: "first_payment",
-              Header: "Init Pymnt",
-              accessor: d => parseFloat(d.first_payment),
-              getProps:  (state, rowInfo) => ({
-               style: {
-                   backgroundColor: (rowInfo && rowInfo.row &&
-                      parseFloat(rowInfo.row.first_payment) == 0 ? 'orange' : null)
-               }
-              }),
-              filterMethod: (filter, row) =>
-                row[filter.id] >= filter.value,
-              filterAll: false,
-              views: [view.all,view.payment, view.order,view.purchase, view.deliver, view.close],
-            },
+
              {
               id: "price",
               Header: "Price USD",
               accessor: d => d.price? parseFloat(d.price).toFixed(2):0,
               filterMethod: (filter, row) =>
-                        row[filter.id] >= filter.value,
+                        parseFloat(row[filter.id]) >= parseFloat(filter.value),
               filterAll: false,
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              width: 70,
+              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.close],
             },
             {
               Header: "category",
@@ -581,7 +690,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.payment,view.order,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
               //maxWidth: 200
             },
             {
@@ -591,7 +700,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["source"] }),
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.track,view.arrive,],
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,],
             },
             {
               id: "destination",
@@ -600,7 +709,8 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["destination"] }),
               filterAll: true,
-              views:[view.all,view.payment,view.order,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              width:70,
             },
             {
             Header: "PO Qty",
@@ -620,8 +730,8 @@ const SelectTable=selectTableHOC(ReactTable)
               textAlign: 'right',
               width: '4em',
             },
-
-            views:[view.all,view.payment,view.order,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
+            width: 50,
+            views:[view.all,view.payment,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
           },
           {
             Header: "Order Notes",
@@ -631,7 +741,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 keys: ["notes"]
               }),
             filterAll: true,
-            views:[view.all,view.payment,view.order,view.purchase,view.deliver],
+            views:[view.all,view.payment,view.purchase,view.deliver],
             style: {
               textAlign: 'right',
               width: '10em',
@@ -653,12 +763,13 @@ const SelectTable=selectTableHOC(ReactTable)
                 Header: "T Purch Qty",
                 accessor: "total_purchased_qty",
                 filterMethod: (filter, row) =>
-                          row[filter.id] >= filter.value,
+                          parseFloat(row[filter.id]) >= parseFloat(filter.value),
                 filterAll: false,
                 style: {
                   textAlign: 'right',
                   width: '5em',
                 },
+                width:60,
                 getProps:  (state, rowInfo) => ({
                  style: {
                      backgroundColor: (rowInfo && rowInfo.row &&
@@ -709,7 +820,7 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Order Date",
 
              accessor: d => d.order_date? moment(d.order_date, 'DD/MM/YYYY').toDate():null,
-             Cell: row => <span>{row.value?moment(row.value).format('DD-MMM-YYYY'):null}</span>,
+             Cell: row => <span>{row.value?moment(row.value).format('DD-MMM-YY'):null}</span>,
             //  Cell: this.renderEditable,
               filterMethod: (filter, rows) =>
                 matchSorter(rows, filter.value, {
@@ -755,7 +866,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right',
                 width: '3em'
               },
-              //width: 35,
+              width: 40,
               views:[view.all,view.payment,view.purchase,view.track],
 
             },
@@ -771,7 +882,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right',
                 width: '3em'
               },
-              //width: 35,
+                width: 40,
               views:[view.all,view.payment,view.purchase,view.track],
 
             },
@@ -812,7 +923,7 @@ const SelectTable=selectTableHOC(ReactTable)
               id: 'ship_date',
               Header: "Packg Ship Date",
               accessor: d => d.ship_date? moment(d.ship_date, 'DD/MM/YYYY').toDate():null,
-                Cell: row => <span>{row.value?moment(row.value,'DD/MM/YYYY').format('DD-MMM-YYYY'):null}</span>,
+                Cell: row => <span>{row.value?moment(row.value,'DD/MM/YYYY').format('DD-MMM-YY'):null}</span>,
               filterMethod: (filter, rows) =>
                 matchSorter(rows, filter.value, {
                   keys: ["ship_date"]
@@ -895,7 +1006,7 @@ const SelectTable=selectTableHOC(ReactTable)
                     moment(d.ship_date,'DD/MM/YYYY').
                     add(d.time_in_transit_to,'day').toDate()
                 },
-                Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+                Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
 
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["expected_date"] }),
@@ -988,8 +1099,9 @@ const SelectTable=selectTableHOC(ReactTable)
             {
               Header: "Delivery Date",
               id: "customer_delivery_date",
-              accessor: d => d.customer_delivery_date&&d.customer_delivery_date!='0'? moment(d.customer_delivery_date, 'DD/MM/YYYY').toDate():"",
-              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+              accessor: d => d.customer_delivery_date&&d.customer_delivery_date!='0'?
+                  moment(d.customer_delivery_date, 'DD/MM/YYYY').toDate():"",
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
 
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["customer_delivery_date"] }),
@@ -1001,7 +1113,7 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Amm Customs",
               id: "amm_customs_arrival_date",
               accessor: d => parseInt(d.amm_customs_arrival_date) ,
-               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["amm_customs_arrival_date"] }),
               filterAll: true,
@@ -1012,7 +1124,7 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Aq Customs",
               id: "aq_customs_arrival_date",
               accessor: d => parseInt(d.aq_customs_arrival_date),
-               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+               Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["aq_customs_arrival_date"] }),
               filterAll: true,
@@ -1023,7 +1135,7 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Amm Showroom",
               id: "amm_showroom_arrival_date",
               accessor: d => parseInt(d.amm_showroom_arrival_date),
-              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
 
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["amm_showroom_arrival_date"] }),
@@ -1035,7 +1147,7 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "Aq Showroom",
               id: "aq_showroom_arrival_date",
               accessor: d => parseInt(d.aq_showroom_arrival_date),
-              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YYYY'):''}</span>,
+              Cell: row => <span>{row.value && row.value!='0'? moment(row.value).format('DD-MMM-YY'):''}</span>,
 
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["aq_showroom_arrival_date"] }),
@@ -1045,7 +1157,6 @@ const SelectTable=selectTableHOC(ReactTable)
             },
 
             {
-
               Header: "Closed",
               accessor: "closed",
               filterMethod: (filter, rows) =>
@@ -1385,7 +1496,7 @@ render() {
 
     console.log('variables:',variables)
     console.log('order-details props:',this.props)
-      console.log('order-details state:',this.state)
+    console.log('order-details state:',this.state)
   // if (loading) {
   //    <Loading />;
   // }

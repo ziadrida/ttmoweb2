@@ -1,4 +1,4 @@
-import PurchaseOrder from '/app/entry-points/server/models/purchase-order';
+import MasterPurchaseOrder from '/app/entry-points/server/models/master-purchase-order';
 
 import {
   removeEmpty
@@ -10,14 +10,14 @@ const errorOn = true;
 // create or update purchase order)
 //
 
-async function cancelPurchaseOrder(root, args, context) {
+async function updateMasterPurchaseOrder(root, args, context) {
 
-  console.log("=> in cancelPurchaseOrder args:",args)
+  console.log("=> in updateMasterPurchaseOrder args:",args)
   //console.log('root:', root)
 //  console.log('args:', args)
   //console.log('context:', context)
 
-  //if (debugOn) console.log("=> in cancelPurchaseOrder:", JSON.stringify(args.input));
+  //if (debugOn) console.log("=> in updateMasterPurchaseOrder:", JSON.stringify(args.input));
 //  console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
   //        context.user.profile.name)
   var senderID = context.user && context.user.profile && context.user.profile.name?
@@ -69,7 +69,7 @@ try {
       _id: args.input.po_no
   }
   console.log('queryStr:', queryStr)
-  var existingPo = await PurchaseOrder.findOne(queryStr);
+  var existingPo = await MasterPurchaseOrder.findOne(queryStr);
 
   //console.log("existingPo:",existingPo)
   if (!existingPo) {
@@ -144,7 +144,7 @@ try {
 
   console.log('updateStr:', updateStr)
 
-  var doc = await PurchaseOrder.findOneAndUpdate(
+  var doc = await MasterPurchaseOrder.findOneAndUpdate(
     queryStr,
     updateStr,
      {
@@ -172,4 +172,4 @@ try {
     }
   }
 }
-export default cancelPurchaseOrder;
+export default updateMasterPurchaseOrder;

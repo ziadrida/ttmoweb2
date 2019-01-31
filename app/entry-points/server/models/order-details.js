@@ -30,15 +30,27 @@ const schema = mongoose.Schema({
         link: String,
         source:String,
         category: String,
-        first_payment:String,
-        total_amount:String,
-        payment_method:String,
-        vip:String,
+
         trc:String,
-        membership_amount:String,
-        payment_status:String,
+        vip:Boolean,
+
         status:String,
         closed:String,
+        membership_amount:Number,
+        payment_status:String,
+        first_payment:Number,
+        first_payment_date:Date,
+        final_payment: Number,
+        final_payment_date: Date,
+        discount: Number,
+
+        total_amount:Number,
+        payment_method:String,
+        paid_in_full:Boolean,
+        booked: Boolean,
+        accounting_note: String,
+
+
         order_no: String,
         orders:[String],
         trackings:[String],

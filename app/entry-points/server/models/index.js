@@ -1,6 +1,7 @@
 import  Quotation  from './quotation';
 import  User  from './user';
 import  PurchaseOrder  from './purchase-order';
+import  MasterPurchaseOrder  from './master-purchase-order';
 import  VendorPurchase  from './vendor-purchase';
 import  VendorTracking  from './vendor-tracking';
 import  PackageTracking  from './package-tracking';
@@ -13,6 +14,7 @@ export {
   Sequence,
   Quotation,
   PurchaseOrder,
+  MasterPurchaseOrder,
   VendorPurchase,
   VendorTracking,
   PackageTracking,

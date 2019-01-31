@@ -180,8 +180,8 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
         style: { 'whiteSpace': 'unset',
           'fontSize': '12px',
           'overflowY':'scroll',
-          'width':'540px',
-          'height':'4em'
+          'width':'340px',
+          'height':'3em'
          },
         width:340,
       },
@@ -201,7 +201,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
         'fontSize': '12px',
         'overflowY':'scroll',
         'width':'440px',
-        'height':'4em'
+        'height':'3em'
        },
         width:440,
     },

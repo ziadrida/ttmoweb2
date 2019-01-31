@@ -560,7 +560,7 @@ handleDateChange = date => {
     const {_id, po_no,
        title, link, po_qty, total_purchased_qty,
        price,sale_price,first_payment,total_amount,options
-       ,source, notes,orders,destination
+       ,source, notes,orders,destination,po_date,
     } = this.state.poInfo;
 
     // const rowSelection =  this.props.getRow(_id)
@@ -653,10 +653,10 @@ handleDateChange = date => {
             {  <a href = { link } target = "_blank" > {link  } </a>}
             </div> {/* link */}
             <TextField
-              name="order_date"
+              name="po_date"
               type="String"
               label="PO Date"
-              value={order_date}
+              value={moment(po_date).format('DD-MMM-YYYY')}
               margin="dense"
               className={classes.textField}
             />
@@ -792,10 +792,16 @@ handleDateChange = date => {
 
                 },
                 {
+                  Header: "PriceUSD",
+                  id: "price",
+                  accessor: d => d.price
+                },
+                {
                   Header: "PO Qty",
                   id: "po_qty",
                   accessor: d => d.po_qty
                 },
+
                 {
                   Header: "T. Pur Qty",
                   id: "total_purchased_qty",

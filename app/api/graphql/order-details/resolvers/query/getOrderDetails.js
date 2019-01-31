@@ -272,13 +272,19 @@ const getOrderDetails = async (root, args, context) => {
       received: args.received
     })
   }
-  if (args.closed!= undefined)   {
+  console.log('args.closed:',args.closed)
+  if (args.closed!= null)   {
       matchArray.push ( {closed: args.closed  }  )
   }
-
+  if (args.paid_in_full != undefined)   {
+      matchArray.push ( {paid_in_full: args.paid_in_full  }  )
+  }
+  if (args.booked != undefined)   {
+      matchArray.push ( {booked: args.booked  }  )
+  }
 
     if (args && args.stage) {
-      if (args.stage == 'close'  ) {
+      if (args.stage == 'close'  || args.stage == 'book' ) {
         // do not filter for closed
         console.log('do not add closed check')
       } else //if (args.stage == 'all' && args.closed== undefined)
@@ -286,7 +292,18 @@ const getOrderDetails = async (root, args, context) => {
 
         matchArray.push ( {closed: false  }  )
       }
-      if (args.stage == 'payment') {
+      if (args.stage == 'book') {
+          matchArray.push (
+             {
+               "$or":
+               [
+                 {paid_in_full:  { $exists: false} },
+                 {booked:  { $exists: false} },
+                 {paid_in_full:  false},
+                  {booked:  false}
+              ]
+           })
+         } else  if (args.stage == 'payment') {
 
         matchArray.push({
           "status": {
@@ -381,8 +398,20 @@ const getOrderDetails = async (root, args, context) => {
            delivered: -1 // not fully delivered
          })
 
-         }
+     } else if (args.stage == 'booked') {
+       existsArray.push(
+           {
+             booked: {
+               $exists: false
+             }
+           }
+         )
+
+         matchArray.push({
+           booked: true // not fully booked
+         })
      }
+  }
 
   if (debugOn) console.log("matchArray:",JSON.stringify(matchArray,null,2))
       andOr = andOr.toLowerCase()
@@ -465,18 +494,29 @@ const getOrderDetails = async (root, args, context) => {
             link:  { $ifNull: [ "$po_purchases.link", "$link" ] } ,
             source:  { $ifNull: [ "$po_purchases.source", "$source" ] } ,
             category: 1,
-            first_payment:1,
-            total_amount:1,
-            payment_method:1,
+
+
+                        first_payment:1,
+                        first_payment_date:1,
+                        final_payment:1,
+                        final_payment_date:1,
+                        total_amount:1,
+                        payment_method:1,
+                        paid_in_full:1,
+                        booked:1,
+                        accounting_note:1,
+                        payment_status:1,
+                        discount:1,
             vip:1,
             trc:1,
             membership_amount:1,
-            payment_status:1,
+
             customer_delivery_date:1,
             delivered_qty:1,
             status:"$status",
             purchase_status:"$po_purchases.status",
             closed:1,
+
             purchase_notes: "$po_purchases.notes",
             notes: {
               $cond: {
@@ -538,17 +578,28 @@ const getOrderDetails = async (root, args, context) => {
             link: 1,
             source:1,
             category: 1,
+
             first_payment:1,
+            first_payment_date:1,
+            final_payment:1,
+            final_payment_date:1,
             total_amount:1,
             payment_method:1,
+            paid_in_full:1,
+            booked:1,
+            accounting_note:1,
+            payment_status:1,
+            discount:1,
+
             vip:1,
             trc:1,
             membership_amount:1,
-            payment_status:1,
+
             status:1,
-              purchase_status:1,
+            purchase_status:1,
             tracking_status:"$po_tracking.status",
             closed:1,
+
             order_no: 1,
             orders:1,
             trackings:1,
@@ -637,17 +688,29 @@ const getOrderDetails = async (root, args, context) => {
           link: 1,
           source:1,
           category: 1,
-          first_payment:1,
-          total_amount:1,
-            payment_method:1,
+
+
+
+                      first_payment:1,
+                      first_payment_date:1,
+                      final_payment:1,
+                      final_payment_date:1,
+                      total_amount:1,
+                      payment_method:1,
+                      paid_in_full:1,
+                      booked:1,
+                      accounting_note:1,
+                          payment_status:1,
+                      discount:1,
           vip:1,
           trc:1,
           membership_amount:1,
-          payment_status:1,
+
           status:1,
           purchase_status:1,
           tracking_status:1,
           closed:1,
+
           order_no: 1,
           orders:1,
           trackings:1,
@@ -739,17 +802,30 @@ const getOrderDetails = async (root, args, context) => {
           link: 1,
           source:1,
           category: 1,
-            first_payment:1,
-            total_amount:1,
-              payment_method:1,
-            vip:1,
+
+          first_payment:1,
+          first_payment_date:1,
+          final_payment:1,
+          final_payment_date:1,
+          total_amount:1,
+          payment_method:1,
+          paid_in_full:1,
+          booked:1,
+          accounting_note:1,
+          payment_status:1,
+          discount:1,
+
+          vip:1,
             trc:1,
             membership_amount:1,
-            payment_status:1,
+
             status:1,
             purchase_status:1,
             tracking_status:1,
             closed:1,
+
+
+            discount:1,
           order_no: 1,
           orders:1,
           trackings:1,
@@ -868,13 +944,21 @@ const getOrderDetails = async (root, args, context) => {
           link: 1,
           source:1,
           category: 1,
+
           first_payment:1,
+          first_payment_date:1,
+          final_payment:1,
+          final_payment_date:1,
           total_amount:1,
           payment_method:1,
+          paid_in_full:1,
+          booked:1,
+          accounting_note:1,
+          payment_status:1,
+          discount:1,
           vip:1,
           trc:1,
           membership_amount:1,
-          payment_status:1,
           status:1,
           purchase_status:1,
           tracking_status:1,
@@ -963,12 +1047,14 @@ const getOrderDetails = async (root, args, context) => {
 
      if (row.shipping) row.shipping = parseRow(row.shipping)
      if (row.price) row.price = parseRow(row.price)
+     if (row.closed != null && row.closed == "true" ) row.closed = true;
+      if (row.closed != null && row.closed == "false" ) row.closed = false;
         //console.log('po_date:',row.po_date)
           return row
-    })
-console.log("curOrderDetails.result.length:",result.length)
-//console.log("curOrderDetails.result:",result)
-    return result;
+   })
+   console.log("curOrderDetails.result.length:",result.length)
+   //console.log("curOrderDetails.result:",result)
+   return result;
   } catch (exc) {
     console.log(exc);
     return null;

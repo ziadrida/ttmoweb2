@@ -26,15 +26,27 @@ const types = gql`
     link: String
     source:String
     category: String
-    first_payment:String
-    total_amount:String
-    payment_method:String
+
     vip:String
     trc:String
     membership_amount:String
-    payment_status:String
+
     status:String
-    closed:String
+    closed:Boolean
+
+    payment_status:String
+    first_payment:Float
+    first_payment_date:DateTime
+    final_payment: Float
+    final_payment_date: DateTime
+    discount: Float
+
+    total_amount:Float
+    payment_method:String
+    paid_in_full:Boolean
+    booked: Boolean
+    accounting_note: String
+
     order_no: String
     orders:[String]
     trackings:[String]
@@ -78,7 +90,7 @@ const types = gql`
     received: String
     date_created: String
     created_by: String
-    last_updated: String
+    last_updated: DateTime
     updated_by: String
   }
 

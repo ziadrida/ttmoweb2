@@ -1,59 +1,47 @@
 import mongoose  from 'mongoose';
 //import VendorPurchase from './vendor-purchase'
 
+// this is a new collection to maintain backward compatability
+
 const schema = mongoose.Schema({
     _id: String,
-    username: String,
-    userId: String,
-    title: String,
-    link:  String,
-    trc: Boolean,
-    destination: String,
-    order_type: String,
     po_date:String,
-    deadline: String,
+    username: String,
     company: String,
+    userId: String,
     real_name: String,
     user_title: String,
     address: String,
+
     phone_no: String,
     email: String,
     sales_person: String,
+
+    destination: String,
+    order_type: String,
+
     communication_method: String,
 
     vip: Boolean,
     membership_amount:Number,
+
+    // accounting
     payment_status:String,
     first_payment:Number,
     first_payment_date:Date,
     final_payment: Number,
     final_payment_date: Date,
-    discount: Number,
-
     total_amount:Number,
     payment_method:String,
     paid_in_full:Boolean,
     booked: Boolean,
     accounting_note: String,
 
-    category: String,
-    source: String,
-    price: Number,
-    sale_price:Number,
-    po_qty: Number,
-    delivered_qty: Number,
-    warranty: String,
-    options: String,
+
     membership_amount: Number,
 
     closed: Boolean,
-    chargable_wt: Number,
-    customer_delivery_date: String,
-    amm_showroom_arrival_date: String,
-    aq_showroom_arrival_date: String,
-    amm_customs_arrival_date: String,
-    aq_customs_arrival_date: String,
-    orign_facility_arrival_date: String,
+
     status: String,
     notes: String,
     date_created: Date,
@@ -65,8 +53,8 @@ const schema = mongoose.Schema({
 
 );
 
-const PurchaseOrder = mongoose.model('purchase_orders', schema);
-console.log('NEW PurchaseOrder collection:',PurchaseOrder)
-if (!PurchaseOrder) console.log("purchaseOrder.js PurchaseOrder is null!")
+const MasterPurchaseOrder = mongoose.model('master_purchase_orders', schema);
+console.log('NEW masterPurchaseOrder collection:',MasterPurchaseOrder)
+if (!MasterPurchaseOrder) console.log("master_purchase_orders.js MasterPurchaseOrder is null!")
 
-export default PurchaseOrder;
+export default MasterPurchaseOrder;

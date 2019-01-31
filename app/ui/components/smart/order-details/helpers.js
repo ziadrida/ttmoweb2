@@ -1,28 +1,29 @@
 const view = {
   all: 0,
-  order: 1,
-  payment: 2,
-  purchase: 3,
-  track: 4,
-  arrive: 5,
-  pack: 6,
-  ship: 7,
-  deliver: 8,
+  payment: 1,
+  purchase: 2,
+  track: 3,
+  arrive: 4,
+  pack: 5,
+  ship: 6,
+  deliver: 7,
+  book:8,
   close: 9,
 
 }
 const stages = [
    {name:"all",view:view.all},
-   {name:"order",view:view.order},
    {name:"payment",view:view.payment},
    {name:"purchase",view:view.purchase},
    {name:"track",view:view.track},
    {name:"arrive",view:view.arrive},
+
    {name:"pack",view:view.pack},
    {name:"ship",view:view.ship},
-   {name:"receive",view:view.receive},
    {name:"deliver",view:view.deliver},
+   {name:"book",view:view.book},
    {name:"close",view:view.close},
+
 ]
 
 const detailViews = [{
@@ -31,12 +32,7 @@ const detailViews = [{
     show: true,
     view:view.all,
   },
-  {
-    Header: "Ordering View",
-    id: "order",
-    show: false,
-    view:view.order,
-  },
+
   {
     Header: "Payment View",
     id: "payment",
@@ -76,12 +72,19 @@ const detailViews = [{
     show: false,
     view:view.deliver,
   },
-   {
-    Header: "Close PO View",
-    id: "close",
-    show: false,
-    view:view.close,
-  }
+
+  {
+   Header: "Accounting View",
+   id: "book",
+   show: false,
+   view:view.book,
+ },
+ {
+  Header: "Close PO View",
+  id: "close",
+  show: false,
+  view:view.close,
+},
 
 ]
 

@@ -1,8 +1,8 @@
 
 import  PurchaseOrder  from '/app/entry-points/server/models/purchase-order';
 
-const getNotPurchased = async (root, args, context) => {
-  console.log('=>resolver  getNotPurchased args', args)
+const getPurchaseOrder = async (root, args, context) => {
+  console.log('=>resolver  getPurchaseOrder args', args)
   //const { purchaseOrder: usr } = context;
 
   // if (!usr || !usr._id) {
@@ -57,18 +57,20 @@ const getNotPurchased = async (root, args, context) => {
             "$options": "i"
           }
         }
+
       ]
     }
   } else {
     queryStr = {
-      _id: args.po_no
+      _id: args.poNo
     }
   }
   // Query current logged in purchaseOrder
   try {
-    console.log('getNotPurchased queryStr:',queryStr)
-    const result = await PurchaseOrder.find(queryStr).sort({"-id":-1}).limit(100).exec();
-    console.log("result.length:",result.length)
+    console.log('purchaseOrder queryStr:',queryStr)
+    const result = await PurchaseOrder.findOne(queryStr).sort({"-id":-1}).limit(1).exec();
+
+    console.log("result.length:",result && result.length)
    //console.log("result:",JSON.stringify(result))
     return result;
   } catch (exc) {
@@ -77,4 +79,4 @@ const getNotPurchased = async (root, args, context) => {
   }
 };
 
-export default getNotPurchased;
+export default getPurchaseOrder;

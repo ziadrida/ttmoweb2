@@ -41,14 +41,9 @@ class QuotationPage extends React.PureComponent {
 //  <Quotations />
 
     return (
-      <div >
-      <div className="quotation__search">
+      <div className="search_data_container flex flex-column ml1 wrap fit  flex-auto">
          <QuotationForm  onSubmit={this.handleSubmit} />
-
-      <div className="quotations__container">
-          <Quotations quotationSearch={quotationSearch}/>
-      </div>
-        </div >
+         <Quotations quotationSearch={quotationSearch}/>
       </div>
     );
   }

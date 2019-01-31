@@ -19,11 +19,18 @@ const getChatMessages = async (root, args, context) => {
       matchArray.push({
         "$or": [{
             "messageText": {
-              "$regex": searchTrim,
-              "$options": "i"
-            }
-          },{
-            "messageAttachments": {
+                "$regex": searchTrim,
+                "$options": "i"
+              }
+            },
+            {
+              "messageAttachments": {
+                "$regex": searchTrim,
+                "$options": "i"
+              }
+            },
+            {
+              "phone_no": {
               "$regex": searchTrim,
               "$options": "i"
             }
@@ -79,7 +86,9 @@ const getChatMessages = async (root, args, context) => {
          as: "users"
        }
      },
-     { $unwind: { "path": "$users", "preserveNullAndEmptyArrays": true }},
+     {
+       $unwind: { "path": "$users", "preserveNullAndEmptyArrays": true }
+     },
      {
          $project: {
             _id:"$_id",
@@ -87,6 +96,7 @@ const getChatMessages = async (root, args, context) => {
             name:"$users.name",
             first_name: "$users.first_name",
             last_name:"$users.last_name",
+            phone_no: "$user.phone_no",
             gender:"$users.gender",
             city:"$users.city",
             userDateCreated:"$users.dateCreated",
