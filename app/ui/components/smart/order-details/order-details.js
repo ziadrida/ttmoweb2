@@ -323,7 +323,7 @@ const SelectTable=selectTableHOC(ReactTable)
               }),
             filterAll: true,
             maxWidth: 120,
-            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close]
 
           },
           {
@@ -343,7 +343,7 @@ const SelectTable=selectTableHOC(ReactTable)
                   ),
                     filterable:false,
                   width:32,
-                  views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close]
+                  views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close]
 
           },
           {
@@ -355,7 +355,7 @@ const SelectTable=selectTableHOC(ReactTable)
                         matchSorter(rows, filter.value, { keys: ["order_type"] }),
             filterAll: true,
             views:[view.all,view.payment,view.purchase,view.track,
-              view.arrive,view.pack,view.ship,view.deliver,view.close],
+              view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
             width:40,
           },
           {
@@ -365,7 +365,7 @@ const SelectTable=selectTableHOC(ReactTable)
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["status"] }),
             filterAll: true,
-            views:[view.all,view.payment,view.deliver,view.close],
+            views:[view.all,view.payment,view.deliver,view.book,view.close],
           },
           {
 
@@ -374,7 +374,7 @@ const SelectTable=selectTableHOC(ReactTable)
             filterMethod: (filter, rows) =>
                         matchSorter(rows, filter.value, { keys: ["sales_person"] }),
             filterAll: true,
-            views:[view.all,view.payment,view.purchase,view.deliver,view.close],
+            views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
             width:70,
           },
 
@@ -435,7 +435,7 @@ const SelectTable=selectTableHOC(ReactTable)
             filterAll: true,
             maxWidth: 100,
 
-            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+            views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
           },
         ]
         },
@@ -461,7 +461,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, row) =>
                   row[filter.id] >= filter.value,
                 filterAll: false,
-                views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+                views: [view.all,view.payment, view.purchase, view.deliver, view.book,view.close],
               },
               {
                 id: 'first_payment_date',
@@ -478,7 +478,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterAll: true,
                 width: 100,
               //  width:(d) => getColumnWidth(this.state.data, d.order, "Order No."),
-                  views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+                  views: [view.all,view.payment, view.purchase, view.deliver, view.book,view.close],
               },
               {
                 id: "final_payment",
@@ -497,7 +497,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, row) =>
                   row[filter.id] >= filter.value,
                 filterAll: false,
-                views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+                views: [view.all,view.payment, view.purchase, view.deliver, view.book,view.close],
               },
               {
                 id: 'final_payment_date',
@@ -514,7 +514,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterAll: true,
                 width: 100,
               //  width:(d) => getColumnWidth(this.state.data, d.order, "Order No."),
-                  views: [view.all,view.payment, view.purchase, view.deliver, view.close,view.book],
+                  views: [view.all,view.payment, view.purchase, view.deliver, view.book,view.close],
               },
               {
                 id: 'paid_in_full',
@@ -523,7 +523,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["paid_in_full"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+                views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
               },
               {
 
@@ -533,7 +533,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["booked"] }),
                 filterAll: true,
-                  views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+                  views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
               },
               {
                 id: 'accounting_note',
@@ -542,7 +542,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["accounting_note"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.purchase,view.deliver,view.close,view.book],
+                views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
               },
           ]
         }, // end of accounting
@@ -558,7 +558,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                             matchSorter(rows, filter.value, { keys: ["username"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.purchase,view.deliver,view.close],
+                views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
               },
               {
                 Header: "Address",
@@ -566,7 +566,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["address"] }),
                 filterAll: true,
-                views:[view.all,view.payment,view.deliver,view.close],
+                views:[view.all,view.payment,view.deliver,view.book,view.close],
             },
             {
               Header: "Phone",
@@ -577,7 +577,7 @@ const SelectTable=selectTableHOC(ReactTable)
                         return  matchSorter(rows, filter.value, { keys: ["phone_no"] })
                         },
               filterAll: true,
-              views:[view.all,view.payment,view.deliver,view.close],
+              views:[view.all,view.payment,view.deliver,view.book,view.close],
             },
           ]
         },
@@ -597,7 +597,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views: [view.all,view.payment,  view.ship, view.deliver, view.close],
+              views: [view.all,view.payment,  view.ship, view.deliver, view.book,view.close],
             },
 
             {
@@ -610,7 +610,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterAll: true,
               views:[view.all,view.payment,
                 view.purchase,view.track,view.arrive,
-                view.pack,view.ship,view.deliver,view.close],
+                view.pack,view.ship,view.deliver,view.book,view.close],
                 style: { 'whiteSpace': 'unset',
                   'fontSize': '10px',
                   'overflowY':'scroll',
@@ -638,7 +638,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 'height':'3em'
                },
               width:350,
-              views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Options",
@@ -663,7 +663,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right'
               },
               width: 70,
-              views:[view.all,view.payment,view.purchase,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
             },
 
              {
@@ -677,7 +677,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right'
               },
               width: 70,
-              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "category",
@@ -690,7 +690,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.payment,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
               //maxWidth: 200
             },
             {
@@ -709,7 +709,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["destination"] }),
               filterAll: true,
-              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.book,view.close],
               width:70,
             },
             {
@@ -731,7 +731,7 @@ const SelectTable=selectTableHOC(ReactTable)
               width: '4em',
             },
             width: 50,
-            views:[view.all,view.payment,view.purchase,view.track,view.pack,view.ship,view.deliver,view.close],
+            views:[view.all,view.payment,view.purchase,view.track,view.pack,view.ship,view.deliver,view.book,view.close],
           },
           {
             Header: "Order Notes",
@@ -942,7 +942,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right'
               },
               //width: 35,
-              views:[view.all,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
 
             },
             {
@@ -966,7 +966,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right'
               },
             //  width: 35,
-              views:[view.all,view.track,view.arrive,view.pack,view.ship,view.deliver,view.close],
+              views:[view.all,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
 
             },
 
@@ -1055,7 +1055,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["awb_no"] }),
               filterAll: true,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
               width: 100,
             },
             {
@@ -1064,7 +1064,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["awb_destination"] }),
               filterAll: true,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
               width: 100,
             },
             {
@@ -1073,7 +1073,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["shipment_ref"] }),
               filterAll: true,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
               width: 120,
             },
           ]
@@ -1094,7 +1094,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 textAlign: 'right'
               },
             //  width: 35,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Delivery Date",
@@ -1107,7 +1107,7 @@ const SelectTable=selectTableHOC(ReactTable)
                           matchSorter(rows, filter.value, { keys: ["customer_delivery_date"] }),
               filterAll: true,
             //  width: 80,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Amm Customs",
@@ -1118,7 +1118,7 @@ const SelectTable=selectTableHOC(ReactTable)
                           matchSorter(rows, filter.value, { keys: ["amm_customs_arrival_date"] }),
               filterAll: true,
             //  width: 80,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Aq Customs",
@@ -1129,7 +1129,7 @@ const SelectTable=selectTableHOC(ReactTable)
                           matchSorter(rows, filter.value, { keys: ["aq_customs_arrival_date"] }),
               filterAll: true,
             //  width: 80,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Amm Showroom",
@@ -1141,7 +1141,7 @@ const SelectTable=selectTableHOC(ReactTable)
                           matchSorter(rows, filter.value, { keys: ["amm_showroom_arrival_date"] }),
               filterAll: true,
             //  width: 80,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
             {
               Header: "Aq Showroom",
@@ -1153,7 +1153,7 @@ const SelectTable=selectTableHOC(ReactTable)
                           matchSorter(rows, filter.value, { keys: ["aq_showroom_arrival_date"] }),
               filterAll: true,
             //  width: 80,
-              views:[view.all,view.ship,view.deliver,view.close],
+              views:[view.all,view.ship,view.deliver,view.book,view.close],
             },
 
             {

@@ -277,7 +277,7 @@ static getDerivedStateFromProps(props, state) {
         formEditInfo: {
           po_no:props.poInfo.po_no,
           edit_notes:props.poInfo.notes? props.poInfo.notes:'',
-          edit_delivered_qty: props.poInfo.delivered_qty,
+          edit_delivered_qty: props.poInfo.delivered_qty? parseInt(props.poInfo.delivered_qty):0,
           edit_first_payment:props.poInfo.first_payment? parseFloat(props.poInfo.first_payment):0,
           edit_first_payment_date: props.poInfo.first_payment_date &&
               props.poInfo.first_payment_date!='0' ?
@@ -521,7 +521,7 @@ handleDateChange = date => {
               formEditInfo: {
                 ...this.state.formEditInfo,
                  edit_status: resp.status,
-                 edit_notes:resp.notes,
+                 edit_notes:resp.notes?resp.notes:'',
                  edit_delivered_qty:resp.delivered_qty!=null?
                     parseInt(resp.delivered_qty):0,
                  edit_customer_delivery_date: resp.customer_delivery_date != null?
@@ -769,7 +769,7 @@ handleDateChange = date => {
     // }
 
 
-    const {_id, po_no,order_date,
+    const {_id, po_no,order_date,po_date,
        title, link, po_qty, total_purchased_qty,
        price,sale_price,first_payment,first_payment_date,final_payment,final_payment_date,accounting_note, total_amount,options
        ,source, notes,orders,trackings,destination,status,username,delivered_qty,customer_delivery_date, closed, paid_in_full,booked,discount,
@@ -874,16 +874,15 @@ handleDateChange = date => {
             className="col-1"
           />
           <TextField
-            name="order_date"
+            name="po_date"
             type="String"
-            label="Order Date"
-            value={order_date}
-
+            label="Po Date"
+            value={po_date && po_date!=0?
+              moment(po_date,'YYYY-MM-DD').format('DD-MMM-YYYY'):''}
             InputProps={{
              readOnly: true,
             }}
             margin="dense"
-
             className="col-1"
           />
           <TextField
@@ -911,7 +910,7 @@ handleDateChange = date => {
             name="first_payment"
             type="Number"
             label="Init. Pymt"
-            value={first_payment}
+            value={first_payment? first_payment:0}
 
             InputProps={{
              readOnly: true,
@@ -924,7 +923,7 @@ handleDateChange = date => {
             name="final_payment"
             type="Number"
             label="Final Pymt"
-            value={final_payment}
+            value={final_payment? final_payment:0}
 
             InputProps={{
              readOnly: true,
@@ -933,11 +932,10 @@ handleDateChange = date => {
             className="col-1"
           />
           <TextField
-
             name="discount"
             type="Number"
-            label="Init. Pymt"
-            value={discount}
+            label="Discount"
+            value={discount? discount:0}
 
             InputProps={{
              readOnly: true,
@@ -946,11 +944,10 @@ handleDateChange = date => {
             className="col-1"
           />
           <TextField
-
             name="accounting_note"
             type="String"
             label="Acct note"
-            value={accounting_note}
+            value={accounting_note?accounting_note:''}
 
             InputProps={{
              readOnly: true,
@@ -962,7 +959,7 @@ handleDateChange = date => {
             name="total_amount"
             type="Number"
             label="T. Amount"
-            value={total_amount}
+            value={total_amount?total_amount:0}
 
             InputProps={{
              readOnly: true,
@@ -1127,9 +1124,25 @@ handleDateChange = date => {
 
                 },
               ]},
-
-                {
-                  Header: "Vendor Order",
+              {
+                Header: "Accounting",
+                columns: [
+                   {
+                      Header: "1st Pay",
+                      id: "first_payment",
+                      accessor: d => d.first_payment,
+                      width:60,
+                    },
+                    {
+                      Header: "F. Pay",
+                      id: "final_payment",
+                      accessor: d => d.final_payment,
+                      width:60,
+                    },
+               ]
+             },
+              {
+                Header: "Vendor Order",
                   columns: [
                  {
                     Header: "Order#",
@@ -1231,13 +1244,9 @@ handleDateChange = date => {
         />
        }
 
-
         <div className="flex-auto px1 lightblue ">
           <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
-
-
             <div className="flex flex-wrap ml2">
-
             <TextField
               name="edit_notes"
               type="String"
@@ -1259,7 +1268,6 @@ handleDateChange = date => {
               }}
               className={classes.selectEmpty}
             >
-
               <MenuItem value={"active"}>active</MenuItem>
               <MenuItem value={"awaiting_payment"}>awaiting_payment</MenuItem>
               <MenuItem value={"cancelled"}>cancelled</MenuItem>
@@ -1304,8 +1312,7 @@ handleDateChange = date => {
             name="edit_first_payment"
             type="Number"
             label="1st Pymt"
-            disabled={edit_status == "active"   ?
-            bulkUpdate :true}
+            disabled={false}
             value={edit_first_payment }
             onChange={this.handleChange}
             margin="dense"
@@ -1313,7 +1320,7 @@ handleDateChange = date => {
             width="80px"
           />
           <DatePicker className="datePickers"
-                  disabled={bulkUpdate && !validBulkUpdate}
+                  disabled={false}
                   autoOk
                   label="1st Pymt Date"
                   disableFuture
@@ -1331,8 +1338,7 @@ handleDateChange = date => {
               name="edit_final_payment"
               type="Number"
               label="Final Pymt"
-              disabled={edit_status == "active"   ?
-              bulkUpdate :true}
+              disabled={false}
               value={edit_final_payment}
               onChange={this.handleChange}
               margin="dense"
@@ -1340,7 +1346,7 @@ handleDateChange = date => {
               width="80px"
             />
             <DatePicker className="datePickers"
-                    disabled={bulkUpdate && !validBulkUpdate}
+                    disabled={false}
                     autoOk
                     label="Final Pymt Date"
                     disableFuture
@@ -1358,8 +1364,7 @@ handleDateChange = date => {
                 name="edit_discount"
                 type="Number"
                 label="Discount"
-                disabled={edit_status == "active"   ?
-                bulkUpdate :true}
+                disabled={false}
                 value={edit_discount}
                 onChange={this.handleChange}
                 margin="dense"
@@ -1370,8 +1375,7 @@ handleDateChange = date => {
                 name="edit_accounting_note"
                 type="String"
                 label="Acctg Note"
-                disabled={edit_status == "active"   ?
-                bulkUpdate :true}
+                disabled={false}
                 value={edit_accounting_note}
                 onChange={this.handleChange}
 
@@ -1382,7 +1386,6 @@ handleDateChange = date => {
               <FormControlLabel
                 control={
                   <Checkbox
-
                     checked={edit_paid_in_full}
                     onChange={this.handleCheckbox('edit_paid_in_full')}
                     value="edit_paid_in_full"

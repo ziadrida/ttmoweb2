@@ -1037,7 +1037,7 @@ const getOrderDetails = async (root, args, context) => {
       }
   //___END OF aggregate_______
 
-]).limit(200).exec()
+]).limit(5).exec()
     console.log("curOrderDetails.length:",curOrderDetails.length)
    //console.log("curOrderDetails:",JSON.stringify(curOrderDetails))
    // cleanup wrong field values
@@ -1048,12 +1048,14 @@ const getOrderDetails = async (root, args, context) => {
      if (row.shipping) row.shipping = parseRow(row.shipping)
      if (row.price) row.price = parseRow(row.price)
      if (row.closed != null && row.closed == "true" ) row.closed = true;
-      if (row.closed != null && row.closed == "false" ) row.closed = false;
+     if (row.closed != null && row.closed == "false" ) row.closed = false;
+     if (!Array.isArray(row.final_box_id) ) row.final_box_id = new Array(row.final_box_id)
+     if (!Array.isArray(row.packing) ) row.packing = new Array(row.packing)
         //console.log('po_date:',row.po_date)
           return row
    })
    console.log("curOrderDetails.result.length:",result.length)
-   //console.log("curOrderDetails.result:",result)
+   console.log("curOrderDetails.result:",JSON.stringify(result))
    return result;
   } catch (exc) {
     console.log(exc);

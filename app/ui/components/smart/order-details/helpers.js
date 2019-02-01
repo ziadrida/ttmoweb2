@@ -72,13 +72,12 @@ const detailViews = [{
     show: false,
     view:view.deliver,
   },
-
-  {
-   Header: "Accounting View",
-   id: "book",
-   show: false,
-   view:view.book,
- },
+ {
+  Header: "Book View",
+  id: "book",
+  show: false,
+  view:view.book,
+},
  {
   Header: "Close PO View",
   id: "close",
