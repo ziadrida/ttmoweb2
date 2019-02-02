@@ -1711,6 +1711,7 @@ const withData = graphql(orderDetailsQuery,
       awbNo: (orderDetailsSearch && orderDetailsSearch.awbNo),
       username: (orderDetailsSearch && orderDetailsSearch.username),
       search: (orderDetailsSearch && orderDetailsSearch.search),
+      searchField: (orderDetailsSearch && orderDetailsSearch.searchField),
       stage: (stage && stage != ''? stage:"purchase"),
     },
     pollInterval: 1000*60*3

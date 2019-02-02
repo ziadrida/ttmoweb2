@@ -108,7 +108,8 @@ const types = gql`
             awb_no:String,
             username: String,
             stage: String,
-            search: String): [OrderDetails]
+            search: String,
+            searchField:String): [OrderDetails]
   }
 
 `;

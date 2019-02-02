@@ -43,9 +43,23 @@ const getOrderDetails = async (root, args, context) => {
         //                   $gte: start,
           //                 $lte: end
             //           }  })
+            var searchField;
+            var searchTrim
             andOr = "$and"
-            if (args.search) {
-              var searchTrim = args.search.trim()
+              if (args.search && args.searchField && args.searchField!= '') {
+                  searchTrim = args.search.trim()
+                 searchField = args.searchField
+                 matchArray.push({
+                   "$or": [{
+                       [searchField]: {
+                         "$regex": searchTrim,
+                         "$options": "i"
+                       }
+                     }]
+                   })
+              }
+            if (args.search && (searchField == null || searchField == '' || searchField == 'all')) {
+              searchTrim = args.search.trim()
               matchArray.push({
                 "$or": [{
                     "sales_person": {
@@ -130,12 +144,7 @@ const getOrderDetails = async (root, args, context) => {
                       "$options": "i"
                     }
                   },
-                  {
-                    "awb_no": {
-                      "$regex": searchTrim,
-                      "$options": "i"
-                    }
-                  }
+
 
                 ]
               }

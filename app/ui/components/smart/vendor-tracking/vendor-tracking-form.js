@@ -492,25 +492,7 @@ handleDateChange = date => {
           //             orderNo:updateInfo.order_no,
           //             trackingNo: this.state.vendorTrackingInfo.tracking_no},
         }],
-/*
-        update: (store) => {
-          console.log("in update store")
-          const data = store.readQuery({ query: orderDetailsQuery });
-          // const poIdx2 = findIndex(data.getOrderDetails, ['po_no', updateInfo.po_no]);
-          // const notAlreadyThere = data.getOrderDetails[poIdx2].every(item => item.po_no !==  updateInfo.po_no);
-          // if (notAlreadyThere) {
-          //   data.getOrderDetails[poIdx2].push({
-          //     __typename: 'User',
-          //     id: userId,
-          //     username: getUser.username,
-          //   });
-          console.log("store data:",data)
-          // find aggregate item and replace it with new updated
 
-            store.writeQuery({ query: orderDetailsQuery, data });
-        //  }
-        },
-*/
      })
      .then( res => {
        console.log("mutation result:",res)

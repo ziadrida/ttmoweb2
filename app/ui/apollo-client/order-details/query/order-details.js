@@ -11,7 +11,8 @@ const orderDetailsQuery = gql `
         $awbNo: String,
         $username: String,
         $stage: String,
-        $search: String)
+        $search: String,
+        $searchField: String)
   {
            getOrderDetails(
              po_no: $poNo,
@@ -21,7 +22,8 @@ const orderDetailsQuery = gql `
              awb_no: $awbNo
              username: $username
              stage: $stage
-             search: $search) {
+             search: $search,
+              searchField: $searchField) {
               ...orderDetailsFragment
 
   }
