@@ -1025,7 +1025,8 @@ const SelectTable=selectTableHOC(ReactTable)
 
             {
               Header: "Box Id",
-              accessor: "box_id",
+              id:"box_id",
+              accessor: d => d.box_id,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["box_id"] }),
               filterAll: true,
@@ -1034,7 +1035,8 @@ const SelectTable=selectTableHOC(ReactTable)
             },
             {
               Header: "Final Box Id",
-              accessor: "final_box_id",
+              id: "final_box_id",
+              accessor: d => d.final_box_id,
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["final_box_id"] }),
               filterAll: true,

@@ -1037,7 +1037,7 @@ const getOrderDetails = async (root, args, context) => {
       }
   //___END OF aggregate_______
 
-]).limit(5).exec()
+]).limit(200).exec()
     console.log("curOrderDetails.length:",curOrderDetails.length)
    //console.log("curOrderDetails:",JSON.stringify(curOrderDetails))
    // cleanup wrong field values
@@ -1055,7 +1055,7 @@ const getOrderDetails = async (root, args, context) => {
           return row
    })
    console.log("curOrderDetails.result.length:",result.length)
-   console.log("curOrderDetails.result:",JSON.stringify(result))
+  // console.log("curOrderDetails.result:",JSON.stringify(result))
    return result;
   } catch (exc) {
     console.log(exc);
