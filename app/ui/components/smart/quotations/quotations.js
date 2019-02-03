@@ -358,7 +358,8 @@ const withData = graphql(quotationsQuery, {
       quoteNo: (quotationSearch && Number(quotationSearch.quoteNo)),
       dateFrom: (quotationSearch && quotationSearch.dateFrom),
       dateTo: (quotationSearch && quotationSearch.dateTo),
-      search: (quotationSearch && quotationSearch.search)
+      search: (quotationSearch && quotationSearch.search),
+      searchField: (quotationSearch && quotationSearch.searchField),
     },
   }),
 });

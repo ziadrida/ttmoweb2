@@ -464,6 +464,20 @@ const SelectTable=selectTableHOC(ReactTable)
                 views: [view.all,view.payment, view.purchase, view.deliver, view.book,view.close],
               },
               {
+                Header: "T Amount",
+                id: "total_amount",
+                accessor: d => parseFloat(d.total_amount) ,
+                Cell: ({ value }) => (value >= 9999 ? 0 : value),
+                filterMethod: (filter, row) =>
+                          row[filter.id] >= filter.value,
+                filterAll:false,
+                style: {
+                  textAlign: 'right'
+                },
+                width: 70,
+                views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
+              },
+              {
                 id: 'first_payment_date',
                 Header: "Int Pymt Date",
 
@@ -651,20 +665,7 @@ const SelectTable=selectTableHOC(ReactTable)
               views:[view.all,view.payment,view.purchase,view.deliver],
               //maxWidth: 200
             },
-            {
-              Header: "T Amount",
-              id: "total_amount",
-              accessor: d => parseFloat(d.total_amount) ,
-              Cell: ({ value }) => (value >= 9999 ? 0 : value),
-              filterMethod: (filter, row) =>
-                        row[filter.id] >= filter.value,
-              filterAll:false,
-              style: {
-                textAlign: 'right'
-              },
-              width: 70,
-              views:[view.all,view.payment,view.purchase,view.deliver,view.book,view.close],
-            },
+
 
              {
               id: "price",

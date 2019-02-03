@@ -145,7 +145,7 @@ clearFilter = (evt) => {
         <TextField
           name="search"
           type="text"
-          label="Search orderDetails"
+          label="Search Value"
           value={search}
           onChange={this.handleChange}
           margin="dense"
@@ -153,10 +153,10 @@ clearFilter = (evt) => {
           style={{
             //backgroundColor:'pink',
             //backgroundImage:'url(image)',
-            'width' : 200,
+            'width' : 160,
 
           }}
-          helperText="Any field!"
+          helperText="قيمة البحث"
         />
         <FormControl required className={classes.formControl}>
         <InputLabel htmlFor="search-field">Search Field</InputLabel>
@@ -179,6 +179,7 @@ clearFilter = (evt) => {
             <MenuItem value={"source"}>Source</MenuItem>
           <MenuItem value={"title"}>Title</MenuItem>
           <MenuItem value={"url"}>Url</MenuItem>
+            <MenuItem value={"category"}>Category</MenuItem>
           <MenuItem value={"seller"}>Seller</MenuItem>
           <MenuItem value={"shipment_ref"}>Shipment Ref</MenuItem>
           <MenuItem value={"destination"}>Destination</MenuItem>
@@ -187,7 +188,7 @@ clearFilter = (evt) => {
           <MenuItem value={"all"}>All Fields</MenuItem>
 
         </Select>
-        <FormHelperText>Select Search Field</FormHelperText>
+        <FormHelperText>خانت البحث</FormHelperText>
       </FormControl>
 
 

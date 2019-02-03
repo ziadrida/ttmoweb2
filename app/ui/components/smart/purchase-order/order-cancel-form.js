@@ -30,9 +30,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@material-ui/core/Select';
 
 import Checkbox from "@material-ui/core/Checkbox";
-import Select from '@material-ui/core/Select';
+
 
 // refetch option to mutate
 import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';

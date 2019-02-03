@@ -5,11 +5,32 @@ const getQuotation = async(root, args, context) => {
   console.log('=>resolver  getQuotation args', args)
   matchArray = []
   andOr = "$and"
-
+    var searchField;
+    var searchTrim
   try {
+    if (args.search && args.searchField && args.searchField!= '' && args.searchField != 'days_back' ) {
 
-  if (args.search) {
-    var searchTrim = args.search.trim()
+        searchTrim = args.search.trim()
+       searchField = args.searchField
+       if (searchField == 'quote_no') {
+         matchArray.push({
+           "$or": [{
+               [searchField]: parseInt(searchTrim)
+             }]
+           })
+       } else {
+       matchArray.push({
+         "$or": [{
+             [searchField]: {
+               "$regex": searchTrim,
+               "$options": "i"
+             }
+           }]
+         })
+       }
+    }
+  if (args.search && (searchField == null || searchField == '' || searchField == 'all')) {
+     searchTrim = args.search.trim()
     matchArray.push({
       "$or": [{
           "quotation.sales_person": {
@@ -63,14 +84,18 @@ const getQuotation = async(root, args, context) => {
   }
   console.log("check other args")
   if (args.quote_no && args.quote_no != 0) matchArray.push({
-    quote_no: {
-      $regex: args.quote_no,
-      $options: 'i'
-    }
+    quote_no:  args.quote_no
   })
   console.log("matchArray1:",matchArray)
-  var dateFrom = null;
   var dateTo = null;
+    var dateFrom = null;
+  if (args.searchField == 'days_back' && args.search != null  ) {
+    searchTrim = args.search.trim();
+    days_back = isNaN(searchTrim)? 1:parseFloat(searchTrim);
+    dateFrom = moment().add(-1*days_back,'day').toDate()
+    dateTo = moment().add(1,'day').toDate();
+  } else {
+
   if (args.dateFrom) dateFrom = moment(args.dateFrom).toDate()
   if (args.dateTo) dateTo = moment(args.dateTo).toDate()
 
@@ -83,15 +108,15 @@ const getQuotation = async(root, args, context) => {
   console.log("moment toDate:", moment().toDate())
   if (!dateFrom) dateFrom = moment(dateTo).add(-1, 'days').toDate()
   if (!dateTo) dateTo = moment(dateFrom).add(1, 'days').toDate()
-
-  console.log("dateFrom:", dateFrom)
-  console.log("new Date(dateFrom):", new Date(dateFrom))
-  matchArray.push({
-    "date_created": {
-      "$gte": dateFrom,
-      "$lt": dateTo
-    }
-  })
+}
+console.log("dateFrom:", dateFrom)
+console.log("dateTo:", dateTo)
+matchArray.push({
+  "date_created": {
+    "$gte": dateFrom,
+    "$lt": dateTo
+  }
+})
   // Query current logged in quotation
   andOr = andOr.toLowerCase()
 
@@ -114,7 +139,7 @@ const getQuotation = async(root, args, context) => {
       "quote_no": -1
     }).limit(200).exec();
     console.log("curQuotation.length:", curQuotation.length)
-    console.log("curQuotation:", JSON.stringify(curQuotation))
+    if (curQuotation &&   curQuotation.length>0) console.log("curQuotation:", JSON.stringify(curQuotation[0]))
     return curQuotation;
   } catch (exc) {
     console.log(exc);

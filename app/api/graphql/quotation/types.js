@@ -96,7 +96,8 @@ const types = gql`
               quote_no: Int,
               dateFrom:String,
               dateTo:String,
-              search: String): [Quotation]
+              search: String,
+              searchField: String): [Quotation]
         user: User
 
   }

@@ -171,7 +171,7 @@ const getOrderDetails = async (root, args, context) => {
        if (debugOn) console.log("args.payment_method:",args.payment_method)
        if (args.payment_method != undefined)   matchArray.push ( {payment_method:{ $lte: args.payment_method }  }  )
 
-   if (args.category_name)   matchArray.push ({category_name: { $regex: args.category_name, $options: 'i' }  })
+
     if (args.category)   matchArray.push ({category: { $regex: args.category, $options: 'i' }  })
        if (args.po_qty!= undefined)   matchArray.push ( {po_qty:{ $gte: args.po_qty }  }  )
          if (args.seller)   matchArray.push ({seller: { $regex: args.seller, $options: 'i' }  })
