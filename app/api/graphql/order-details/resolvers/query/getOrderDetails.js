@@ -44,11 +44,12 @@ const getOrderDetails = async (root, args, context) => {
           //                 $lte: end
             //           }  })
             var searchField;
+            searchField = args.searchField;
             var searchTrim
             andOr = "$and"
-              if (args.search && args.searchField && args.searchField!= '') {
+              if (args.search && searchField && searchField!= '' && searchField != 'all') {
                   searchTrim = args.search.trim()
-                 searchField = args.searchField
+
                  matchArray.push({
                    "$or": [{
                        [searchField]: {

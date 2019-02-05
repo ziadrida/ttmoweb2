@@ -6,12 +6,13 @@ const getQuotation = async(root, args, context) => {
   matchArray = []
   andOr = "$and"
     var searchField;
+     searchField=  args.searchField
     var searchTrim
   try {
-    if (args.search && args.searchField && args.searchField!= '' && args.searchField != 'days_back' ) {
+    if (args.search && searchField && searchField!= '' && searchField != 'days_back' ) {
 
         searchTrim = args.search.trim()
-       searchField = args.searchField
+
        if (searchField == 'quote_no') {
          matchArray.push({
            "$or": [{
@@ -87,6 +88,7 @@ const getQuotation = async(root, args, context) => {
     quote_no:  args.quote_no
   })
   console.log("matchArray1:",matchArray)
+  // start of duplicate code with all get query
   var dateTo = null;
     var dateFrom = null;
   if (args.searchField == 'days_back' && args.search != null  ) {
@@ -117,6 +119,7 @@ matchArray.push({
     "$lt": dateTo
   }
 })
+  // end of duplicate code with all get query
   // Query current logged in quotation
   andOr = andOr.toLowerCase()
 

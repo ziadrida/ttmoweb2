@@ -31,11 +31,11 @@ const styles = theme => ({
     marginTop: 19,
   },
   menu: {
-    width: 200,
+    width: 120,
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 200,
+    minWidth: 120,
   },
   selectEmpty: {
     marginTop: theme.spacing.unit * 2,
@@ -47,8 +47,8 @@ class QuotationForm extends React.Component {
     quoteNo: '',
     search: '',
     searchField:'',
-    dateFrom:moment().add(-1,'days').toDate(),
-    dateTo:moment().toDate(),
+    dateFrom:moment().add(-4,'days').toDate(),
+    dateTo:moment().add(0.5,'days').toDate(),
     // TODO: add errors field
   }
 
@@ -127,7 +127,7 @@ class QuotationForm extends React.Component {
               <MenuItem value={''}>Not Selected</MenuItem>
               <MenuItem value={'quote_no'}>Quote#</MenuItem>
                 <MenuItem value={'days_back'}># of Days Back</MenuItem>
-              <MenuItem value={"quotation.item.username"}>username</MenuItem>
+              <MenuItem value={"quotation.username"}>username</MenuItem>
               <MenuItem value={"quotation.po_no"}>PO#</MenuItem>
 
               <MenuItem value={"quotation.sales_person"}>Sales Person</MenuItem>
@@ -148,7 +148,7 @@ class QuotationForm extends React.Component {
           <DateTimePicker className="pickers"
                   ampm={true}
                   autoOk
-                  disableFuture
+                  disableFuture={false}
                   label="From Date/Time"
                   okLabel="OK"
                   leftArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/></svg>
@@ -162,7 +162,7 @@ class QuotationForm extends React.Component {
                     okLabel="OK"
                     label="To Date/Time"
                     autoOk
-                    disableFuture
+                    disableFuture={false}
                     value={dateTo}
                     leftArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/></svg>
                     rightArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/></svg>

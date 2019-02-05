@@ -18,7 +18,7 @@ import matchSorter from 'match-sorter'
 import {view, stages, detailViews } from './helpers';
 import VendorPurchaseFormWithMutation from '/app/ui/components/smart/vendor-purchase/vendor-purchase-form';
 import VendorTrackingFormWithMutation from '/app/ui/components/smart/vendor-tracking/vendor-tracking-form';
-import OrderCancelFormWithMutation from '/app/ui/components/smart/purchase-order/order-cancel-form';
+import UpdatePOFormWithMutation from '/app/ui/components/smart/purchase-order/order-cancel-form';
 
 // Import React Table
 import ReactTable,{ReactTableDefaults} from "react-table";
@@ -147,7 +147,7 @@ const SelectTable=selectTableHOC(ReactTable)
           selectAll: false,
           showPurchase:false,
           showTracking:false,
-          showCancel: false,
+          showUpdatePO: false,
           refreshData: false,
           currentRow: {},
           currentKey: "",
@@ -170,7 +170,7 @@ const SelectTable=selectTableHOC(ReactTable)
         this.escFunction = this.escFunction.bind(this);
         this.handlePurchase = this.handlePurchase.bind(this);
         this.handleTracking = this.handleTracking.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
+        this.handleUpdatePO = this.handleUpdatePO.bind(this);
         this.toggleSelection = this.toggleSelection.bind(this);
         this.getRow = this.getRow.bind(this);
         this.orderNoColumn = this.orderNoColumn.bind(this);
@@ -289,7 +289,6 @@ const SelectTable=selectTableHOC(ReactTable)
                //  Cell: this.renderEditable,
                Cell: (row) => (
                    <div >
-
                     <button style={{ align: 'center', 'backgroundColor': 'lightblue' }}
                        onClick={() => this.handlePurchase(row)}>{row.value? row.value:"Purchase"}
                    </button>
@@ -334,7 +333,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 Cell: (row) => (
                   <div>
 
-                  <svg  onClick={() => this.handleCancel(row)} color='gray' width="24" height="24"
+                  <svg  onClick={() => this.handleUpdatePO(row)} color='gray' width="24" height="24"
                     viewBox="0 0 24 24">
         <path xmlns="http://www.w3.org/2000/svg" d="M21.886 14.303c-1.259-2.181-0.502-4.976 1.691-6.246l-2.358-4.085c-0.674 0.395-1.457 0.622-2.293 0.622-2.52 0-4.563-2.057-4.563-4.594h-4.717c0.006 0.783-0.189 1.577-0.608 2.303-1.259 2.181-4.058 2.923-6.255 1.658l-2.358 4.085c0.679 0.386 1.267 0.951 1.685 1.675 1.257 2.178 0.504 4.967-1.681 6.24l2.358 4.085c0.671-0.391 1.451-0.615 2.283-0.615 2.512 0 4.55 2.044 4.563 4.569h4.717c-0.002-0.775 0.194-1.56 0.609-2.279 1.257-2.177 4.049-2.92 6.244-1.664l2.358-4.085c-0.675-0.386-1.258-0.949-1.674-1.669zM12 16.859c-2.684 0-4.859-2.176-4.859-4.859s2.176-4.859 4.859-4.859c2.684 0 4.859 2.176 4.859 4.859s-2.176 4.859-4.859 4.859z"/>
                   </svg>
@@ -1238,21 +1237,24 @@ const SelectTable=selectTableHOC(ReactTable)
       */
     }
 
-    handleCancel(rowInfo) {
-      console.log("handleCancel rowInfo:", rowInfo)
+    //
+    handleUpdatePO(rowInfo) {
+      console.log("handleUpdatePO rowInfo:", rowInfo)
       if (rowInfo && rowInfo.row) {
         this.setState({
-          showCancel: !this.state.showCancel,
+          showUpdatePO: !this.state.showUpdatePO,
           currentRow: rowInfo.row,
           rowIndex: rowInfo.index,
           currentKey: rowInfo.row._id
         });
       } else {
         this.setState({
-          showCancel: !this.state.showCancel,
+          showUpdatePO: !this.state.showUpdatePO,
         });
       }
     }
+
+    //
     handlePurchase (rowInfo ) {
       //const { history } = this.props
 
@@ -1654,10 +1656,10 @@ render() {
        />
        : null
       }
-      {this.state.showCancel ?
-      <OrderCancelFormWithMutation
-         closePopup={this.handleCancel}
-         registerCancel={this.registerCancel}
+      {this.state.showUpdatePO ?
+      <UpdatePOFormWithMutation
+         closePopup={this.handleUpdatePO}
+         registerCancel={this.registerUpdatedPO}
          poInfo={this.state.data[this.state.rowIndex]}
          selection={this.state.selection}
          rowIndex={this.state.rowIndex}

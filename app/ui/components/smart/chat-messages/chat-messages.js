@@ -47,7 +47,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
   const { loading, error, getChatMessages ,variables  } = chatMessagesData;
 
   if (!getChatMessages) return <p>Search for chatMessages</p>
-
+  const recordCount = getChatMessages? getChatMessages.length:0;
   console.log('variables:',variables)
   console.log("getChatMessages:",getChatMessages.length)
   nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
@@ -138,7 +138,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
         <div>
           { loading?
-               <Loading />:null
+            <Loading />:
+            <div className="statusline">
+            <a>Found {recordCount<200? recordCount:'at least '+recordCount} records</a>
+            </div>
           }
           <ReactTable
             data={getChatMessages}
@@ -182,9 +185,11 @@ const withData = graphql(chatMessagesQuery, {
     variables: {
       username: (chatMessagesSearch && chatMessagesSearch.username),
       search: (chatMessagesSearch && chatMessagesSearch.search),
+      searchField: (chatMessagesSearch && chatMessagesSearch.searchField),
       dateFrom: (chatMessagesSearch && chatMessagesSearch.dateFrom),
       dateTo: (chatMessagesSearch && chatMessagesSearch.dateTo)
     },
+    pollInterval: 1000*60*5
   }),
 });
 //export default withData(withStyles(styles)(ChatMessages));

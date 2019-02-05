@@ -649,7 +649,7 @@ handleDateChange = date => {
     const {_id, po_no,
        title, link, po_qty, total_purchased_qty,purchased_qty,
        price,sale_price,first_payment,total_amount,options
-       ,source, notes,trackings,destination,total_order_shipped_qty,po_date
+       ,source, notes,trackings,destination,total_order_shipped_qty,po_date,username,
     } = this.state.poInfo;
 
     // const rowSelection =  this.props.getRow(_id)
@@ -749,6 +749,19 @@ handleDateChange = date => {
             {  <a href = { link } target = "_blank" > {link  } </a>}
             </div> {/* link */}
             <TextField
+              name="username"
+              type="String"
+              label="User"
+              value={username}
+              onClick={(e) => {this.copyToClipboard(e, title)}}
+              InputProps={{
+               readOnly: true,
+              }}
+              margin="dense"
+                 style = {{width: 200}}
+              className="col-1"
+            />
+            <TextField
               name="po_date"
               type="String"
               label="PO Date"
@@ -762,14 +775,15 @@ handleDateChange = date => {
             label="Price"
             value={price}
             margin="dense"
+             style = {{width: 70}}
             className={classes.textField}
           />
           <TextField
-            name="Sale Price"
+            name="Sale JD"
             type="Number"
             label="Sale Price"
             value={sale_price}
-
+             style = {{width: 70}}
             InputProps={{
              readOnly: true,
            }}
@@ -780,9 +794,10 @@ handleDateChange = date => {
 
             name="first_payment"
             type="Number"
-            label="Init. Paymt"
+            label="1st Pymt"
             value={first_payment}
 
+             style = {{width: 70}}
             InputProps={{
              readOnly: true,
            }}
@@ -792,9 +807,9 @@ handleDateChange = date => {
           <TextField
             name="total_amount"
             type="Number"
-            label="T. Amount"
+            label="T Amnt"
             value={total_amount}
-
+            style = {{width: 70}}
             InputProps={{
              readOnly: true,
            }}
@@ -809,24 +824,24 @@ handleDateChange = date => {
             type="Number"
             label="Po Qty"
             value={po_qty}
-
+            style = {{width: 60}}
             InputProps={{
              readOnly: true,
            }}
             margin="dense"
-            width= "4em"
 
           />
           <TextField
             name="total_purchased_qty"
             type="Number"
-            label="T. Pur Qty"
+            label="T Pur Qty"
             value={total_purchased_qty}
+               style = {{width: 60}}
             InputProps={{
              readOnly: true,
             }}
             margin="dense"
-            width= "100px"
+
 
           />
           <TextField
@@ -850,7 +865,7 @@ handleDateChange = date => {
              readOnly: true,
             }}
             margin="dense"
-            width= "4em"
+              style = {{width: 70}}
             className="col-1"
           />
           <TextField
@@ -862,7 +877,7 @@ handleDateChange = date => {
              readOnly: true,
             }}
             margin="dense"
-              width= "4em"
+            style = {{width: 80}}
             className="col-1"
           />
           <TextField
@@ -1046,7 +1061,7 @@ handleDateChange = date => {
             <DatePicker className="pickers"
               disabled={bulkUpdate && !validBulkUpdate}
                     autoOk
-                    disableFuture
+                    disableFuture={false}
                     leftArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/></svg>
                     rightArrowIcon=<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/></svg>
 

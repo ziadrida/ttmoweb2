@@ -4,6 +4,8 @@ import { graphql } from 'react-apollo';
 import { propType } from 'graphql-anywhere';
 import quotationFragment from '/app/ui/apollo-client/quotation/fragment/quotation';
 import quotationsQuery from '/app/ui/apollo-client/quotation/query/quotations';
+import QuoteWithMutation from '/app/ui/components/smart/quotations/quote-form';
+
 import gql from 'graphql-tag';
 import Loading from '/app/ui/components/dumb/loading';
 
@@ -39,18 +41,84 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 
   //************************************************************
-  const Quotations = (props) => {
-    console.log('=> in Quotations component props',props)
 
-  const { quotationsData, classes } = props
+
+    class Quotations extends React.Component {
+        constructor(props) {
+          super(props);
+          console.log('=> in OrderDetails constructor component props', this.props)
+          this.state = {
+            selection: [],
+            selectRows:[],
+            selectAll: false,
+            showPurchase:false,
+            showTracking:false,
+            showQuote: false,
+            refreshData: false,
+            currentRow: {},
+            currentKey: "",
+            rowIndex:-1,
+            data: [],
+            columns: [],
+
+            filter: true,
+            modified: null,
+            origVal: null,
+            newVal: null,
+          }
+          this.handleQuote = this.handleQuote.bind(this);
+      //    this.nvl = this.nvl.bind(this);
+        }
+
+    handleQuote(rowInfo) {
+      console.log("handleQuote rowInfo:", rowInfo)
+      if (rowInfo && rowInfo.row) {
+        this.setState({
+          showQuote: !this.state.showQuote,
+          currentRow: rowInfo.row,
+          rowIndex: rowInfo.index,
+          currentKey: rowInfo.row._id
+        });
+      } else {
+        this.setState({
+          showQuote: !this.state.showQuote,
+        });
+      }
+    }
+
+    componentDidUpdate(prevProps) {
+      console.log("Quotations componentDidUpdate \nprevProps\n:",prevProps)
+    }
+
+      static getDerivedStateFromProps(props, state) {
+             console.log("Quotations getDerivedStateFromProps \nprops",props,
+             "\nstate",state)
+
+      }
+
+    escFunction(event, sender) {
+         if (event.keyCode === 27) {
+           console.log('sender:', sender)
+          console.log("Escape!:",event)
+          console.log("Escape oldValue:",this.state.oldVal)
+           console.log("Escape newValue:", this.state.newVal)
+       }
+    }
+
+    nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
+
+    render() {
+    console.log('=> in Quotations component props',this.props)
+    console.log('=> in Quotations component state',this.state)
+
+  const { quotationsData, classes } = this.props
 
   const { loading, error, getQuotation ,variables  } = quotationsData;
 
   if (!getQuotation) return <p>Search for quotation</p>
-
+  const recordCount = getQuotation? getQuotation.length:0;
   console.log('variables:',variables)
 
-  nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
 
   const columns = [{
       Header: "Quote No",
@@ -63,10 +131,40 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       maxWidth: 200
     },
     {
+            id: "do_quote",
+            Header: "",
+            accessor: d => d.quote_no,
+          //  Cell: this.renderEditable,
+          Cell: (row) => (
+            <div>
+
+            <svg  onClick={() => this.handleQuote(row)} color='gray' width="24" height="24"
+              viewBox="0 0 24 24">
+  <path xmlns="http://www.w3.org/2000/svg" d="M21.886 14.303c-1.259-2.181-0.502-4.976 1.691-6.246l-2.358-4.085c-0.674 0.395-1.457 0.622-2.293 0.622-2.52 0-4.563-2.057-4.563-4.594h-4.717c0.006 0.783-0.189 1.577-0.608 2.303-1.259 2.181-4.058 2.923-6.255 1.658l-2.358 4.085c0.679 0.386 1.267 0.951 1.685 1.675 1.257 2.178 0.504 4.967-1.681 6.24l2.358 4.085c0.671-0.391 1.451-0.615 2.283-0.615 2.512 0 4.55 2.044 4.563 4.569h4.717c-0.002-0.775 0.194-1.56 0.609-2.279 1.257-2.177 4.049-2.92 6.244-1.664l2.358-4.085c-0.675-0.386-1.258-0.949-1.674-1.669zM12 16.859c-2.684 0-4.859-2.176-4.859-4.859s2.176-4.859 4.859-4.859c2.684 0 4.859 2.176 4.859 4.859s-2.176 4.859-4.859 4.859z"/>
+            </svg>
+
+              </div>
+            ),
+              filterable:false,
+            width:32,
+
+    },
+    {
       id: 'quote_date',
       Header: "Date",
       accessor: d => (d.quotation.quote_date? d.quotation.quote_date:d.date_created),
-        Cell: row => <span>{row.value? moment(parseInt(row.value)).format('DD-MMM-YYYY HH:mm:ss'):null}</span>,
+        Cell: row => <span style={{ align: 'center'}}>
+            {row.value? moment(parseInt(row.value)).format('DD-MMM-YYYY HH:mm:ss'):null}
+            </span>,
+        getProps:  (state, rowInfo) => ({
+             style: {
+                 backgroundColor: (rowInfo && rowInfo.row &&
+                    moment(parseInt(rowInfo.row.value))>moment().add(-0.1,'day') ? 'green' : null),
+
+                    textAlign: 'center'
+
+             }
+            }),
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["quote_date"] }),
       filterAll: true,
@@ -92,7 +190,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: 'username',
       Header: "Username",
-      accessor: d => d.quotation.username,
+      accessor: d => d.quotation.username? d.quotation.username:d.quotation.item.username?d.quotation.item.username:'',
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["username"] }),
       filterAll: true,
@@ -135,12 +233,17 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       </select>
       },
     {
-      id: 'po',
-      Header: "Active/Final/PO",
+      id: 'status',
+      Header: "Status",
         filterAll: false,
       accessor: d =>
-        (d.quotation.active != undefined && d.quotation.active ? d.quotation.active:'false')+ '/' +
-        (d.quotation.final != undefined && d.quotation.final? d.quotation.final:'false') ,
+      (d.quotation.active !=null && d.quotation.final!=null?
+        d.quotation.active && d.quotation.final? 'Complete':
+        !d.quotation.active && !d.quotation.final? 'Needs Quote':
+        !d.quotation.active && d.quotation.final? 'Discarded':
+        d.quotation.active && !d.quotation.final? 'Needs Quote!':
+        'Check':'Attention!'
+      ),
 
         filterMethod: (filter, row) => {
                       //console.log(filter)
@@ -224,7 +327,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     {
       id: "mpn",
       Header: "MPN/ASIN",
-      accessor: d => nvl(d.quotation.item.MPN,'') +"/"+ nvl(d.quotation.item.asin,''),
+      accessor: d => this.nvl(d.quotation.item.MPN,'') +"/"+ this.nvl(d.quotation.item.asin,''),
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["mpn"] }),
       filterAll: true,
@@ -310,11 +413,14 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     return <p>{error.message}</p>;
   }
 
-
+  // render
   return (
         <div >
         {loading?
-           <Loading />: null
+          <Loading />:
+          <div className="statusline">
+          <a>Found {recordCount<200? recordCount:'at least '+recordCount} records</a>
+          </div>
         }
           <ReactTable
             data={getQuotation}
@@ -328,9 +434,24 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
             }}
             className="-striped -highlight"
           />
+          {this.state.showQuote ?
+          <QuoteWithMutation
+             closePopup={this.handleUpdatePO}
+             registerCancel={this.registerUpdatedPO}
+             poInfo={this.state.data[this.state.rowIndex]}
+             selection={this.state.selection}
+             rowIndex={this.state.rowIndex}
+             currentKey={this.state.currentKey}
+             getRow={this.getRow}
+             setRow={this.setRow}
+             variables={variables}
+
+         />
+         : null
+        }
         </div>
       );
-
+    } // end of render()
   };
 
 
@@ -361,6 +482,7 @@ const withData = graphql(quotationsQuery, {
       search: (quotationSearch && quotationSearch.search),
       searchField: (quotationSearch && quotationSearch.searchField),
     },
+    pollInterval: 1000*60*5
   }),
 });
 //export default withData(withStyles(styles)(Quotations));

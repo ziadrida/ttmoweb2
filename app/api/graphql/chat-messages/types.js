@@ -28,7 +28,8 @@ const types = gql`
               userId: String,
               dateFrom: String,
               dateTo: String,
-              search: String): [ChatMessages]
+              search: String,
+              searchField:String): [ChatMessages]
 
   }
 
