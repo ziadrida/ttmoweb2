@@ -126,8 +126,6 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       filterMethod: (filter, rows) =>
                   matchSorter(rows, filter.value, { keys: ["quote_no"] }),
       filterAll: true,
-
-
       maxWidth: 200
     },
     {
@@ -237,12 +235,12 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       Header: "Status",
         filterAll: false,
       accessor: d =>
-      (d.quotation.active !=null && d.quotation.final!=null?
-        d.quotation.active && d.quotation.final? 'Complete':
-        !d.quotation.active && !d.quotation.final? 'Needs Quote':
-        !d.quotation.active && d.quotation.final? 'Discarded':
-        d.quotation.active && !d.quotation.final? 'Needs Quote!':
-        'Check':'Attention!'
+      (d.quotation.active != null && d.quotation.final != null?
+        d.quotation.active && d.quotation.final? 'In CART':
+        !d.quotation.active && !d.quotation.final? 'Error':
+        !d.quotation.active && d.quotation.final? d.quotation.po_no? 'PO Created':'Discarded':
+        d.quotation.active && !d.quotation.final? 'Not Quoted':
+        'Needs Help':'Incomplete'
       ),
 
         filterMethod: (filter, row) => {
@@ -251,11 +249,27 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       if (filter.value === "all") {
 
                         return true;
-                      } else  if (filter.value === "DIS") {
-                        return row[filter.id].includes('false/') ;
-                      } else     if (filter.value === "INC") {
-                      return row[filter.id].includes('/false');
+                      } else  if (filter.value === "Attention!") {
+                        var regex = /In CART|Needs Quote|Error|Discarded|Needs Help|Incomplete/g;
+                        var found = filter.value.match(regex);
+
+                        return found == null ;
+                      }
+                      else  if (filter.value === "In CART") {
+                        return row[filter.id].includes('In CART') ;
+                      } else     if (filter.value === "Error") {
+                      return row[filter.id].includes('Error');
+                    } else     if (filter.value === "Not Quoted") {
+                    return row[filter.id].includes('Not Quoted');
+                    }  else  if (filter.value === "Discarded") {
+                       return row[filter.id].includes('Discarded');
                     }
+                    else  if (filter.value === "Needs Help") {
+                      return row[filter.id].includes('Needs Help');
+                   }
+                   else  if (filter.value === "Incomplete") {
+                     return row[filter.id].includes('Incomplete');
+                  }
                     },
         Filter: ({ filter, onChange }) =>
                       <select
@@ -264,8 +278,14 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                         value={filter ? filter.value : "all"}
                       >
                         <option value="all">Show All</option>
-                        <option value="DIS">ملغى</option>
-                        <option value="INC">غير مكتمل</option>
+                          <option value="Attention!">Attention!</option>
+                        <option value="In CART">In CART!</option>
+                        <option value="Error">Error</option>
+                        <option value="Not Quoted">Not Quoted</option>
+                        <option value="Discarded">Discarded</option>
+                        <option value="Needs Help">Needs Help</option>
+
+                        <option value="Incomplete">Incomplete</option>
                       </select>
       },
       {
