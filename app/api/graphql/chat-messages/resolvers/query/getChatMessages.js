@@ -124,8 +124,8 @@ const getChatMessages = async (root, args, context) => {
      {
        $lookup: {
          from: "users",
-         localField: "senderId",
-         foreignField: "userId",
+           localField:  "userId",
+           foreignField: "userId",
          as: "users"
        }
      },
@@ -136,6 +136,11 @@ const getChatMessages = async (root, args, context) => {
          $project: {
             _id:"$_id",
             userId:"$users.userId",
+            is_echo:"$is_echo",
+            senderId: "$senderId",
+
+            recipientId: "recipientId",
+            seq:"$seq",
             name:"$users.name",
             first_name: "$users.first_name",
             last_name:"$users.last_name",

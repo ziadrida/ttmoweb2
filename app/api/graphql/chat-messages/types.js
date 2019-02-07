@@ -9,6 +9,10 @@ const types = gql`
   type ChatMessages {
     _id: ID
     userId: String
+    senderId: String
+    recipientId: String
+    seq: Int
+    is_echo: Boolean
     first_name: String
     last_name: String
     name: String

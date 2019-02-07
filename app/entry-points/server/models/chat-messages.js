@@ -8,6 +8,9 @@ console.log('Importing ChatMessages')
 
 const schema = mongoose.Schema({
 _id: String,
+userId:String,
+is_echo: Boolean,
+seq:Number,
 senderId: String,
 recipientId: String,
 messageText: String,

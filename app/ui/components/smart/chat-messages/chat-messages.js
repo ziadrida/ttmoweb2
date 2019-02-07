@@ -71,6 +71,24 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
         filterAll: true,
         maxWidth: 200
       },
+      {
+          Header: "Reply",
+          id: "is_echo",
+          accessor: d => (d.is_echo != null && d.is_echo)? "YES":"",
+          filterMethod: (filter, rows) =>
+                      matchSorter(rows, filter.value, { keys: ["is_echo"] }),
+          filterAll: true,
+          maxWidth: 70
+        },
+        {
+            Header: "Msg Seq",
+            id: "seq",
+            accessor: d => d.seq,
+            filterMethod: (filter, rows) =>
+                        matchSorter(rows, filter.value, { keys: ["seq"] }),
+            filterAll: true,
+            maxWidth: 70
+          },
     {
       id: 'dateCreated',
       Header: "Date",

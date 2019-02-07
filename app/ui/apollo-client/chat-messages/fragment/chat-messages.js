@@ -7,6 +7,10 @@ const chatMessagesFragment = gql`
 fragment chatMessagesFragment on ChatMessages {
   _id
   userId
+  senderId
+  recipientId
+  seq
+  is_echo
   first_name
   last_name
   name
