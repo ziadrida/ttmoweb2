@@ -1077,17 +1077,8 @@ handleDateChange = date => {
                                   margin="dense"
                                   className={classes.textField}
                                   />
-                                  <TextField
-                                    disabled={bulkUpdate}
-                                    name="edit_destination"
-                                    type="String"
-                                    label="Destination"
-                                    value={edit_destination}
-                                    onChange={this.handleChange}
-                                    margin="dense"
-                                    className={classes.textField}
-                                    />
-                                    <FormControl required className={classes.formControl}>
+
+                                    <FormControl  className={classes.formControl}>
                                     <InputLabel htmlFor="destination-required">Destination</InputLabel>
                                     <Select
                                       disabled={false}
@@ -1104,7 +1095,7 @@ handleDateChange = date => {
                                     </Select>
                                     <FormHelperText>Required</FormHelperText>
                                   </FormControl>
-                                  <FormControl required className={classes.formControl}>
+                                  <FormControl  className={classes.formControl}>
                                   <InputLabel htmlFor="priceType-required">Price Type</InputLabel>
                                   <Select
                                     disabled={false}
@@ -1121,7 +1112,8 @@ handleDateChange = date => {
                                   </Select>
                                   <FormHelperText>Required</FormHelperText>
                                 </FormControl>
-                                <FormControl required className={classes.formControl}>
+                                { prices != null  && price_selection != null ?
+                                <FormControl  className={classes.formControl}>
                                 <InputLabel htmlFor="sale_price-required">Sale Price</InputLabel>
                                 <Select
                                   disabled={false}
@@ -1133,18 +1125,25 @@ handleDateChange = date => {
                                   }}
                                   className={classes.selectEmpty}
                                 >
-                                  <MenuItem value={"amm_exp"}>{"Amman Personal "+prices['amm_exp'].price + " JD"}</MenuItem>
-                                  <MenuItem value={"amm_std"}>Amman Regular</MenuItem>
-                                  <MenuItem value={"aq_std"}>Aqaba Regular</MenuItem>
+                                { Object.keys(prices).map(p => {
+                                  return  prices[p].price!= null?
+                                  <MenuItem value={p}>{prices[p].destination + " "+
+                                        prices[p].type + " " +
+                                        prices[p].price + " JD"}</MenuItem>
+                                    :  ''
+                                    }
+                                )}
+
                                 </Select>
                                 <FormHelperText>Required</FormHelperText>
                               </FormControl>
+                              :null}
                               <TextField
                                 disabled={bulkUpdate}
                                 name="sale_price"
                                 type="Number"
                                 label="Sale Price"
-                                value={prices[price_selection].price}
+                                value={prices? prices[price_selection].price:''}
 
                                 margin="dense"
                                 className={classes.textField}
