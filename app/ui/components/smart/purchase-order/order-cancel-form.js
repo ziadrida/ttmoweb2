@@ -835,7 +835,6 @@ handleDateChange = date => {
               className={classes.textField}
             />
             <TextField
-
               name="options"
               type="String"
               label="options"
@@ -858,7 +857,7 @@ handleDateChange = date => {
               'overflowY':'scroll',
               'fontSize': '10px' ,
                width:'80em',height:'3em'}}>
-            {  <a href = { link } target = "_blank" > {link  } </a>}
+            {  <a href = { link } target = "_blank" > {'link'  } </a>}
             </div> {/* link */}
           </div>
           <TextField

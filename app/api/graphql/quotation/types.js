@@ -9,8 +9,9 @@ const types = gql`
     _id: ID!
     quote_no: Int
     senderId: String
-    sales_person: String
     user:  User
+    sales_person: String
+
     quotation: QuotationInstance
     date_created: String
     created_by: String
@@ -91,6 +92,10 @@ const types = gql`
           price: Float
     }
 
+    input QuoteInput {
+      title: String
+
+    }
   type Query {
         getQuotation(
               quote_no: Int,
@@ -100,6 +105,10 @@ const types = gql`
               searchField: String): [Quotation]
         user: User
 
+  }
+
+  type Mutation {
+    genQuote (input: QuoteInput!): Quotation
   }
 
 `;

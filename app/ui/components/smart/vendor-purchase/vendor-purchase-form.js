@@ -558,7 +558,7 @@ handleDateChange = date => {
 
 
     const {_id, po_no,
-       title, link, po_qty, total_purchased_qty,
+       title,category, link, po_qty, total_purchased_qty,
        price,sale_price,first_payment,total_amount,options
        ,source, notes,orders,destination,po_date,username,
     } = this.state.poInfo;
@@ -652,6 +652,20 @@ handleDateChange = date => {
                width:'500px',height:'4em'}}>
             {  <a href = { link } target = "_blank" > {link  } </a>}
             </div> {/* link */}
+            <TextField
+              name="category"
+              type="String"
+              label="Category"
+              value={category}
+              onClick={(e) => {this.copyToClipboard(e, category)}}
+              InputProps={{
+               readOnly: true,
+              }}
+              margin="dense"
+                style = {{width: 110}}
+              className="col-1"
+            />
+
             <TextField
               name="username"
               type="String"

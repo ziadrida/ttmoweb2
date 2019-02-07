@@ -10,6 +10,7 @@ fragment quotationFragment on Quotation {
   _id
   quote_no
   senderId
+
   sales_person
   date_created
   created_by

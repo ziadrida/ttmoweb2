@@ -107,6 +107,15 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
     nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
 
+    getRow(key) {
+      console.log('getRow key:',key)
+      // find the row in this.state.data
+      var index = this.state.data.findIndex(x=> x._id === key);
+      const row = this.state.data[index]
+      console.log('getRow: row',row)
+      return row;
+    }
+
     render() {
     console.log('=> in Quotations component props',this.props)
     console.log('=> in Quotations component state',this.state)
@@ -456,14 +465,13 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
           />
           {this.state.showQuote ?
           <QuoteWithMutation
-             closePopup={this.handleUpdatePO}
-             registerCancel={this.registerUpdatedPO}
-             poInfo={this.state.data[this.state.rowIndex]}
+             closePopup={this.handleQuote}
+
+             quoteInfo={getQuotation[this.state.rowIndex]}
              selection={this.state.selection}
              rowIndex={this.state.rowIndex}
              currentKey={this.state.currentKey}
              getRow={this.getRow}
-             setRow={this.setRow}
              variables={variables}
 
          />
