@@ -610,7 +610,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views: [view.all,view.payment,  view.ship, view.deliver, view.book,view.close],
+              views: [view.all,view.payment,view.purchase,  view.ship, view.deliver, view.book,view.close],
             },
 
             {
@@ -1494,6 +1494,18 @@ render() {
   console.log("--->>>>> Render order-details -> \nnew stage\n: ", stage)
     const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
     const recordCount = getOrderDetails? getOrderDetails.length:0;
+    var totalSales = 0;
+    var totalPayments = 0;
+
+    if (getOrderDetails) getOrderDetails.map(o => {
+      console.log('sale_price:',o.sale_price, "totalSales:",totalSales )
+      totalSales = totalSales + (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price));
+
+      totalPayments = totalPayments +  (!o.first_payment || isNaN(o.first_payment)? 0:parseFloat(o.first_payment)) +
+        (!o.final_payment || isNaN(o.final_payment)? 0:parseFloat(o.final_payment))
+      })
+      console.log("totalSales:",totalSales)
+        console.log("totalPayments:",totalPayments)
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
 
@@ -1550,7 +1562,7 @@ render() {
          {loading?
            <Loading />:
            <div className="statusline">
-           <a>Found {recordCount<200? recordCount:'at least '+recordCount} records</a>
+           <a>Found {recordCount<200? recordCount:'at least '+recordCount} records. T Sales: {totalSales.toFixed(1)} T. Payments: {totalPayments.toFixed(1)}</a>
            </div>
          }
           <SelectTable { ...otherProps}

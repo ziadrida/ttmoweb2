@@ -24,6 +24,23 @@ const types = gql`
 
   type User {
     _id: String!
+    name: String
+    address:  String
+    locale: String
+    city: String
+    vip: Boolean
+    phone_no: String
+    tax_exempt: Boolean
+    company: String
+    user_title: String
+    real_name: String
+    email: String
+    role: String
+    location: String
+    order_status_subscription: Boolean
+    price_drop_subscription: Boolean
+
+
     createdAt: DateTime!
     services: [String]!
     emails: [Email]
@@ -44,12 +61,14 @@ const types = gql`
 
   type Query {
     user: User
+    getUsers(userId: String): [User]
   }
 
   type Mutation {
     saveSubscription(subscription: SubscriptionInput!): User
     deleteSubscription(endpoint: String!): User
     sendPushNotification: User
+
   }
 `;
 

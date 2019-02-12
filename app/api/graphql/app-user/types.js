@@ -5,7 +5,6 @@ import { gql } from 'apollo-server-express'
 //const typeDefs = `
 const types = gql`
 type User {
-
   _id: ID!
   name: String
   address:  String
@@ -23,28 +22,27 @@ type User {
   order_status_subscription: Boolean
   price_drop_subscription: Boolean
   date_created: String
-  messages: [UserMessages]
+
 }
-  type Messages {
-    messageText: String,
-    messageAttachments: [MessageAttachments],
-    timestamp: String,
-    dateCretaed: String
-  }
-
-  type MessageAttachments {
-    title: String,
-    url: String,
-    type: String,
-    payload: String
-  }
-
 
   type Query {
-        getMessages(userId: String): [UserMessages]
-        getUser(userId: String): [User]
-
+        getUsers(userId: String): [User]
   }
 
 `;
 export default types;
+//  getMessages(userId: String): [UserMessages]
+// messages: [UserMessages]
+//   type Messages {
+//     messageText: String,
+//     messageAttachments: [MessageAttachments],
+//     timestamp: String,
+//     dateCretaed: String
+//   }
+//
+//   type MessageAttachments {
+//     title: String,
+//     url: String,
+//     type: String,
+//     payload: String
+//   }

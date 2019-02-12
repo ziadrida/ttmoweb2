@@ -1,8 +1,9 @@
-
-import getUserMessages from './getUserMessages';
+import getUsers from './getUsers';
+//import getUserMessages from './getUserMessages';
 
 const Query = {
-  getUserMessages,
+
+  getUsers,
 
 };
 

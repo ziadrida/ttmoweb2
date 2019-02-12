@@ -34,9 +34,8 @@ import Select from '@material-ui/core/Select';
 
 import Checkbox from "@material-ui/core/Checkbox";
 
-
-// refetch option to mutate
 import quotationsQuery from '/app/ui/apollo-client/quotation/query/quotations';
+import usersQuery from '/app/ui/apollo-client/appUser/query/users.js';
 
 // withStyles takes the styles and change them to classes props
 const styles = theme => ({
@@ -150,8 +149,6 @@ class QuoteForm extends React.Component {
       chargeableWeight:'',
       final:'',
       requestor:'',
-
-
       price_selection:'',
       notes:'',
       final:'',
@@ -749,6 +746,10 @@ handleDateChange = date => {
     };
 
   render() {
+//     console.log("<><><> TEST Scraper")
+//     scraper.init('http://www.amazon.com/gp/product/B00X4WHP5E/', function(data){
+//     console.log(data);
+// });
     console.log('render QuoteForm props:',this.props)
     console.log('render QuoteForm state:',this.state)
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
@@ -793,7 +794,7 @@ handleDateChange = date => {
     <div className="popup">
       <div className="popup_inner">
 
-        <div className=" flex flex-wrap   p1 m1 border">
+        <div className=" flex flex-wrap  p1 m1 border">
         <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
           <div className="flex flex-wrap  ml2">
             <TextField
@@ -817,7 +818,6 @@ handleDateChange = date => {
               control={
                 <Checkbox
                   checked={quotation.active}
-
                   value="quotation.active"
                   color="primary"
                 />
@@ -828,9 +828,7 @@ handleDateChange = date => {
             <FormControlLabel
               control={
                 <Checkbox
-
                   checked={quotation.final}
-
                   value="quotation.final"
                   color="primary"
                 />
@@ -861,24 +859,7 @@ handleDateChange = date => {
               className={classes.textField}
 
             />
-            <TextField
-              disabled={bulkUpdate}
-              name="edit_title"
-              type="String"
-              label="Title"
-              value={edit_title}
-              onChange={this.handleChange}
-
-              margin="dense"
-              className={classes.textField}
-              style={{
-                //backgroundColor:'pink',
-                'whiteSpace': 'unset',
-                 'fontSize': '10px' ,
-                 'fontWeight':'bold',
-                'width' : '42em',
-              }}
-            />
+            <div className="flex flex-row">
             <TextField
               disabled={bulkUpdate}
               name="edit_url"
@@ -905,8 +886,27 @@ handleDateChange = date => {
             {  <a href = { edit_url } target = "_blank" > {'click here for item link'  } </a>}
             </div>
 
+            <TextField
+              disabled={bulkUpdate}
+              name="edit_title"
+              type="String"
+              label="Title"
+              value={edit_title}
+              onChange={this.handleChange}
 
+              margin="dense"
+              className={classes.textField}
+              style={{
+                //backgroundColor:'pink',
+                'whiteSpace': 'unset',
+                 'fontSize': '10px' ,
+                 'fontWeight':'bold',
+                'width' : '42em',
+              }}
+            />
+            </div>
           </div>
+
           <TextField
             disabled={bulkUpdate}
             name="sales_person"
@@ -1213,6 +1213,20 @@ QuoteForm.defaultProps = {
   onSubmit: () => {},
 };
 
+const withUsers = graphql(usersQuery, {
+  name: 'usersQuery',
+  options: ({ userSearch }) => ({
+    variables: {
+      userId: (userSearch && Number(userSearch.userId)),
+      username: (userSearch && userSearch.username),
+      search: (userSearch && userSearch.search),
+      searchField: (userSearch && userSearch.searchField),
+    },
+  //  pollInterval: 1000*60*5
+  }),
+});
+
+
 const genQuote = gql`
   mutation genQuote($quoteInput: quoteInput!) {
     genQuote (input: $quoteInput) {
@@ -1227,7 +1241,7 @@ const QuoteWithMutation =
 graphql( genQuote)
 (QuoteForm);
 
-export default withStyles(styles)(QuoteWithMutation)
+export default withUsers(withStyles(styles)(QuoteWithMutation))
 //
 // quoteInfo:
 // created_by: null
