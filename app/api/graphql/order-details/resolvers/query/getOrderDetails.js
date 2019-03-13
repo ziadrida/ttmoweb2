@@ -1,5 +1,7 @@
 
 import  PurchaseOrder  from '/app/entry-points/server/models/purchase-order';
+import moment from 'moment';
+
 const debugOn = true
 const  regexNum = /([0-9]*\.[0-9]+|[0-9]+)/g;
 const parseRow = (rowVal) => {
@@ -19,21 +21,20 @@ const getOrderDetails = async (root, args, context) => {
   console.log('=>resolver  in getOrderDetails args', args)
   //const { quotation: usr } = context;
   matchArray = []
-      existsArray = []
-        sortOpt =  { _id :  -1 }
-    if (!args.sort || args.sort == undefined || isNaN(args.sort) ) {
-      sortOpt =  { _id :  1 }
-    } else {
-        sortOpt = { _id :  args.sort }
-    }
-    console.log("*sortOpt:",sortOpt)
-      if (args.username) {
+  existsArray = []
+  sortOpt =  { po_date_created :  -1 }
+  if (!args.sort || args.sort == undefined || isNaN(args.sort) ) {
+      sortOpt =  { po_date_created :  -1 }
+  } else {
+        sortOpt = { po_date_created :  args.sort }
+  }
+  console.log("*sortOpt:",sortOpt)
+  if (args.username) {
         matchArray.push (  {username: { $regex: args.username, $options: 'i' }  })
         //Field2: { $regex: 'Value_2', $options: 'g' }
-      } else if (args.senderID ) {
-
+  } else if (args.senderID ) {
             matchArray.push (   {userId: args.senderID })
-      }
+  }
 
       //  start = moment().subtract(args.days_from,'day').format('DD/MM/YYYY')
       //  end = moment().subtract(args.days_to,'day').format('DD/MM/YYYY')
@@ -48,8 +49,21 @@ const getOrderDetails = async (root, args, context) => {
             var searchTrim
             andOr = "$and"
               if (args.search && searchField && searchField!= '' && searchField != 'all') {
-                  searchTrim = args.search.trim()
 
+                if (args.searchField == "po_date_created" || args.searchField == "po_date") {
+                  // use date portion
+                  var dateFrom = moment(args.search,"DD/MM/YYYY").toDate()
+                  var dateTo = moment(dateFrom).add(1,'day').toDate()
+
+                  if (searchTrim == null ) searchTrim = moment().format('YYYY-MM-DD')
+                  matchArray.push({
+                    [searchField]: {
+                      "$gte": dateFrom,
+                      "$lt": dateTo
+                    }
+                  })
+                } else {
+                searchTrim = args.search.trim()
                  matchArray.push({
                    "$or": [{
                        [searchField]: {
@@ -58,6 +72,7 @@ const getOrderDetails = async (root, args, context) => {
                        }
                      }]
                    })
+                 }
               }
             if (args.search && (searchField == null || searchField == '' || searchField == 'all')) {
               searchTrim = args.search.trim()
@@ -451,8 +466,7 @@ const getOrderDetails = async (root, args, context) => {
             foreignField: "po_no",
             as: "po_purchases"
           }
-        },
-        { $sort : sortOpt }
+        }
         ,
          { "$addFields": { "total_purchased_qty": { $sum: "$po_purchases.purchased_qty"} } }
          ,
@@ -1045,6 +1059,8 @@ const getOrderDetails = async (root, args, context) => {
       {
           $match: query
       }
+      ,
+      { $sort : sortOpt }
   //___END OF aggregate_______
 
 ]).limit(200).exec()

@@ -93,6 +93,8 @@ const schema = mongoose.Schema({
         awb_status:String,
         awb_no:String,
         received: Date,
+        date_created: Date,
+        po_date_created: Date,
 })
 
 

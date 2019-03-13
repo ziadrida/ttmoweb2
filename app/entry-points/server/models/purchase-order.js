@@ -66,6 +66,9 @@ const schema = mongoose.Schema({
 );
 
 const PurchaseOrder = mongoose.model('purchase_orders', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('NEW PurchaseOrder collection:',PurchaseOrder)
 if (!PurchaseOrder) console.log("purchaseOrder.js PurchaseOrder is null!")
 

@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import Constants from '/app/api/constants';
 
 const collection = Meteor.users;
-
+// User Model
 collection.allow({
   insert: () => false,
   update: () => false,
@@ -17,6 +17,25 @@ collection.deny({
 });
 
 const schema = new SimpleSchema({
+// Old User Schema (need to convert to new schema)
+  name: String,
+  first_name:String,
+  last_name: String,
+  address:  String,
+  locale: String,
+  city: String,
+  vip: Boolean,
+  phone_no: String,
+  tax_exempt: Boolean,
+  company: String,
+  user_title: String,
+  real_name: String,
+  email: String,
+  role: String,
+  location: String,
+  order_status_subscription: Boolean,
+  price_drop_subscription: Boolean,
+
 
   createdAt: {
     type: Date,

@@ -1,11 +1,11 @@
 // quotation graphql
 // import resolvers for type, query and mutations
-import Quotation from './quotation';
+//import Category from './type-resolver';
 import Query from './query';
-import  Mutation from './mutation';
+import Mutation from './mutation';
 
 const resolvers = {
-  Quotation,
+  //PurchaseOrder, //  resolvers for types inside PurchaseOrder
   Query,
   Mutation,
 };

@@ -2,7 +2,7 @@ import Quotation from '/app/entry-points/server/models/quotation';
 import moment from 'moment';
 
 const getQuotation = async(root, args, context) => {
-  console.log('=>resolver  getQuotation args', args)
+  console.log('=>resolver  <getQuotation> args', args)
   matchArray = []
   andOr = "$and"
     var searchField;
@@ -142,7 +142,7 @@ matchArray.push({
       "quote_no": -1
     }).limit(200).exec();
     console.log("curQuotation.length:", curQuotation.length)
-    if (curQuotation &&   curQuotation.length>0) console.log("curQuotation:", JSON.stringify(curQuotation[0]))
+    //if (curQuotation &&   curQuotation.length>0) console.log("curQuotation:", JSON.stringify(curQuotation[0]))
     return curQuotation;
   } catch (exc) {
     console.log(exc);

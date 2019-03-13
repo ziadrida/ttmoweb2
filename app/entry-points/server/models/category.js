@@ -1,7 +1,7 @@
 import mongoose  from 'mongoose';
 
 const schema = mongoose.Schema({
-      _id: Number,
+      _id: String,
       category_name: String,
       category_name_ar:String,
       customs: Number,

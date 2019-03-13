@@ -26,6 +26,9 @@ dateCretaed: Date
 
 
 const ChatMessages = mongoose.model('user_messages', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('ChatMessages collection:',ChatMessages)
 if (!ChatMessages) console.log("index.js ChatMessages is null!")
 

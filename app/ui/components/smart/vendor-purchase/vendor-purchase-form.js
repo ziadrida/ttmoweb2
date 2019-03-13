@@ -77,7 +77,7 @@ class VendorPurchaseForm extends React.Component {
     purchase_id: -99,
     order_date:  moment().format("MM-DD-YYYY"),
     customer_delivery_date:'',
-    source: '',
+    edit_source: '',
     notes:'',
   },
 
@@ -181,7 +181,7 @@ static getDerivedStateFromProps(props, state) {
            moment().format("MM-DD-YYYY"),
           // moment(props.poInfo.order_date,'DD/MM/YYYY').format('DD-MM-YYYY') :
           //   moment().format("DD-MM-YYYY"),
-          source: props.poInfo.source,
+          edit_source: props.poInfo.source,
           notes:props.poInfo.order_notes,
         },
 
@@ -263,7 +263,7 @@ handleDateChange = date => {
         delivery_days_to: 0,
         purchase_id: -99,
         order_date:   moment().format("MM-DD-YYYY"),
-        source: this.props.poInfo.source,
+        edit_source: this.props.poInfo.source,
         notes:'',
       },
       allowSave: true,
@@ -287,7 +287,7 @@ handleDateChange = date => {
        moment().format('MM-DD-YYYY'),
       // moment(this.state.poInfo.order_date,'DD/MM/YYYY').format('MM-DD-YYYY'):
       //   moment().format('MM-DD-YYYY') ,
-      source: this.state.poInfo.source,
+      edit_source: this.state.poInfo.source,
       notes:this.state.poInfo.order_notes,
     },
     allowSave: true
@@ -387,8 +387,8 @@ handleDateChange = date => {
             "po_no": updateInfo.po_no,
             "_id":  updateInfo._id,
             "order_no": this.state.formEditInfo.order_no,
-            "source": this.state.formEditInfo.source != this.props.poInfo.source?
-                this.state.formEditInfo.source: null,
+            "source": this.state.formEditInfo.edit_source != this.props.poInfo.source?
+                this.state.formEditInfo.edit_source: null,
             "purchased_qty":  updateInfo.purchased_qty,
 
             "delivery_days_from": parseInt(this.state.formEditInfo.delivery_days_from),
@@ -437,7 +437,7 @@ handleDateChange = date => {
                 delivery_days_to: this.state.formEditInfo.delivery_days_to,
 
                 order_date: this.state.formEditInfo.order_date,
-                source: this.state.formEditInfo.source,
+                source: this.state.formEditInfo.edit_source,
                 order_notes:this.state.formEditInfo.order_notes,
                 purchase_id: res.data.createVendorPurchase._id
 
@@ -566,7 +566,7 @@ handleDateChange = date => {
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
      const { purchased_qty,purchase_id,order_notes,order_date,
-          order_no,delivery_days_to,delivery_days_from} = this.state.formEditInfo
+          order_no,delivery_days_to,delivery_days_from, edit_source} = this.state.formEditInfo
 
       const {message, bulkUpdate,validBulkUpdate,selectedPoList} = this.state
      console.log("render new message:",message, " purchase_id:",purchase_id)
@@ -971,10 +971,10 @@ handleDateChange = date => {
             />
             <TextField
             disabled={bulkUpdate && !validBulkUpdate}
-              name="source"
+              name="edit_source"
               type="String"
               label="Actual Source"
-              value={source}
+              value={edit_source}
               onChange={this.handleChange}
               margin="dense"
               className="col-2 ml2"

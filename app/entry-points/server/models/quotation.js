@@ -134,6 +134,9 @@ const schema = mongoose.Schema({
 ,{ collection: 'quotation' });
 
 const Quotation = mongoose.model('quotation', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('NEW Quotation collection:',Quotation)
 if (!Quotation) console.log("quotation.js Quotation is null!")
 

@@ -43,7 +43,7 @@ const types = gql`
     membership_amount: Float
     vip: Boolean
     closed: Boolean
-  
+
     paid_in_full: Boolean
     booked: Boolean
     chargable_wt: Float
@@ -92,7 +92,5 @@ const types = gql`
   }
 
 `;
-
-
 
 export default types;

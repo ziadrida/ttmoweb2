@@ -27,7 +27,7 @@ const LoggedInRoute = ({ curUser, component, redirectTo, overlay, emailNotVerifi
 
       // TODO: use current loggedIn service instead of all available services
       const isPasswordService = curUser.services.indexOf('password') !== -1;
-      const isEmailVerified = isPasswordService && curUser.emails[0].verified === true;
+      const isEmailVerified = isPasswordService &&  curUser.emails && curUser.emails[0].verified === true;
 
       // If password service and email is NOT verified, resolve...
       if (isPasswordService && !isEmailVerified) {
@@ -35,6 +35,7 @@ const LoggedInRoute = ({ curUser, component, redirectTo, overlay, emailNotVerifi
       }
 
       // ...Otherwise, render requested component
+
       return React.createElement(component, { ...rest, ...ownProps });
     }}
   />

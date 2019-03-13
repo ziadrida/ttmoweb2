@@ -88,7 +88,8 @@ const types = gql`
     awb_status:String
     awb_no:String
     received: String
-    date_created: String
+
+    po_date_created: DateTime
     created_by: String
     last_updated: DateTime
     updated_by: String

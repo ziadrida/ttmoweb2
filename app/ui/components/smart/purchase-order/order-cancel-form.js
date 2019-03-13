@@ -193,10 +193,10 @@ static getDerivedStateFromProps(props, state) {
         row.edit_delivered_qty =  parseInt(row.po_qty);
         tmpSelectedPoList.push(row)
         if (!changedList)  {
-        changedList = state.selectedPoList.length == 0 ||
+        changedList = state.selectedPoList&& ( state.selectedPoList.length == 0 ||
                       (state.selectedPoList.length>0 &&
                         state.selectedPoList[0] != undefined &&
-                        state.selectedPoList.findIndex(x=> x._id === key) < 0);
+                        state.selectedPoList.findIndex(x=> x._id === key) < 0));
         console.log("selectedPoList changedList",changedList)
       }
      }
@@ -589,7 +589,7 @@ handleDateChange = date => {
           return rtnPoInfo;
       }
       console.log('***** updateInfo:',updateInfo)
-      console.log("+++ before calling propos.mutate ")
+      console.log("+++ before calling props.mutate ")
       const response = await mutate({
          variables: {
            "updateStatusInput": {
@@ -718,7 +718,7 @@ handleDateChange = date => {
         console.log('=> in renderExistingTrackings trackingList:',trackingList)
       const {trackings} = trackingList
       console.log('=> in renderExistingTrackings:',trackings)
-      var tmpVal = typeof trackings != 'undefined' || trackings.length>0? trackings:'No trackings'
+      var tmpVal =  trackings != null && trackings.length>0? trackings:'No trackings'
          return  tmpVal!='' &&
                 typeof tmpVal !== 'string'?
             trackings.map(trackingNo => {
@@ -737,7 +737,7 @@ handleDateChange = date => {
       console.log('=> in OrderCancelForm  renderExistingOrders orderList:',orderList)
     const {orders} = orderList
     console.log('=> in renderExistingOrders:',orders)
-    var tmpVal = typeof orders != 'undefined' || orders.length>0? orders:'No orders'
+    var tmpVal = orders != null && orders.length>0? orders:'No orders'
        return  tmpVal!='' &&
               typeof tmpVal !== 'string'?
           orders.map(orderNo => {
@@ -857,7 +857,7 @@ handleDateChange = date => {
               'overflowY':'scroll',
               'fontSize': '10px' ,
                width:'80em',height:'3em'}}>
-            {  <a href = { link } target = "_blank" > {'link'  } </a>}
+            {  <a href = { link } target = "_blank" > {link} </a>}
             </div> {/* link */}
           </div>
           <TextField

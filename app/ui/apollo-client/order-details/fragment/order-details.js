@@ -89,6 +89,7 @@ fragment orderDetailsFragment on OrderDetails {
   awb_status
   awb_no
   received
+  po_date_created
 }
 `;
 

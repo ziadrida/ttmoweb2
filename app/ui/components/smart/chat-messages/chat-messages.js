@@ -109,10 +109,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       style: { 'whiteSpace': 'unset',
         'fontSize': '12px',
         'overflowY':'scroll',
-        'width':'540px',
+        width:540,
         'height':'4em'
        },
-
+       width:400,
 
     },
     {
@@ -131,7 +131,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       style: { 'whiteSpace': 'unset',
         'fontSize': '12px',
         'overflowY':'scroll',
-        'width':'540px',
+        width:400,
         'height':'4em'
        },
 

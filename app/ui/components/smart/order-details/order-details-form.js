@@ -172,6 +172,8 @@ clearFilter = (evt) => {
           className={classes.selectEmpty}
         >
           <MenuItem value={''}>Not Selected</MenuItem>
+          <MenuItem value={"po_date_created"}>PO Creation Date</MenuItem>
+            <MenuItem value={"po_date"}>PO Date</MenuItem>
           <MenuItem value={"username"}>username</MenuItem>
           <MenuItem value={"awb_no"}>AWB</MenuItem>
           <MenuItem value={"order_no"}>Vendor Order#</MenuItem>

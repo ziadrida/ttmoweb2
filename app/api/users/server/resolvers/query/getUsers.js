@@ -28,22 +28,52 @@ const getUsers = async (root, args, context) => {
             "$regex": args.search,
             "$options": "i"
           }
+        },
+        {
+          "userId": {
+            "$regex": args.search,
+            "$options": "i"
+          }
+        },
+        {
+          "phone_no": {
+            "$regex": args.search,
+            "$options": "i"
+          }
         }
 
       ]
     }
-  } else {
-    queryStr = {
-      userId: args.userId
+  } else if (args.userId !=null ) {
+
+      queryStr = {
+      "userId": {
+        "$regex": args.userId,
+        "$options": "i"
+      }
+    }
+  } else if  (args.username !=null ) {
+
+      queryStr = {
+      "name": {
+        "$regex": args.username,
+        "$options": "i"
+      }
     }
   }
   // Query current logged in getUsers
+  var resp;
   try {
     console.log('getUsers queryStr:',queryStr)
-    const result = await User.find(queryStr).sort({"name":-1}).limit(50).exec();
+    const result = await User.find(queryStr).sort({name:1}).limit(10).exec();
     console.log("result.length:",result.length)
    //console.log("result:",JSON.stringify(result))
-    return result;
+   resp = result.map(u=> {
+     if (u.userId == null) u.userId="-99"
+     if (u.name == null) u.name="unkown"
+     return u;
+   })
+    return resp;
   } catch (exc) {
     console.log(exc);
     return null;

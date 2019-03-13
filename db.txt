@@ -86,8 +86,10 @@ db.users.aggregate([
 }
 ])
 
-i= TT99519 last used
-db.users.find({userId: "-99"}).forEach(function(row) {
+i= TT99610 last used
+
+i=99610
+db.users.find({"userId": {"$exists": false}}).forEach(function(row) {
 i = i+1
 print(row._id, "-",row.userId, "TT"+i)
 row.userId = "TT"+i
@@ -128,3 +130,59 @@ messageAttachments: "$messages.messageAttachments",
 timestamp: "$messages.timestamp",
 dateCreated: "$messages.dateCreated"
  { $unwind: { "path": "$messages", "preserveNullAndEmptyArrays": true },
+
+
+
+ db.purchase_orders.find({"$and": [ {date_created: { "$gt": new ISODate("2019-01-01T20:15:31Z")}}, {po_date: { "$lt": new ISODate("2018-09-09T20:15:31Z")}}
+ ]}).forEach(function(row) {
+  print("po_no:",row._id)
+ print(row._id, "-",row.username)
+  print("po_date:",row.po_date)
+    print("date_created:",row.date_created)
+    diff  = (row.po_date - row.date_created)/(1000*3600*24)
+  print('diff:',diff)
+   if (diff > 10 || diff < -10 )  {
+   print("more than 10 days")
+   row.po_date = row.date_created;
+   }
+
+     db.purchase_orders.save(row)
+     })
+
+
+ db.purchase_orders.find({po_date: { "$lt": new ISODate("2018-02-18T20:15:31Z")}}).forEach(function(row) {
+ print(row._id, "-",row.username)
+   print("po_date:",row.po_date)
+   row.po_date = row.date_created;
+
+    db.purchase_orders.save(row)
+     })
+
+     db.purchase_orders.find({po_date: { "$lt": new ISODate("2018-05-06T20:15:31Z")}}).forEach(function(row) {
+      print("po_no:",row._id)
+     print(row._id, "-",row.username)
+      print("po_date:",row.po_date)
+        print("date_created:",row.date_created)
+        diff  = (row.po_date - row.date_created)/(1000*3600*24)
+      print('diff:',diff)
+       if (diff > 10 || diff < -10 )  {
+       print("more than 10 days")
+       row.po_date = row.date_created;
+       }
+
+           db.purchase_orders.save(row)
+         })
+
+ db.purchase_orders.find({_id: "T16955-1"}).forEach(function(row) {
+ print(row._id, "-",row.username)
+  print("po_date:",row.po_date)
+    print("date_created:",row.date_created)
+    diff  = (row.po_date - row.date_created)/(1000*3600*24)
+  print('diff:',diff)
+   if (diff > 10 || diff < -10 )  {
+   print("more than 10 days")
+   row.po_date = row.date_created;
+   }
+
+       db.purchase_orders.save(row)
+     })

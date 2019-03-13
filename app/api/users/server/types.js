@@ -24,8 +24,12 @@ const types = gql`
 
   type User {
     _id: String!
+    # start of old user schema
     name: String
-    address:  String
+    userId:String
+    first_name: String
+    last_name: String
+    address: String
     locale: String
     city: String
     vip: Boolean
@@ -39,13 +43,14 @@ const types = gql`
     location: String
     order_status_subscription: Boolean
     price_drop_subscription: Boolean
+    date_created: String,
+    # end of old user schema
 
-
-    createdAt: DateTime!
-    services: [String]!
+    createdAt: DateTime
+    services: [String]
     emails: [Email]
-    profile: Profile!
-    roles: [String]!
+    profile: Profile
+    roles: [String]
     subscriptions: [Subscription]
   }
 
@@ -61,7 +66,7 @@ const types = gql`
 
   type Query {
     user: User
-    getUsers(userId: String): [User]
+    getUsers(username: String,userId:String, search: String, searchField: String): [User]
   }
 
   type Mutation {

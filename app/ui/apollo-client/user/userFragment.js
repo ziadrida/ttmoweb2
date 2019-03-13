@@ -3,6 +3,14 @@ import gql from 'graphql-tag';
 const userFragment = gql`
   fragment userFragment on User {
     _id
+    userId
+    name
+    first_name
+    last_name
+    real_name
+    address
+    email
+    phone_no
 
     createdAt
     services

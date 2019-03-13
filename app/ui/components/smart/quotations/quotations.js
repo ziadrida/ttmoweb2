@@ -77,7 +77,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
           showQuote: !this.state.showQuote,
           currentRow: rowInfo.row,
           rowIndex: rowInfo.index,
-          currentKey: rowInfo.row._id
+          currentKey: rowInfo.row.quote_no
         });
       } else {
         this.setState({
@@ -90,11 +90,11 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       console.log("Quotations componentDidUpdate \nprevProps\n:",prevProps)
     }
 
-      static getDerivedStateFromProps(props, state) {
+    static getDerivedStateFromProps(props, state) {
              console.log("Quotations getDerivedStateFromProps \nprops",props,
              "\nstate",state)
-
-      }
+             return null;
+    }
 
     escFunction(event, sender) {
          if (event.keyCode === 27) {
@@ -108,11 +108,13 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
     nvl = (val1, val2) => ( val1 != undefined&& val1 !=null  ? val1:val2)
 
     getRow(key) {
-      console.log('getRow key:',key)
-      // find the row in this.state.data
-      var index = this.state.data.findIndex(x=> x._id === key);
-      const row = this.state.data[index]
-      console.log('getRow: row',row)
+      console.log('<quotations> getRow key:',key)
+      // find the row in getQuotation
+      const {quotationsData} = this.props
+      const {getQuotation} = quotationsData
+      var index = getQuotation.findIndex(x=> x.quote_no === key);
+      const row = getQuotation[index]
+      console.log('<quotations>  getRow: row',row)
       return row;
     }
 
@@ -123,7 +125,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
   const { quotationsData, classes } = this.props
 
   const { loading, error, getQuotation ,variables  } = quotationsData;
-
+ console.log('quotations loading:',loading)
   if (!getQuotation) return <p>Search for quotation</p>
   const recordCount = getQuotation? getQuotation.length:0;
   console.log('variables:',variables)
@@ -202,14 +204,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                   matchSorter(rows, filter.value, { keys: ["username"] }),
       filterAll: true,
     },
-    {
-      id: 'reason',
-      Header: "Reason",
-      accessor: d => d.quotation.reason,
-      filterMethod: (filter, rows) =>
-                  matchSorter(rows, filter.value, { keys: ["reason"] }),
-      filterAll: true,
-    },
+
     {
       id: 'po_no',
       Header: "PO#",
@@ -296,6 +291,14 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
                         <option value="Incomplete">Incomplete</option>
                       </select>
+      },
+      {
+        id: 'reason',
+        Header: "Reason",
+        accessor: d => d.quotation.reason,
+        filterMethod: (filter, rows) =>
+                    matchSorter(rows, filter.value, { keys: ["reason"] }),
+        filterAll: true,
       },
       {
         id: 'title',
@@ -441,6 +444,12 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
   if (error) {
     return <p>{error.message}</p>;
   }
+  // current rowSelection
+
+  const currentKey = this.state.currentKey
+    console.log("<QuoteForm> <render> currentKey:",currentKey)
+    const quoteInfo = this.getRow(currentKey)
+
 
   // render
   return (
@@ -467,10 +476,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
           <QuoteWithMutation
              closePopup={this.handleQuote}
 
-             quoteInfo={getQuotation[this.state.rowIndex]}
+             quoteInfo={quoteInfo}
              selection={this.state.selection}
              rowIndex={this.state.rowIndex}
-             currentKey={this.state.currentKey}
+             currentKey={currentKey}
              getRow={this.getRow}
              variables={variables}
 

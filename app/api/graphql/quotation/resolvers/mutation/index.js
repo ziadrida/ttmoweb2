@@ -1,8 +1,8 @@
 
-import genQuote from './generate-quote';
+import updateQuotation from './update-quotation';
 
 const Mutation = {
-  genQuote
+  updateQuotation
 };
 
 export default Mutation;

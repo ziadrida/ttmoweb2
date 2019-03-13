@@ -24,6 +24,9 @@ const Messages = mongoose.Schema({
 const schema = mongoose.Schema({
 _id: String,
 name: String,
+userId: String,
+first_name: String,
+last_name: String,
 address:  String,
 locale: String,
 city: String,
@@ -83,6 +86,9 @@ schema.methods.genAuthToken = function () {
 };
 
 const User = mongoose.model('User', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('user collection:',User)
 if (!User) console.log("index.js User is null!")
 

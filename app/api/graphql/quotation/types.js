@@ -6,7 +6,7 @@ import { gql } from 'apollo-server-express'
 const types = gql`
 
   type Quotation {
-    _id: ID!
+    _id: ID
     quote_no: Int
     senderId: String
     user:  User
@@ -18,7 +18,7 @@ const types = gql`
   }
 
   type QuotationInstance {
-    quote_no: Int!
+    quote_no: Int
     quote_date: String
     price_selection: String
     notes: String
@@ -76,6 +76,7 @@ const types = gql`
       final: Boolean
       requestor: String
       quote_no: Int
+      category_info: Category
       recipentID: String
     }
 
@@ -92,10 +93,101 @@ const types = gql`
           price: Float
     }
 
-    input QuoteInput {
-      title: String
-
+    type QuotationResponse {
+      quote_no: String
+      message: String
     }
+
+    input QuotationInput {
+      quote_no: Int
+      quote_date: String
+      price_selection: String
+      notes: String
+      active: Boolean
+      po_no: String
+      sales_person: String
+      message: String
+      reason: String
+      ownderId: String
+      url: String
+      title: String
+      thumbnailImage: String
+      source: String,
+      price: Float
+      qty: Float
+      shipping: Float
+      category: [String]
+
+      weight: Float
+      height: Float
+      length: Float
+      width: Float
+      username: String
+      chargeableWeight: Float
+      final: Boolean
+      requestor: String
+      item: ItemInput
+      prices: PriceOptionsInput
+    }
+
+    input ItemInput {
+        recipientID: String
+        ownderId: String
+        url: String
+        title: String
+        MPN: String
+        asin: String
+        thumbnailImage: String
+        source: String,
+        price: Float
+        qty: Float
+        shipping: Float
+        category: [String]
+        condition: String
+        availability: String,
+        weight: Float
+        height: Float
+        length: Float
+        width: Float
+        language: String
+        username: String
+        chargeableWeight: Float
+        final: Boolean
+        requestor: String
+        quote_no: Int
+        category_info: CategoryInput
+        recipentID: String
+      }
+      input PriceDestInput {
+            destination: String
+            type: String
+            delivery: String
+            price: Float
+      }
+
+      input PriceOptionsInput  {
+            amm_exp: PriceDestInput
+            amm_std: PriceDestInput
+            aq_std: PriceDestInput
+
+      }
+    input UserInput {
+      userId: String
+      username: String
+      phone_no: String
+      first_name: String
+      last_name: String
+    }
+
+    input QuoteInput {
+      quote_no: Int
+      userInfo: UserInput
+      senderId: String
+
+      sales_person: String
+      quotation: QuotationInput,
+    }
+
   type Query {
         getQuotation(
               quote_no: Int,
@@ -108,8 +200,9 @@ const types = gql`
   }
 
   type Mutation {
-    genQuote (input: QuoteInput!): Quotation
+    updateQuotation (input: QuoteInput!): QuotationResponse
   }
 
 `;
+
 export default types;

@@ -22,7 +22,7 @@ const Menu = ({ curUser, homeUrl,
 
   ];
 
-  if (curUser && curUser.roles.includes('admin')) {
+  if (curUser &&  curUser.roles && curUser.roles.includes('admin')) {
     //menuRoutes.push({ path: adminUrl(), label: 'Admin', menu: true, admin: true });
     menuRoutes.push(  { path: quotationsUrl(), label: 'Quotations', menu: true })
     menuRoutes.push(  { path: chatMessagesUrl(), label: 'Chat Messages', menu: true })

@@ -26,7 +26,8 @@ type User {
 }
 
   type Query {
-        getUsers(userId: String): [User]
+        #getUsers(userId: String): [User]
+          getUsers(username: String,userId:String, search: String, searchField: String): [User]
   }
 
 `;

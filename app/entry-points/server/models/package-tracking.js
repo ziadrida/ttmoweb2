@@ -17,6 +17,9 @@ const schema = mongoose.Schema({
 },{ collection: 'package_tracking' })
 
 const PackageTracking = mongoose.model('package_tracking', schema);
+schema.statics.findOneAndUpdate = function (query, sort, doc, options, callback) {
+  return this.collection.findOneAndUpdate(query, sort, doc, options, callback);
+};
 console.log('NEW PackageTracking collection:',PackageTracking);
 if (!PackageTracking) console.log("vendorTracking.js PackageTracking is null!")
 

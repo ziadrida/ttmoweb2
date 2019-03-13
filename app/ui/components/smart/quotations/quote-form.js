@@ -12,8 +12,10 @@ import gql from 'graphql-tag';
 import { onError } from "apollo-link-error";
 import {DatePicker} from 'material-ui-pickers';
 //import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
-
+import Loading from '/app/ui/components/dumb/loading';
 import AddIcon from '@material-ui/icons/Add';
+import InputAdornment from '@material-ui/core/InputAdornment';
+
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
@@ -33,11 +35,38 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 
 import Checkbox from "@material-ui/core/Checkbox";
+//import ReactSelect from '/app/ui/components/smart/ReactSelect';
+import UserSelect from '/app/ui/components/smart/UserSelect';
 
 import quotationsQuery from '/app/ui/apollo-client/quotation/query/quotations';
-import usersQuery from '/app/ui/apollo-client/appUser/query/users.js';
 
+import categoriesQuery from '/app/ui/apollo-client/category/query/categories.js';
 // withStyles takes the styles and change them to classes props
+import { Query } from 'react-apollo'
+import {calculatePrice,validateItem} from './helper'
+
+
+import classNames from 'classnames';
+import ReactSelect from 'react-select';
+
+import Typography from '@material-ui/core/Typography';
+import NoSsr from '@material-ui/core/NoSsr';
+
+import Paper from '@material-ui/core/Paper';
+import Chip from '@material-ui/core/Chip';
+
+
+import { emphasize } from '@material-ui/core/styles/colorManipulator';
+
+// const usersQueryx = gql`
+//
+// query users ($search: String,$searchField: String) {
+// getUsers(username: $username,userId:$userId, search: $search, searchField: $searchField) {
+//    name
+//    userId
+// }
+// }
+// `;
 const styles = theme => ({
   fab: {
   margin: theme.spacing.unit,
@@ -103,24 +132,187 @@ const styles = theme => ({
       color: "green",
       fontFamily: "seriff"
   },
+    root: {
+      flexGrow: 1,
+      height: 250,
+    },
+    input: {
+      display: 'flex',
+      padding: 0,
+    },
+    valueContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      flex: 1,
+      alignItems: 'center',
+      overflow: 'hidden',
+    },
+    chip: {
+      margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
+    },
+    chipFocused: {
+      backgroundColor: emphasize(
+        theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
+        0.08,
+      ),
+    },
+    noOptionsMessage: {
+      padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    },
+    selectValue: {
+      fontSize: 16,
+    },
+    placeholder: {
+      position: 'absolute',
+      left: 2,
+      fontSize: 16,
+    },
+    paper: {
+      position: 'absolute',
+      zIndex: 1,
+      marginTop: theme.spacing.unit,
+      left: 0,
+      right: 0,
+    },
+    divider: {
+      height: theme.spacing.unit * 2,
+    },
 });
+
+function NoOptionsMessage(props) {
+  return (
+    <Typography
+      color="textSecondary"
+      className={props.selectProps.classes.noOptionsMessage}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+function inputComponent({ inputRef, ...props }) {
+  return <div ref={inputRef} {...props} />;
+}
+
+function Control(props) {
+  return (
+    <TextField
+      fullWidth
+      InputProps={{
+        inputComponent,
+        inputProps: {
+          className: props.selectProps.classes.input,
+          inputRef: props.innerRef,
+          children: props.children,
+          ...props.innerProps,
+        },
+      }}
+      {...props.selectProps.textFieldProps}
+    />
+  );
+}
+
+function Option(props) {
+  return (
+    <MenuItem
+      buttonRef={props.innerRef}
+      selected={props.isFocused}
+      component="div"
+      style={{
+        fontWeight: props.isSelected ? 600 : 400,
+      }}
+      {...props.innerProps}
+    >
+      {props.children}
+    </MenuItem>
+  );
+}
+
+function Placeholder(props) {
+  return (
+    <Typography
+      color="textSecondary"
+      className={props.selectProps.classes.placeholder}
+      {...props.innerProps}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
+function SelectValue(props) {
+  console.log("SelectValue:",props)
+  return (
+    <Typography className={props.selectProps.classes.selectValue} {...props.innerProps}>
+      {props.children}
+    </Typography>
+  );
+}
+
+function ValueContainer(props) {
+  console.log("ValueContainer:",props)
+  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+}
+
+
+
+function Menu(props) {
+  return (
+    <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
+      {props.children}
+    </Paper>
+  );
+}
+
+const components = {
+  Control,
+  Menu,
+
+  NoOptionsMessage,
+  Option,
+  Placeholder,
+  SelectValue,
+  ValueContainer,
+};
+
 
 class QuoteForm extends React.Component {
   constructor(props) {
-    console.log("QuoteForm constructor props:",props)
+    console.log("<QuoteForm> constructor props:",props)
   super(props);
   this.state = {
+    pricingNow:null,
+    readyForPricing:false,
+    categorySearch: {},
     copySuccess: '',
     bulkUpdate: false,
     validBulkUpdate: false,
     refresh: false,
     selectedQuoteList: [],
-    allowSave: true,
+    allowSave: false,
     message: '',
   formEditInfo: {
 
   },
-
+  // item: {
+  //       recipientID: '',
+  //       url: '',
+  //       thumbnailImage:'',
+  //       price: '',
+  //       qty: '',
+  //       shipping: '',
+  //       category: [],
+  //       title: '',
+  //       condition: '',
+  //       weight: '',
+  //       height: '',
+  //       length: '',
+  //       width: '',
+  //       language:'',
+  //       username: '',
+  //       chargeableWeight: '',
+  //     },
   quoteInfo: {
     _id:'',
     quote_no:'',
@@ -212,104 +404,31 @@ class QuoteForm extends React.Component {
 }
     // TODO: add errors field
     this.mutateAction = this.mutateAction.bind(this)
+    this.handleCatgChange = this.handleCatgChange.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+}
+componentDidUpdate() {
+  console.log("<componentDidUpdate> <QuoteForm> \nprops",this.props, "\nstate",this.state)
+  //console.log("<componentDidUpdate> <QuoteForm> call calculatePrice for state.formEditInfo:",this.state.formEditInfo)
+
+
 }
 
-static getDerivedStateFromProps(props, state) {
-  console.log("QuoteForm getDerivedStateFromProps \nprops",props, "\nstate",state)
+componentDidMount() {
+  console.log("<componentDidMount> <QuoteForm> \nprops",this.props, "\nstate",this.state)
+}
+
+static  getDerivedStateFromProps(props, state) {
+  console.log("<getDerivedStateFromProps> <QuoteForm> \nprops",props, "\nstate",state)
   const {selection,getRow} = props
   const bulkUpdate = selection && selection.length > 1
 
   var tmpselectedQuoteList = []
   var changedList = false;
 
-  // if (bulkUpdate && props.quoteInfo) {
-  //   console.log(">> bulkUpdate <<  selection:",selection)
-  //   var tmpStatus = '';
-  //
-  //   selection.map(key => {
-  //     console.log('build update list key:', key)
-  //     var row = getRow(key)
-  //     if (row) {
-  //       row.message = ""
-  //       // to do bulk update, all selected items must share the same status
-  //
-  //       row.closed = row.closed != null?  row.closed:false,
-  //       row.paid_in_full =row.paid_in_full != null?  row.paid_in_full:false,
-  //       row.booked= row.booked != null?  row.booked:false,
-  //       row.discount = row.discount != null?  parseFloat(row.discount):0,
-  //     //  row.edit_delivered_qty = parseInt(row.po_qty) - parseInt(row.delivered_qty?row.delivered_qty:0)
-  //       row.edit_delivered_qty =  parseInt(row.po_qty);
-  //       tmpselectedQuoteList.push(row)
-  //       if (!changedList)  {
-  //       changedList = state.selectedQuoteList.length == 0 ||
-  //                     (state.selectedQuoteList.length>0 &&
-  //                       state.selectedQuoteList[0] != undefined &&
-  //                       state.selectedQuoteList.findIndex(x=> x._id === key) < 0);
-  //       console.log("selectedQuoteList changedList",changedList)
-  //     }
-  //    }
-  //   })
-  //
-  // }
-  // console.log("findIndex says =>  bulkUpdate:",bulkUpdate)
-  // console.log("findIndex says =>  listChanged:",changedList)
-  // console.log("findIndex says =>  state.refresh:",state.refresh)
+
   var returnState = {}
-    // if ( bulkUpdate && (changedList || state.refresh) ) {
-    //   console.log("bulkUpdate (chnagedList or refresh requested)")
-    //   var selectedQuoteList;
-    //   try {
-    //     if (changedList) {
-    //     returnState =  {
-    //       ...returnState,
-    //       bulkUpdate: bulkUpdate,
-    //       selectedQuoteList: tmpselectedQuoteList,
-    //     }
-    //     selectedQuoteList = tmpselectedQuoteList;
-    //   } else {
-    //     selectedQuoteList = state.selectedQuoteList;
-    //   }
-    //     // if all closed the same then enable Closed
-    //
-    //
-    //
-    //     console.log("* setState for bulkUpdate selectedQuoteList:",selectedQuoteList)
-    //     console.log("*** setState for bulkUpdate selectedQuoteList[0]:",selectedQuoteList[0])
-    //     var firstSelectedPo = selectedQuoteList[0];
-    //       console.log("*** setState for bulkUpdate firstSelectedPo:",firstSelectedPo)
-    //       console.log("1 selectedQuoteList[0]._id:",firstSelectedPo._id)
-    //       console.log("1 selectedQuoteList[0].paid_in_full:",firstSelectedPo.paid_in_full)
-    //         console.log("1 firstSelectedPo.booked:",firstSelectedPo.booked)
-    //     var disableClosed = !selectedQuoteList.every(po => po.closed == firstSelectedPo.closed )
-    //     var disablePaid = !selectedQuoteList.every(po => po.paid_in_full == firstSelectedPo.paid_in_full )
-    //     var disableBooked = !selectedQuoteList.every(po => po.booked == firstSelectedPo.booked )
-    //     var disableStatus = !selectedQuoteList.every(po => po.status == firstSelectedPo.status )
-    //     console.log('disableClosed:',disableClosed)
-    //     console.log('disablePaid:',disablePaid)
-    //     console.log('disableBooked:',disableBooked)
-    //     console.log('disableStatus:',disableStatus)
-    //       console.log("** setState for bulkUpdate selectedQuoteList:",selectedQuoteList)
-    //     console.log("firstSelectedPo.status:",firstSelectedPo.status)
-    //     console.log("firstSelectedPo.closed:",firstSelectedPo.closed)
-    //     console.log("firstSelectedPo.paid_in_full:",firstSelectedPo.paid_in_full)
-    //     console.log("firstSelectedPo.booked:",firstSelectedPo.booked)
-    //     console.log("*** setState for bulkUpdate selectedQuoteList:",firstSelectedPo)
-    //     console.log("**** setState for bulkUpdate selectedQuoteList:",selectedQuoteList)
-    //     returnState =  {
-    //       ...returnState,
-    //         validBulkUpdate:!disableClosed || !disablePaid || !disableBooked || !disableStatus,
-    //         formEditInfo: {
-    //           edit_status: disableStatus? null: firstSelectedPo.status,
-    //           edit_closed: disableClosed? null:firstSelectedPo.closed ,
-    //           edit_paid_in_full: disablePaid?null: firstSelectedPo.paid_in_full ,
-    //           edit_booked: disableBooked? null: firstSelectedPo.booked,
-    //       }
-    //     }
-    //     console.log("Last firstSelectedPo.paid_in_full:",firstSelectedPo.paid_in_full)
-    // } catch(err) {
-    //   console.log("!!!ERROR setting bulkUpdate state  err:",err)
-    // }
-    // }
+
     if (state.refresh ) {
       returnState =  {
         ...returnState,
@@ -318,74 +437,107 @@ static getDerivedStateFromProps(props, state) {
       }
     }
     if (props.quoteInfo && state.quoteInfo && props.quoteInfo._id !== state.quoteInfo._id && !bulkUpdate) {
-      console.log("Quote _id changed => Update state")
+      console.log("<getDerivedStateFromProps> <QuoteForm> ************ Quote _id changed => Update state")
       const { quotation  } = props.quoteInfo
-      const {item} = quotation
+      var {item} = quotation
+      if (item!= null) {
+        // dimensions cleanup
+
+        item.height = item.height !=null ? !isNaN(item.height) && item.height>=0? parseFloat(item.height.toFixed(2)):0:0;
+
+        item.length = item.length !=null ? !isNaN(item.length) && item.length>=0? parseFloat(item.length.toFixed(2)):0:0;
+        item.width = item.width !=null ? !isNaN(item.width)&& item.width>=0 ? parseFloat(item.width.toFixed(2)):0:0;
+        item.weight = item.weight !=null ? !isNaN(item.weight)&& item.weight>=0? parseFloat(item.weight.toFixed(2)):0:0;
+        item.shipping = item.shipping !=null ? !isNaN(item.shipping)&& item.shipping>=0? parseFloat(item.shipping.toFixed(2)):0:0;
+        item.qty = item.qty !=null ? !isNaN(item.qty)&& item.qty>=1? parseFloat(item.qty.toFixed(2)):1:1;
+        item.price = item.price !=null ? !isNaN(item.price)&& item.price>=0? parseFloat(item.price.toFixed(2)):0:0;
+
+      }
+      console.log("<getDerivedStateFromProps> <QuoteForm>   items preset",item)
+      try {
       returnState =  {
         ...returnState,
+        userSearch: {
+          userId:quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,
+        },
         message:props.quoteInfo.quote_no?'Loaded Quote#'+props.quoteInfo.quote_no:'',
         quoteInfo: props.quoteInfo ,
+        categorySearch: {
+          category_name: item.category && item.category.length>0? item.category[0]:'',
+
+        },
+
         formEditInfo: {
           quote_no:props.quoteInfo.quote_no,
           edit_senderId:props.quoteInfo.senderId,
+          edit_ownderId: quotation.ownerId? quotation.ownerId:item.ownerId? item.ownerId:'',
           edit_notes:props.quoteInfo.notes? props.quoteInfo.notes:'',
-
+          edit_options: props.quoteInfo.options?props.quoteInfo.options:'',
           edit_title: quotation.title? quotation.title:   item.title?item.title:'',
           edit_url: quotation.url? quotation.url:
               item.url?item.url:'',
-          edit_username: quotation.username? quotation.username:item.username? item.username:'',
+          price_selection: quotation.price_selection,
+          edit_priceType: quotation.prices && quotation.price_selection?
+            quotation.prices[quotation.price_selection].type:'',
+          edit_destination: quotation.prices && quotation.price_selection?
+            quotation.prices[quotation.price_selection].destination:'',
+
+          edit_username:
+            {value:quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,// yes ownderId is misspelled!
+            label: item.username? item.username:quotation.username? quotation.username:''},
 
           edit_MPN: item.MPM? item.MPN:'',
           edit_asin: item.asin? item.asin:'',
-          edit_category: item.category && item.category.length>0? item.category[0]:'',
-          edit_chargeableWeight: item.chargeableWeight? item.chargeableWeight:'',
-          edit_condition: item.conditio? item.conditio:'',
-          edit_final: item.final!=null? item.final:false,
-          edit_height_cm: item.height? item.height.toFixed(2):'',
-          edit_length_cm: item.length? item.length:'',
-          edit_width_cm: item.width? item.width.toFixed(2):'',
-          edit_weight_kg: item.weight? item.weight.toFixed(2):'',
-          edit_dimensions_cm: item.height &&  item.width &&  item.weight?
-              item.height.toFixed(2) + ' x ' +
-              item.width.toFixed(2) + ' x ' +
-              item.weight.toFixed(2):'',
+          edit_category: {value: item.category && item.category.length>0? item.category[0]:''},
+          edit_category_info: item.category_info,
+          edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
+          edit_condition: item.condition? item.condition:'',
+          edit_active: quotation.active!=null? quotation.active:false,
+          edit_final: quotation.final!=null? quotation.final:false,
+          edit_reason: quotation.reason!=null? quotation.reason:false,
+          edit_height_inch: item.height,
+          edit_length_inch: item.length,
+          edit_width_inch: item.width,
+          edit_weight_lb: item.weight,
+          edit_dimensions_inch:  item.length.toFixed(2) +' x '+ item.width.toFixed(2) + ' x ' +  item.height.toFixed(2) ,
 
-          edit_height_inch: item.height? (item.height/2.54).toFixed(2):'',
-          edit_length_inch: item.length? (item.length/2.54).toFixed(2):'',
-          edit_width_inch: item.width? (item.width/2.54).toFixed(2):'',
-          edit_dimensions_inch: item.height &&  item.width &&  item.weight?
-            (item.height/2.54).toFixed(2) + ' x ' +
-             (item.width/2.54).toFixed(2)  + ' x ' +
-            (item.weight/2.54).toFixed(2) :'',
+          edit_height_cm: parseFloat((item.height*2.54).toFixed(2)),
+          edit_length_cm:  parseFloat((item.length*2.54).toFixed(2)),
+          edit_width_cm: parseFloat((item.width*2.54).toFixed(2)),
+          edit_dimensions_cm: (item.length*2.54).toFixed(2) + ' x ' +
+                                (item.width*2.54).toFixed(2)  + ' x ' +
+                                (item.height*2.54).toFixed(2),
 
-          edit_weight_lb: item.weight? (item.weight*2.2).toFixed(2):'',
+          edit_weight_kg:  parseFloat((item.weight/2.2).toFixed(2)),
 
           edit_language: item.language? item.language:'en',
 
           edit_ownderId: item.ownderId? item.ownderId:'',
-          edit_price: item.price? item.price.toFixed(2):'',
-          edit_qty: item.qty? item.qty:'',
+          edit_price: item.price,
+          edit_qty: item.qty,
 
           edit_recipientID: item.recipientID? item.recipientID:'',
           edit_requestor: item.requestor? item.requestor:'',
-          edit_shipping: item.shipping? item.shipping.toFixed(2):'',
+          edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
           edit_source: item.source? item.source:'',
 
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
-
-
-
-
-
         },
 
-      };
+      } } catch(err) {
+        console.log("<getDerivedStateFromProps> <QuoteForm> error setting State err:",err)
+      }
+      console.log("<getDerivedStateFromProps> <QuoteForm> handled quoteInfo change")
+    } else {
+      console.log("<getDerivedStateFromProps> <QuoteForm> no change in quoteInfo - same quotation#")
     }
 
+
+    console.log("<getDerivedStateFromProps>  <QuoteForm> set finalState returnState:",returnState)
     var finalState = returnState!={}? returnState: null
-    console.log('<><><><> finalState:',finalState)
+    console.log('<getDerivedStateFromProps> <QuoteForm> finalState:',finalState)
     // Return null to indicate no change to state.
-   return finalState;
+    return finalState;
   }
 
 handleDateChange = date => {
@@ -395,36 +547,61 @@ handleDateChange = date => {
           ...this.state.formEditInfo,
           edit_customer_delivery_date: date
         },
-        allowSave: true
+        allowSave: false
+
       });
   };
-  handleFirstPaymentDateChange = date => {
-    console.log("date:",date)
-        this.setState({
-            formEditInfo: {
-            ...this.state.formEditInfo,
-            edit_first_payment_date: date
-          },
-          allowSave: true
-        });
-  };
 
-  handleFinalPaymentDateChange = date => {
 
-        this.setState({
-            formEditInfo: {
-            ...this.state.formEditInfo,
-            edit_final_payment_date: date
-          },
-          allowSave: true
-        });
-  };
 
-  // handle_change function
+  handleUserInputChange = (userInput) => {
+    console.log("========**** <QuoteForm> handleUserInputChange userInput",userInput)
+  // this.setState({ userInput });
+   this.setState(
+         {
+         userSearch: {
+           userId: null,
+           username: null,
+           search: userInput,
+           searchField: 'all' ,
+
+         },
+         // formEditInfo: {
+         //    ...this.state.formEditInfo,
+         //   edit_username: null,
+         // },
+       allowSave: false
+     });
+   console.log(`<QuoteForm> handleUserInputChange newState::`, this.state);
+
+  }
+
+  handleUserSelection = (username, userInfo) => {
+    console.log("<QuoteForm> handleUserSelection username",username)
+    console.log("<QuoteForm> handleUserSelection userInfo",userInfo)
+
+    this.setState(
+          {
+          formEditInfo: {
+          ...this.state.formEditInfo,
+            edit_username: username,
+            userInfo: userInfo,
+        },
+        allowSave: false,
+        readyForPricing: false,
+      });
+
+  }
+  // handleChange function
+
+  //  handleChange = name => value => {
   handleChange = ({ target }) => {
-    console.log('in handleChange ',target)
-    if (!target) return;
+
+    console.log('in quoteForm handlesChange ',target)
     const { value, name } = target;
+
+
+    console.log('<><>quoteForm in handleChange ')
     console.log("name:",name,"  value:",value)
     this.setState(
           {
@@ -432,92 +609,328 @@ handleDateChange = date => {
           ...this.state.formEditInfo,
             [name]: value
         },
-        allowSave: true
+        allowSave: true,
+        readyForPricing: true,
       });
 
-    console.log('genQuote handleChange',this.state)
+    console.log('<QuoteForm> handleChange state:',this.state)
 
   }
 
-  handleWtChange = ({ target }) => {
-    console.log('in handleWtChange ',target)
+
+    handleCatgChange = name => value => {
+      console.log("handleCatgChange name:value",name,":",value)
+      console.log('<handleCatgChange> props:',this.props)
+      const {getCategories} = this.props.categoriesQuery
+      // find new category_info
+      var catIdx=-1;
+      var category_info;
+      if (value && value.value !=null && getCategories && getCategories.length>0) {
+        catIdx =getCategories.findIndex(
+       x=>  x.category_name == value.value)
+       console.log("<handleCatgChange><>   catIdx:",catIdx)
+       if (catIdx>=0) {
+        category_info = getCategories[catIdx]
+       }
+       console.log("<handleCatgChange> category_info:",category_info)
+     }
+      this.setState(
+            {
+            formEditInfo: {
+            ...this.state.formEditInfo,
+              [name]: value,
+              edit_category_info: category_info,
+
+          },
+          allowSave: false,
+          readyForPricing: false,
+        });
+
+    }
+
+  handleCostingChange = async ({ target }) => {
+    console.log('in <handleCostingChange> <QuoteForm> ',target)
+      console.log('<handleCostingChange> props:',this.props)
+
     if (!target) return;
     const { value, name } = target;
-    console.log("name:",name,"  value:",value)
+    console.log("<handleCostingChange> <QuoteForm> name:",name,"  value:",value)
     // recompute chargeableWeight
+    // reject negative values
+
     var newState = {
       formEditInfo: {
         ...this.state.formEditInfo,
         [name]: value
+      },
+      quoteInfo: {
+        ...this.state.quoteInfo,
       }
+
     }
-    console.log('newState:',newState)
+
+      const dimRegEx = /^[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*$/
+      var dim=[]
     switch (name) {
 
+      case 'edit_category':
+        console.log("<handleCostingChange> category changed")
+
+        const {getCategories} = this.props.categoriesQuery
+        // find new category_info
+        var catIdx=-1;
+        var category_info;
+        if (value && value.value !=null && getCategories && getCategories.length>0) {
+          catIdx =getCategories.findIndex(
+         x=>  x.category_name == value.value)
+         console.log("<handleCostingChange><>   catIdx:",catIdx)
+         if (catIdx>=0) {
+          category_info = getCategories[catIdx]
+         }
+         console.log("<handleCostingChange> category_info:",category_info)
+       }
+
+        newState.formEditInfo.edit_category_info = category_info
+
+      break
+      case 'edit_price':
+
+        break;
+      case 'edit_shipping':
+
+        break;
+      case 'edit_dimensions_cm':
+
+      console.log('<QuoteForm> valid dimensions format:',  new RegExp(dimRegEx).test(value));
+        newState.formEditInfo.edit_dimensions_cm=value;
+      if ( new RegExp(dimRegEx).test(value)) {
+
+         dim = value.split('x');
+          console.log('<QuoteForm> dims:',dim)
+
+        if (dim && dim.length>0) {
+          newState.formEditInfo.edit_length_cm =  parseFloat(dim[0].trim())
+          newState.formEditInfo.edit_width_cm =  parseFloat(dim[1].trim())
+          newState.formEditInfo.edit_height_cm =  parseFloat(dim[2].trim())
+
+          newState.formEditInfo.edit_length_inch =parseFloat((newState.formEditInfo.edit_length_cm/2.54).toFixed(2))
+          newState.formEditInfo.edit_width_inch =parseFloat((newState.formEditInfo.edit_width_cm/2.54).toFixed(2))
+          newState.formEditInfo.edit_height_inch =parseFloat((newState.formEditInfo.edit_height_cm/2.54).toFixed(2))
+          newState.formEditInfo.edit_dimensions_inch =
+            parseFloat(newState.formEditInfo.edit_length_inch).toFixed(2) + ' x ' +
+            parseFloat(newState.formEditInfo.edit_width_inch).toFixed(2) + ' x ' +
+            parseFloat(newState.formEditInfo.edit_height_inch).toFixed(2) ;
+        }
+      }
+
+        break;
+      case 'edit_dimensions_inch':
+
+      console.log('<QuoteForm> valid dimensions format:',  new RegExp(dimRegEx).test(value));
+        newState.formEditInfo.edit_dimensions_inch=value;
+      if ( new RegExp(dimRegEx).test(value)) {
+
+         dim = value.split('x');
+          console.log('<QuoteForm> dims:',dim)
+
+        if (dim && dim.length>0) {
+          newState.formEditInfo.edit_length_inch =  parseFloat(dim[0].trim())
+          newState.formEditInfo.edit_width_inch =  parseFloat(dim[1].trim())
+          newState.formEditInfo.edit_height_inch =  parseFloat(dim[2].trim())
+
+          newState.formEditInfo.edit_length_cm =parseFloat((newState.formEditInfo.edit_length_inch*2.54).toFixed(2))
+          newState.formEditInfo.edit_width_cm =parseFloat((newState.formEditInfo.edit_width_inch*2.54).toFixed(2))
+          newState.formEditInfo.edit_height_cm =parseFloat((newState.formEditInfo.edit_height_inch*2.54).toFixed(2))
+
+          newState.formEditInfo.edit_dimensions_cm =
+          parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
+          parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
+          parseFloat(newState.formEditInfo.edit_height_cm).toFixed(2) ;
+        }
+      }
+        break;
       // weight
       case 'edit_weight_lb':
+        if (isNaN(value) || value<0) return;
         newState.formEditInfo.
-          edit_weight_kg = (value/2.2).toFixed(2)
+          edit_weight_kg = parseFloat((value/2.2).toFixed(2))
 
         break;
         case 'edit_weight_kg':
+          if (isNaN(value) || value<0) return;
             newState.formEditInfo.
-            edit_weight_lb = (value*2.2).toFixed(2)
+            edit_weight_lb = parseFloat((value*2.2).toFixed(2))
 
             break;
         //length
         case 'edit_length_cm':
+          if (isNaN(value) || value<0) return;
             newState.formEditInfo.
-              edit_length_inch =(value/2.54).toFixed(2)
+              edit_length_inch =parseFloat((value/2.54).toFixed(2))
 
           break;
         case 'edit_length_inch':
+          if (isNaN(value) || value<0) return;
                   newState.formEditInfo.
-                  edit_length_cm =(value*2.54).toFixed(2)
+                  edit_length_cm =parseFloat((value*2.54).toFixed(2))
 
         break;
 
         // width
         case 'edit_width_cm':
+          if (isNaN(value) || value<0) return;
             newState.formEditInfo.
-              edit_width_inch = (value/2.54).toFixed(2)
+              edit_width_inch = parseFloat((value/2.54).toFixed(2))
 
           break;
         case 'edit_width_inch':
+          if (isNaN(value) || value<0) return;
                 newState.formEditInfo.
-                  edit_width_cm= (value*2.54).toFixed(2)
+                  edit_width_cm= parseFloat((value*2.54).toFixed(2))
 
           break;
 
         // height
         case 'edit_height_cm':
+          if (isNaN(value) || value<0) return;
               newState.formEditInfo.
-              edit_height_inch = (value/2.54).toFixed(2)
+              edit_height_inch = parseFloat((value/2.54).toFixed(2))
 
           break;
         case 'edit_height_inch':
+          if (isNaN(value) || value<0) return;
                   newState.formEditInfo.
-                  edit_height_cm= (value*2.54).toFixed(2)
+                  edit_height_cm= parseFloat((value*2.54).toFixed(2))
 
           break;
 
       default:
-
+        console.log("<handleCostingChange>  unknown field name")
     }
 
-    newState.formEditInfo.edit_chargeableWeight = Math.max((newState.formEditInfo.edit_width_cm *
-            newState.formEditInfo.edit_length_cm * newState.formEditInfo.edit_height_cm / 5000).toFixed(2),
-        newState.formEditInfo.edit_weight_kg)
 
-    console.log('**newState:',newState)
-    this.setState({
-        ...newState,
-        allowSave: true
-      });
+    switch(name) {
+        case 'edit_length_cm':
+        case 'edit_width_cm':
+        case 'edit_height_cm':
+        case 'edit_length_inch':
+        case 'edit_width_inch':
+        case 'edit_height_inch':
+        case 'edit_weight_lb':
+        case 'edit_weight_kg':
+        newState.formEditInfo.edit_chargeableWeight =
+            Math.max(
+              parseFloat(((newState.formEditInfo.edit_width_cm *
+                newState.formEditInfo.edit_length_cm *
+                newState.formEditInfo.edit_height_cm) / 5000).toFixed(2)),
+            parseFloat(newState.formEditInfo.edit_weight_kg))
+          newState.formEditInfo.edit_dimensions_cm =
+          parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
+          parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
+          parseFloat(newState.formEditInfo.edit_height_cm).toFixed(2) ;
+
+          newState.formEditInfo.edit_dimensions_inch =
+            parseFloat(newState.formEditInfo.edit_length_inch).toFixed(2) + ' x ' +
+            parseFloat(newState.formEditInfo.edit_width_inch).toFixed(2) + ' x ' +
+          parseFloat(newState.formEditInfo.edit_height_inch).toFixed(2) ;
+      break;
+      default:
+        console.log("<QuoteForm>  not a weight or dimensions field")
+    }
 
 
 
-    console.log('genQuote handleChange',this.state)
+     console.log('<handleCostingChange> <QuoteForm> newState:',newState)
+
+     if (newState.formEditInfo.edit_chargeableWeight <=0) {
+       if (newState.quoteInfo && newState.quoteInfo.quotation) {
+        newState.quoteInfo.quotation.price = null;
+        newState.quoteInfo.quotation.price_selection = null;
+      }
+       var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
+
+       newState = {
+         ...newState,
+         message:"Weight and/or dimensions are required"
+       }
+       await this.setStateAsync(newState)
+       return;
+     } else {
+       newState = {
+         ...newState,
+         message:"Recomputing price ..."
+       }
+      await this.setStateAsync(newState)
+    // if (this.state.pricingNow != null &&this.state.pricingNow  ) {
+    //     console.log("<handleCostingChange> <QuoteForm> !!! waiting for pricing to complete")
+    //   return
+    // }
+      var quoteObj = null ;
+    try {
+        console.log("<handleCostingChange> <QuoteForm> >>>> Call doCalculate:")
+       await doCalculate(this.state.formEditInfo).then( quoteObj=> {
+        console.log("<handleCostingChange> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
+
+      if (quoteObj != null ) {
+        this.setState ( {
+        quoteInfo: {
+          ...this.props.quoteInfo,
+          quotation: quoteObj,
+        },
+        message:quoteObj.message,
+        pricingNow: false,
+        allowSave: true,
+      })
+      }
+    }).catch(err=> {
+        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by calculatePrice:",err)
+        var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
+        quotation = {
+          ...quotation,
+          active: true,
+          final: false,
+          valid: false,
+          price: null,
+          price_selection:null,
+        }
+        console.log("<handleCostingChange> <QuoteForm> quotation:",quotation)
+       this.setState(
+        {
+          message:err && err.message? err.message:
+                  err? err:'Error calculating price. Check input fields',
+          pricingNow:null,
+          allowSave: false,
+         readyForPricing: false,
+         // invalidate pricing
+         quoteInfo: {
+           ...this.state.quoteInfo,
+           quotation:quotation,
+         }
+       })
+     })
+
+
+      console.log("<handleCostingChange>  <QuoteForm> state set Keep going!")
+      return;
+    } catch(error ) {
+       console.log("<handleCostingChange> <QuoteForm> try.catch Error thrown by calculatePrice:",error)
+        this.setState(
+         {
+           message:error && error.message? error.message:
+                   error? error:'Error calculating price. Check input fields',
+           pricingNow:null,
+           allowSave: false,
+          readyForPricing: false,
+        }
+       )
+       return;
+     }
+     // console.log("<handleCostingChange> <QuoteForm> >>> set pricingNow to true")
+     // this.setState({pricingNow:true})
+    console.log("<handleCostingChange> <QuoteForm> >>> After   calculatePrice Continue")
+
+    console.log('updateQuotation handleChange',this.state)
+  }
 
   }
 
@@ -533,64 +946,64 @@ handleDateChange = date => {
         formEditInfo: {
         ...this.state.formEditInfo,
          [name]: event.target.checked },
-       allowSave:true
+       allowSave:false
      });
     };
 
+    setStateAsync(state) {
+        return new Promise((resolve) => {
+          this.setState(state, resolve)
+        });
+    }
+
    handleAction = async (evt) => {
     evt.preventDefault();
-    console.log('QuoteForm handleAction:',evt)
-    console.log('=> QuoteForm in handleAction props==>\n',this.props)
-    console.log('=> QuoteForm in handleAction state\n',this.state)
+    console.log('<handleAction> <QuoteForm> :',evt)
+    console.log('<handleAction> => <QuoteForm>  props==>\n',this.props)
+    console.log('<handleAction> => <QuoteForm>   state\n',this.state)
     const { closePopup } = this.props;
-    this.setState({message:"Updating ...",
+    await this.setStateAsync({message:"Saving quotation ...",
                 allowSave: false})
 
 
      const {  bulkUpdate,  validBulkUpdate } = this.state
      var newselectedQuoteList = []
      var selectedQuoteList = this.state.selectedQuoteList;
-     var newquoteInfo ;
+
      if (bulkUpdate) {
        // creating multiple quotes
        console.log("--> Do bulkUpdate - selectedQuoteList:",selectedQuoteList);
         selectedQuoteList = selectedQuoteList.map(async quoteInfo => {
          console.log("call mutateAction for quoteInfo:",quoteInfo)
         //console.log('update=>',quoteInfo)
-         newquoteInfo = await this.mutateAction(quoteInfo).then(response => {
+          await this.mutateAction(quoteInfo).then(response => {
 
            console.log("=======>  After bulkUpdate line mutateAction response:",response)
-           console.log("=======>  After mutateAction newquoteInfo:",newquoteInfo)
+
            quoteInfo.closed = response.closed;
 
            quoteInfo.status =     response.status
 
          })
-
-
-
        })
           this.setState({
           //    refresh: true,
               message:  "Check messages in list table above for update results" ,
           })
 
-
-
      } else {
-          newquoteInfo = await this.mutateAction(this.state.quoteInfo).then(resp => {
+        try {
+           var resp = await this.mutateAction(this.state.quoteInfo); // .then(resp => {
             console.log("=======>  After single mutateAction resp:",resp)
-            console.log("=======>  After mutateAction newquoteInfo:",newquoteInfo)
-          this.setState(
-            { message:  resp.message ,
-              refresh: true,
-              quoteInfo: {
+            if (resp) {
+              this.setState(
+                { message:  resp.message ,
+                  refresh: true,
+                  quoteInfo: {
                   ...this.state.quoteInfo,
-
 
                    accounting_note:resp.accounting_note?
                        resp.accounting_note:'',
-
 
                    booked: resp.booked != null?resp.booked:false,
                    discount: resp.discount != null?  resp.discount:0,
@@ -598,62 +1011,189 @@ handleDateChange = date => {
               formEditInfo: {
                 ...this.state.formEditInfo,
                  edit_status: resp.status,
-
-
                },
-              allowSave: true
+              allowSave: false
               }
-
             );
-          }).catch((err) => {
-            console.log("Error setting state:",stateErr)
-          })
+          } else {
+            console.log("<handleAction> <QuoteForm> null response from mutateAction")
+            this.setState(
+              { message:  'Internal error during quotation update (null!)' ,
+                refresh: false,
+                allowSave: false
+              })
+          }
+         }
+          catch(err) {
+            console.log("<handleAction> <QuoteForm> Error updating quotation error:",err)
+            this.setState(
+              { message:  err&& err.message? err.message:'Internal error during quotation update' ,
+                refresh: false,
+                allowSave: false
+              })
+          }
      }
 
 
   }
 
-  async mutateAction (selectedPo)  {
-    console.log('=> mutateAction selectedPo:', selectedPo)
+  async mutateAction (selectedRow)  {
+    console.log('<mutateAction> <QuoteForm> selectedRow:', selectedRow)
     var message =  ""
     var sucess = false
-    var rtnquoteInfo = selectedPo;
+    var rtnquoteInfo = selectedRow;
     const { mutate, setRow} = this.props
     if (mutate) {
 
-      console.log("+>>>selectedPo.edit_delivered_qty:",selectedPo.edit_delivered_qty)
+      console.log("<mutateAction> <QuoteForm>  +>>>selectedRow:",selectedRow)
       var updateInfo ;
       try {
       //  updateInfo = this.state.bulkUpdate?
       //  {
       //    // fiels that come from the list of PO to be changed
-      //   po_no: selectedPo.po_no,
-      //   delivered:selectedPo.delivered!= null? selectedPo.delivered:null,
+      //   po_no: selectedRow.po_no,
+      //   delivered:selectedRow.delivered!= null? selectedRow.delivered:null,
       //   delivered_qty:
       //         // can set delivered_qty in bulk only if setting status to delivered
-      //         selectedPo.edit_delivered_qty != null && this.state.formEditInfo.edit_status == 'delivered'  ?
-      //          selectedPo.edit_delivered_qty:null,
+      //         selectedRow.edit_delivered_qty != null && this.state.formEditInfo.edit_status == 'delivered'  ?
+      //          selectedRow.edit_delivered_qty:null,
       //
       // }:
       updateInfo = {
         title: this.state.formEditInfo.title,
-        delivered:this.state.quoteInfo.delivered,
-        delivered_qty: this.state.formEditInfo.edit_delivered_qty!=null &&
-              this.state.formEditInfo.edit_delivered_qty!='' ?
-          parseInt(this.state.formEditInfo.edit_delivered_qty):null,
+
+
       }
      }  catch(err) {
         console.log("!!!ERROR setting updateInfo")
-        rtnquoteInfo.message = "Internal Error. Error setting bulk update"
-          return rtnquoteInfo;
+
+          throw new Error("Internal Error. Error setting bulk update")
       }
       console.log('***** updateInfo:',updateInfo)
-      console.log("+++ before calling propos.mutate ")
+      console.log("+++ before calling props.mutate ")
+      var quoteObj =  this.state.quoteInfo;
+      if (this.state.quoteInfo == null || this.state.quoteInfo.quotation == null ||
+        this.state.quoteInfo.quotation.item == null ||
+        this.state.quoteInfo.quotation.prices == null ) {
+          throw new Error("Pricing not  ready. ")
+      }
+
+
+        var categoryArray =  [];
+        if(
+        this.state.formEditInfo.edit_category && this.state.formEditInfo.edit_category.value) {
+          categoryArray.push(this.state.formEditInfo.edit_category.value)
+        }
       const response = await mutate({
          variables: {
            "quoteInput": {
-            "title": updateInfo.title,
-            "notes":this.state.formEditInfo.edit_notes,
+            quote_no: this.state.formEditInfo.quote_no,
+            senderId: this.state.formEditInfo.edit_senderId,
+            sales_person: this.state.quoteInfo.sales_person,
+            userInfo: {
+                username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,
+                userId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
+                phone_no: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.phone_no:null,
+            },
+            quotation: {
+              quote_no: this.state.formEditInfo.quote_no,
+              quote_date: moment().toDate,
+              price_selection:  this.state.formEditInfo.price_selection? this.state.formEditInfo.price_selection:'amm_exp',
+              notes: this.state.formEditInfo.edit_notes,
+
+              active: this.state.formEditInfo.edit_active,
+              final: this.state.formEditInfo.edit_final,
+              po_no: null, // cannot change PO
+              //sales_person: this.state.formEditInfo.sales_person,
+              message: null,
+              reason: null,
+              ownderId: null,
+              // url:null,
+              // title: null,
+              // thumbnailImage: null,
+              // source: null,
+              // price: null,
+              // qty: null,
+              // shipping: null,
+              // category: null,
+              //
+              // weight: null,
+              // height: null,
+              // length: null,
+              // width: null,
+              // username: null,
+              // chargeableWeight: null,
+
+              requestor: null,
+              item: {
+                recipientID: null,
+                ownderId: null,
+                url: this.state.formEditInfo.edit_url,
+                title: this.state.formEditInfo.edit_title,
+                MPN: null,
+                asin: null,
+                thumbnailImage: null,
+                source: this.state.formEditInfo.edit_source,
+                price: parseFloat(this.state.formEditInfo.edit_price),
+                qty: parseInt(this.state.formEditInfo.edit_qty),
+                shipping: parseFloat(this.state.formEditInfo.edit_shipping),
+                category: categoryArray,
+                condition: null,
+                availability: null,
+                weight: parseFloat(this.state.formEditInfo.edit_weight_lb),
+                height: parseFloat(this.state.formEditInfo.edit_height_inch),
+                length: parseFloat(this.state.formEditInfo.edit_length_inch),
+                width: parseFloat(this.state.formEditInfo.edit_width_inch),
+                language: null,
+                username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,
+                chargeableWeight: parseFloat(this.state.formEditInfo.edit_chargeableWeight),
+                final: this.state.formEditInfo.edit_final,
+                requestor: null,
+                quote_no: this.state.formEditInfo.quote_no,
+                category_info: {
+                  _id:   this.state.formEditInfo.edit_category_info._id,
+                  category_name: this.state.formEditInfo.edit_category_info.category_name,
+                  category_name_ar: this.state.formEditInfo.edit_category_info.category_name_ar,
+                  customs: this.state.formEditInfo.edit_category_info.customs,
+                  tax_aqaba: this.state.formEditInfo.edit_category_info.tax_aqaba,
+                  tax_amm: this.state.formEditInfo.edit_category_info.tax_amm,
+                  margin_amm: this.state.formEditInfo.edit_category_info.margin_amm,
+                  margin_aqaba: this.state.formEditInfo.edit_category_info.margin_aqaba,
+                  special_tax: this.state.formEditInfo.edit_category_info.special_tax,
+                  us_tax: this.state.formEditInfo.edit_category_info.us_tax,
+                  cap_aqaba: this.state.formEditInfo.edit_category_info.cap_aqaba,
+                  cap_amm: this.state.formEditInfo.edit_category_info.cap_amm,
+                  min_side_length: this.state.formEditInfo.edit_category_info.min_side_length,
+                  keywords: this.state.formEditInfo.edit_category_info.keywords,
+                  min_lonng_side: this.state.formEditInfo.edit_category_info.min_lonng_side,
+
+                },
+
+                recipentID: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
+              },
+              prices: {
+                ...this.state.quoteInfo.quotation.prices
+              },
+                // amm_exp: {
+                //   destination: this.state.quoteIno.prices,
+                //   type: null,
+                //   delivery: null,
+                //   price: null,
+                // },
+                // amm_std: {
+                //   destination: null,
+                //   type: null,
+                //   delivery: null,
+                //   price: null,
+                // },
+                // aq_std: {
+                //   destination: null,
+                //   type: null,
+                //   delivery: null,
+                //   price: null,
+
+            //  }
+            }
 
           }
         },
@@ -662,74 +1202,58 @@ handleDateChange = date => {
           query: quotationsQuery,
           variables:this.props.variables
         }],
-     })
-     .then( res => {
-       console.log("==> MUTATION result:",res)
-       if (!res || !res.data || !res.data.genQuote) {
-          // this.setState({message: "DB Error",
-          // allowSave: true})
-            rtnquoteInfo.message =   "DB Error";
-              return rtnquoteInfo;
-       } else if (!res.data.genQuote._id ||
-             res.data.genQuote._id == -99) {
-               console.log('!!!errors result id is -99 ')
-          //  this.setState(
-          //      {message: res.data.genQuote.message ,
-          //      allowSave: true},
-          // )
-          rtnquoteInfo.message = rtnquoteInfo.message==""? rtnquoteInfo.message:rtnquoteInfo.message+'\n'+
-                    res.data.genQuote.message;
-             return rtnquoteInfo;
-       }  else     {
-         console.log("OK=>got response from mutation - set state and message response")
-         console.log("+++++=>res:",res&&res.data)
-
-
-
+     }).then( res => {
+       console.log("OK <QuoteForm> ==> MUTATION result:",res)
+       if (!res || !res.data || !res.data.updateQuotation) {
+            throw new Error("DB Error")
+       }   else     {
+         console.log("<QuoteForm> OK=>got response from mutation - set state and message response")
+         console.log("<QuoteForm> +++++=>res:",res&&res.data)
 
          rtnquoteInfo.message = rtnquoteInfo.message==""? rtnquoteInfo.message:rtnquoteInfo.message+'\n'+
-                     res.data.genQuote.message;
-        //  rtnquoteInfo.status=res.data.genQuote.status;
-          rtnquoteInfo = res.data.genQuote;
-          console.log("OK > Return rtnquoteInfo:",rtnquoteInfo)
+                     res.data.updateQuotation.message;
+        //  rtnquoteInfo.status=res.data.updateQuotation.status;
+          rtnquoteInfo = res.data.updateQuotation;
+          console.log("<QuoteForm> OK > Return rtnquoteInfo:",rtnquoteInfo)
         return rtnquoteInfo;
      }
 
      }).catch((err) => {
-       console.log('mutation err:',JSON.stringify(err))
+       console.log('!!!<QuoteForm> mutation err:',JSON.stringify(err))
        const { graphQLErrors, networkError } = err
-       var errMsg =""
+       var errMsg = '';
        if (graphQLErrors) {
 
-       graphQLErrors.map(({ message, locations, path }) =>
+       graphQLErrors.map(({ message, locations, path }) =>{
          console.log(
            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-           ),
-          errMsg = errMsg==""? errMsg:errMsg + '\n'+
-              `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+           )  ,
+          errMsg = errMsg==""? message:errMsg + ' ' + message
+        }
 
          );
        }
 
          if (networkError) {
            console.log(`[Network error]: ${networkError}`);
-           errMsg = errMsg==""? errMsg:errMsg + '\n'+
-               `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+            errMsg = errMsg==""? networkError:errMsg + ' ' + networkError
 
          }
 
        if (err && err.errmsg) {
-          errMsg = errMsg==""? errMsg:errMsg + '\n'+  err.errmsg
+          errMsg = errMsg==""? err.errmsg:errMsg + '\n'+  err.errmsg
        }
-       rtnquoteInfo.message = rtnquoteInfo.message==""? rtnquoteInfo.message:rtnquoteInfo.message+'\n'+
-                errMsg
-       return rtnquoteInfo;
+       // rtnquoteInfo.message = rtnquoteInfo.message==""? rtnquoteInfo.message:rtnquoteInfo.message+'\n'+
+       //          errMsg
+       console.log("errMsg:",errMsg)
+
+        throw new Error(errMsg && errMsg !=''? errMsg: "Internal Error. call your administrator!" )
      });
-     console.log("?? MUTATION response:",response)
-    return response;
+      console.log("<QuoteForm> ?? MUTATION response:",response)
+      return response;
    } else {
-     console.log("ERROR - No mutate funtion!!!")
-     return rtnquoteInfo
+     console.log("<QuoteForm> ERROR - No mutate funtion!!!")
+       throw new Error("Internal Error. <QuoteForm>  - No mutate funtion!" )
    }
 
   }
@@ -750,42 +1274,101 @@ handleDateChange = date => {
 //     scraper.init('http://www.amazon.com/gp/product/B00X4WHP5E/', function(data){
 //     console.log(data);
 // });
-    console.log('render QuoteForm props:',this.props)
-    console.log('render QuoteForm state:',this.state)
+    console.log('<render> <QuoteForm> props:',this.props)
+    console.log('<render> <QuoteForm> state:',this.state)
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
-    const { classes, history, selection, getRow} = this.props;
-    //const { classes, history, selection, getRow, notPurchased} = this.props;
-  //  console.log('notPurchased:',notPurchased)
-    // const bulkUpdate = selection && selection.length > 1
-    // var selectedQuoteList = []
-    // if (bulkUpdate) {
-    //   selection.map(key => {
-    //     var row = getRow(key)
-    //     row.message = ""
-    //     selectedQuoteList.push(row)
-    //   })
-    // }
+    const { classes,theme, history, selection, getRow, categoriesQuery} = this.props;
+    console.log("<render> <QuoteForm> categoriesQuery:",categoriesQuery)
+
+    const {getCategories} = categoriesQuery
 
 
     const { created_by, date_created, quotation,quote_no, sales_person, senderId, _id} =  this.state.quoteInfo;
     // const {title,url,quotation, active, category, chargeableWeight, final, height, item, length, message, notes,
     //   ownderId, po_no, price, price_selection, prices, qty, quote_date, reason, requestor, sales_person, shipping,
     //   source, thumbnailImage, username, weight, width, senderId } = quotation;
-    const {item, prices, price_selection,quote_date} = quotation;
-    const {category} = item;
+    const {item, prices, quote_date, qSenderId, ownderId} = quotation;
+
+    console.log("<render> <QuoteForm> senderId/ownderId:",qSenderId,"/", ownderId)
+  //  const category = item? item.category:null;
+    //const username = item? item.username:null;
+    //const {category,username} = item;
+    //console.log('<render> <QuoteForm> username:',username)
+    console.log('<render> <QuoteForm> qSenderId:',qSenderId)
     //const { amm_exp, amm_std, aq_std} = prices
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { edit_title, edit_url, edit_username,edit_senderId,
+     const { edit_title, edit_url, edit_username,edit_ownderId,edit_senderId,
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
         edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source, edit_notes,
-      edit_destination, edit_priceType} = this.state.formEditInfo
-
+      edit_destination, edit_priceType, edit_options,price_selection} = this.state.formEditInfo
+  console.log("<render> <QuoteForm> price_selection:",price_selection)
+      console.log('<render> <QuoteForm> edit_destination:',edit_destination)
+        console.log('<render> <QuoteForm> edit_priceType:',edit_priceType)
       const {message, bulkUpdate,validBulkUpdate,selectedQuoteList} = this.state
-     console.log("QuoteForm render  message:",message)
+     console.log("<render> <QuoteForm>  render  message:",message)
+     const selectStyles = {
+       input: base => ({
+         ...base,
+        padding: '1em',
+         width:400,
+         color: theme.palette.text.primary,
+         '& input': {
+           font: 'inherit',
+         },
+       }),
+     };
+
+     console.log("<render> <QuoteForm> categoriesQuery.loading:",categoriesQuery.loading)
+
+     const listOfCategories = !categoriesQuery.loading? getCategories && getCategories.map(selection => ({
+       label: selection.category_name+"/"+selection.category_name_ar ,
+       value: selection.category_name,
+     })):
+     null;
+     console.log('<render> <QuoteForm> listOfCategories:',listOfCategories)
+     console.log("<render> <QuoteForm> edit_category:",edit_category)
+     var catIdx=-1;
+     if (edit_category!=null && getCategories && getCategories.length>0) {
+       catIdx =getCategories.findIndex(
+      x=>  x.category_name === edit_category.value)
+      console.log("<render> <QuoteForm>   catIdx:",catIdx)
+      if (catIdx>=0) {
+        edit_category.label = catIdx >=0? getCategories[catIdx].category_name + '/' +
+          getCategories[catIdx].category_name_ar:''
+      }
+    }
+
+    const tax_amm = catIdx >=0? getCategories[catIdx].tax_amm*100:  null
+    const tax_aqaba =  catIdx >=0? getCategories[catIdx].tax_aqaba*100:null
+
+
+// console.log("usersQuery.loading:",usersQuery.loading)
+//
+//     const listOfUsers = !usersQuery.loading? getUsers && getUsers.map(selection => ({
+//       label: selection.name+"/"+selection.userId ,
+//       value: selection.userId,
+//     })):
+//     null;
+//     console.log('listOfUsers:',listOfUsers)
+//     var userIdx=-1;
+//     if (getUsers && getUsers.length>0) {
+//       userIdx =getUsers.findIndex(
+//      x=>  x.userId === edit_username.value)
+//    }
+//     console.log('edit_username:',edit_username)
+//    console.log("<><>   userIdx:",userIdx)
+//    if (userIdx>=0) {
+//      edit_username.label = userIdx >=0? getUsers[userIdx].name + '/' +
+//        getUsers[userIdx].userId:''
+//    } else {
+//      edit_username.label = username?username+'/':''+ownderId? ownderId:senderId?SenderId:qSenderId?qSenderId:'';
+//    }
+   console.log('<render> <QuoteForm> edit_username:',edit_username)
+   console.log("<render> <QuoteForm> prices:",prices)
 
 
 
@@ -796,7 +1379,8 @@ handleDateChange = date => {
 
         <div className=" flex flex-wrap  p1 m1 border">
         <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
-          <div className="flex flex-wrap  ml2">
+          <div className="flex flex-column  ml2">
+            <div className="flex flex-row  ml2">
             <TextField
               disabled={bulkUpdate}
               name="quote_no"
@@ -817,7 +1401,7 @@ handleDateChange = date => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={quotation.active}
+                  checked={quotation.active!=null?quotation.active:false}
                   value="quotation.active"
                   color="primary"
                 />
@@ -828,7 +1412,7 @@ handleDateChange = date => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={quotation.final}
+                  checked={quotation.final!=null?quotation.final:false}
                   value="quotation.final"
                   color="primary"
                 />
@@ -837,29 +1421,39 @@ handleDateChange = date => {
             />
             <TextField
               disabled={bulkUpdate}
-              name="edit_username"
+              name="quote_date"
               type="String"
-              label="Username"
-              value={edit_username}
-              onChange={this.handleChange}
-              onClick={(e) => {this.copyToClipboard(e, edit_username)}}
+              label="Date"
+              value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
+
               margin="dense"
               className={classes.textField}
-
-            />
+              />
             <TextField
               disabled={bulkUpdate}
-              name="edit_senderId"
+              name="sales_person"
               type="String"
-              label="User ID"
-              value={edit_senderId}
-              onChange={this.handleChange}
+              label="Sales Person"
+              value={sales_person}
 
               margin="dense"
               className={classes.textField}
+              />
 
-            />
+
+            </div>
+
             <div className="flex flex-row">
+            <UserSelect
+                username={edit_username}
+                userSearch={this.state.userSearch}
+                onChange={this.handleUserSelection}
+                onInputChange={this.handleUserInputChange}
+            />
+            </div>
+
+            <div className="flex flex-row">
+
             <TextField
               disabled={bulkUpdate}
               name="edit_url"
@@ -878,12 +1472,12 @@ handleDateChange = date => {
                 'width' : '42em',
               }}
             />
-            <div className="border"
+            <div className="flex py2"
               style={{'overflowX': 'hidden',
-              'overflowY':'scroll',
-              'fontSize': '10px' ,
-               width:'10em',height:'3em'}}>
-            {  <a href = { edit_url } target = "_blank" > {'click here for item link'  } </a>}
+
+              'fontSize': '12px' ,
+               width:'10em',height:'2em'}}>
+            {  <a href = { edit_url } target = "_blank" > {'URL link'  } </a>}
             </div>
 
             <TextField
@@ -904,134 +1498,182 @@ handleDateChange = date => {
                 'width' : '42em',
               }}
             />
+
+            </div>
+            <div className="flex flex-wrap">
+            <TextField
+              disabled={bulkUpdate}
+              name="edit_options"
+              type="String"
+              label="Options Color, Size ..."
+              value={edit_options}
+              onChange={this.handleChange}
+              margin="dense"
+              variant="outlined"
+              style={{
+                backgroundColor:'lightgreen',
+                'whiteSpace': 'unset',
+                 'fontSize': '12px' ,
+                 'fontWeight':'bold',
+                'width' : '400px',
+              }}
+              className={classes.textField}
+              />
+          <TextField
+            disabled={bulkUpdate}
+            name="edit_source"
+            type="String"
+            label="Source"
+            value={edit_source}
+            onChange={this.handleChange}
+            margin="dense"
+            style={{
+              'whiteSpace': 'unset',
+               'fontSize': '12px' ,
+              'width' : '200px',
+            }}
+            className={classes.textField}
+            />
             </div>
           </div>
 
-          <TextField
-            disabled={bulkUpdate}
-            name="sales_person"
-            type="String"
-            label="Sales Person"
-            value={sales_person}
 
-            margin="dense"
-            className={classes.textField}
-            />
-            <TextField
-              disabled={bulkUpdate}
-              name="quote_date"
-              type="String"
-              label="Date"
-              value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
-
-              margin="dense"
-              className={classes.textField}
-              />
-              <TextField
-                disabled={bulkUpdate}
-                name="created_by"
-                type="String"
-                label="Created By"
-                value={created_by}
-
-                margin="dense"
-                className={classes.textField}
-                />
-
-
-                  <TextField
-                    disabled={bulkUpdate}
-                    name="edit_category"
-                    type="String"
-                    label="Category"
+                {categoriesQuery.loading? <Loading />:categoriesQuery!=null?
+                <div className="flex flex-wrap">
+                <NoSsr>
+                  <ReactSelect
+                    classes={classes}
+                    styles={selectStyles}
+                    options={listOfCategories}
+                    components={components}
+                    required={true}
                     value={edit_category}
-                    onChange={this.handleChange}
+                    onChange={(val)=> {this.handleCostingChange({target: { name:'edit_category', value: val }})}}
+                    placeholder="Search Categories"
+                    isClearable={false}
+                    isSearchable={true}
+                  />
+                </NoSsr>
+
+                <TextField
+                    disabled={bulkUpdate}
+                    name="tax_amm"
+                    type="number"
+                    label="Amm Tax"
+                    value={tax_amm !=null ?tax_amm.toFixed(2):''}
+                    InputProps={{
+                                  startAdornment: <InputAdornment position="start">%</InputAdornment>,
+
+                      }}
+                    style={{
+                       backgroundColor: 'lightblue',
+
+                      //backgroundColor:'pink',
+                       //'whiteSpace': 'unset',
+                        fontSize: '12px' ,
+                        font: 'bold',
+                    }}
+
                     margin="dense"
                     className={classes.textField}
                     />
                     <TextField
+                        disabled={bulkUpdate}
+                        name="tax_aqaba"
+                        type="Number"
+                        label="Aqaba Tax"
+                        value={tax_aqaba!=null ? tax_aqaba.toFixed(1):''}
+                        InputProps={{
+                                      startAdornment: <InputAdornment position="start">%</InputAdornment>,
+
+                                  }}
+                        margin="dense"
+                        style={{
+
+                            backgroundColor: 'lightblue',
+
+                            fontSize: '12px' ,
+                            font: 'bold',
+                        }}
+                        className={classes.textField}
+                      />
+
+                </div>
+                :null  }
+                  <TextField
                       disabled={bulkUpdate}
+                      required
+                      error={isNaN(edit_price) || parseFloat(edit_price) <= 0}
                       name="edit_price"
                       type="Number"
-                      label="Price USD"
-                      value={edit_price}
-                      onChange={this.handleChange}
-                      margin="dense"
+                      label="Price"
+                      value={edit_price && !isNaN(edit_price)? parseFloat(edit_price):0}
+                      variant="outlined"
+                      onChange={this.handleCostingChange}
+                      InputProps={{
+                            startAdornment: <InputAdornment position="start">USD</InputAdornment>,
+
+                      }}
+                      style={{
+                        width: '150px'
+                      }}
                       className={classes.textField}
                       />
                       <TextField
                         disabled={bulkUpdate}
+                        required
+                        error={isNaN(edit_shipping) || parseFloat(edit_shipping) < 0}
                         name="edit_shipping"
                         type="Number"
-                        label="Shipping USD"
-                        value={edit_shipping}
-                        onChange={this.handleChange}
+                        label="Shipping"
+
+                        value={edit_shipping && !isNaN(edit_shipping)? parseFloat(edit_shipping):0}
+                        onChange={this.handleCostingChange}
                         margin="dense"
+                        variant="outlined"
+                        InputProps={{
+                              startAdornment: <InputAdornment position="start">USD</InputAdornment>,
+
+                        }}
+                        style={{
+                          width: '120px'
+                        }}
                         className={classes.textField}
                         />
                         <TextField
                           disabled={bulkUpdate}
-                          name="edit_source"
-                          type="String"
-                          label="Source"
-                          value={edit_source}
-                          onChange={this.handleChange}
-                          margin="dense"
-                          className={classes.textField}
-                          />
-
-
-                    <div className="flex flex-wrap">
-                    <TextField
-                      disabled={bulkUpdate}
-                      name="edit_weight_kg"
-                      type="Number"
-                      label="Weigh(kg)"
-                      onChange={this.handleWtChange}
-                      value={edit_weight_kg}
-                      margin="dense"
-                      className={classes.textField}
-                      />
-                      <TextField
-                          disabled={bulkUpdate}
-                          name="edit_length_cm"
+                          required
+                          error={isNaN(edit_qty) || parseFloat(edit_qty) <= 0}
+                          name="edit_qty"
                           type="Number"
-                          label="length(cm)"
-                          value={edit_length_cm}
-                            onChange={this.handleWtChange}
+                          label="Quantity"
+                          value={edit_qty}
+                          onChange={this.handleCostingChange}
                           margin="dense"
+                          variant="outlined"
+                          style={{
+                            width: '80px'
+                          }}
                           className={classes.textField}
                           />
-                        <TextField
-                          disabled={bulkUpdate}
-                          name="edit_width_cm"
-                          type="Number"
-                          label="width(cm)"
-                          value={edit_width_cm}
-                            onChange={this.handleWtChange}
-                          margin="dense"
-                          className={classes.textField}
-                          />
-                          <TextField
-                            disabled={bulkUpdate}
-                            name="edit_height_cm"
-                            type="Number"
-                            label="height(cm)"
-                            value={edit_height_cm}
-                            onChange={this.handleWtChange}
-                            margin="dense"
-                            className={classes.textField}
-                            />
 
-                          </div>
                           <div className="flex flex-wrap">
                           <TextField
                             disabled={bulkUpdate}
                             name="edit_weight_lb"
+                            required={false}
+                            error={isNaN(edit_weight_lb) || parseFloat(edit_weight_lb) < 0}
                             type="Number"
-                            label="Weigh(lb)"
-                            onChange={this.handleWtChange}
+                            label="Weigh"
+                            onChange={this.handleCostingChange}
                             value={edit_weight_lb}
+                            variant="outlined"
+                          InputProps={{
+                              startAdornment: <InputAdornment position="start">Lb</InputAdornment>,
+                            }}
+                            style={{
+                              width: '120px'
+                            }}
                             margin="dense"
                             className={classes.textField}
                             />
@@ -1039,9 +1681,16 @@ handleDateChange = date => {
                                 disabled={bulkUpdate}
                                 name="edit_length_inch"
                                 type="Number"
-                                label="length(inch)"
+                                label="length"
                                 value={edit_length_inch}
-                                  onChange={this.handleWtChange}
+                                variant="outlined"
+                              InputProps={{
+                                  startAdornment: <InputAdornment position="start">Inch</InputAdornment>,
+                                }}
+                                style={{
+                                  width: '120px'
+                                }}
+                                  onChange={this.handleCostingChange}
                                 margin="dense"
                                 className={classes.textField}
                                 />
@@ -1049,9 +1698,16 @@ handleDateChange = date => {
                                 disabled={bulkUpdate}
                                 name="edit_width_inch"
                                 type="Number"
-                                label="width(inch)"
+                                label="width"
                                 value={edit_width_inch}
-                                  onChange={this.handleWtChange}
+                                variant="outlined"
+                              InputProps={{
+                                  startAdornment: <InputAdornment position="start">Inch</InputAdornment>,
+                                }}
+                                style={{
+                                  width: '120px'
+                                }}
+                                  onChange={this.handleCostingChange}
                                 margin="dense"
                                 className={classes.textField}
                                 />
@@ -1059,29 +1715,152 @@ handleDateChange = date => {
                                   disabled={bulkUpdate}
                                   name="edit_height_inch"
                                   type="Number"
-                                  label="height(inch)"
+                                  label="height"
+                                  variant="outlined"
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start">Inch</InputAdornment>,
+                                  }}
                                   value={edit_height_inch}
-                                    onChange={this.handleWtChange}
+                                  onChange={this.handleCostingChange}
                                   margin="dense"
                                   className={classes.textField}
                                   />
+                                  <TextField
+                                    disabled={bulkUpdate}
+                                    name="edit_dimensions_inch"
+                                    onChange={this.handleCostingChange}
+                                    type="String"
+                                    label="Dimensions"
+                                    variant="outlined"
+                                    InputProps={{
+                                        startAdornment: <InputAdornment position="start">L x W x H (inch)</InputAdornment>,
+                                      }}
+                                      style={{
+                                        width: '300px'
+                                      }}
+                                    value={edit_dimensions_inch}
+                                    margin="dense"
+                                    className={classes.textField}
+                                    />
+
 
                                 </div>
+                                <div className="flex flex-wrap">
                                 <TextField
                                   disabled={bulkUpdate}
-                                  name="edit_chargeableWeight"
+                                  required={false}
+                                  error={isNaN(edit_weight_kg) || parseFloat(edit_weight_kg) < 0}
+                                  name="edit_weight_kg"
                                   type="Number"
-                                  label="Chargable Weight"
-                                  value={edit_chargeableWeight}
-                                    onChange={this.handleChange}
+                                  label="Weigh"
+                                  variant="outlined"
+                                  InputProps={{
+                                      startAdornment: <InputAdornment position="start">Kg</InputAdornment>,
+                                    }}
+                                    style={{
+                                      width: '120px'
+                                    }}
+                                  onChange={this.handleCostingChange}
+                                  value={edit_weight_kg}
                                   margin="dense"
                                   className={classes.textField}
                                   />
+                                  <TextField
+                                      disabled={bulkUpdate}
+                                      name="edit_length_cm"
+                                      type="Number"
+                                      variant="outlined"
+                                      label="length"
+                                        variant="outlined"
+                                      InputProps={{
+                                          startAdornment: <InputAdornment position="start">cm</InputAdornment>,
+                                        }}
+                                      value={edit_length_cm}
+                                        onChange={this.handleCostingChange}
+                                      margin="dense"
+                                      className={classes.textField}
+                                      />
+                                    <TextField
+                                      disabled={bulkUpdate}
+                                      name="edit_width_cm"
+                                      type="Number"
+                                      label="width"
+                                      value={edit_width_cm}
+                                      variant="outlined"
+                                    InputProps={{
+                                        startAdornment: <InputAdornment position="start">cm</InputAdornment>,
+                                      }}
+                                      style={{
+                                        width: '120px'
+                                      }}
+                                        onChange={this.handleCostingChange}
+                                      margin="dense"
+                                      className={classes.textField}
+                                      />
+                                      <TextField
+                                        disabled={bulkUpdate}
+                                        name="edit_height_cm"
+                                        type="Number"
+                                        label="height"
+                                        value={edit_height_cm}
+                                        variant="outlined"
+                                        InputProps={{
+                                          startAdornment: <InputAdornment position="start">cm</InputAdornment>,
+                                        }}
+                                        style={{
+                                          width: '120px'
+                                        }}
+                                        onChange={this.handleCostingChange}
+                                        margin="dense"
+                                        className={classes.textField}
+                                        />
+                                        <TextField
+                                          disabled={bulkUpdate}
+                                          name="edit_dimensions_cm"
+                                          type="String"
+                                          label="Dimensions"
+                                          variant="outlined"
+                                          InputProps={{
+                                              startAdornment: <InputAdornment position="start">L x W x H (cm)</InputAdornment>,
+                                            }}
+                                          style={{
+                                            width: '300px'
+                                          }}
+                                          value={edit_dimensions_cm}
+                                          onChange={this.handleCostingChange}
+                                          margin="dense"
+                                          className={classes.textField}
+                                          />
+                                          <TextField
+                                            disabled={bulkUpdate}
+                                            required
+                                            error={isNaN(edit_chargeableWeight) || parseFloat(edit_chargeableWeight) <= 0}
+                                            name="edit_chargeableWeight"
+                                            type="Number"
+                                            label="Chargable Weight"
+                                            value={edit_chargeableWeight}
+                                            variant="outlined"
+                                          InputProps={{
 
+                                              startAdornment: <InputAdornment position="start">Kg</InputAdornment>,
+                                              readOnly: true,
+
+                                            }}
+                                            style={{
+                                              backgroundColor: 'lightblue',
+                                              'fontSize': '12px' ,
+                                              'font': 'bold',
+                                              width: '200px'
+                                            }}
+                                              onChange={this.handleChange}
+                                            margin="dense"
+                                            className={classes.textField}
+                                            />
+                                      </div>
                                     <FormControl  className={classes.formControl}>
                                     <InputLabel htmlFor="destination-required">Destination</InputLabel>
                                     <Select
-                                      disabled={false}
+                                      disabled={true}
                                       value={edit_destination}
                                       onChange={this.handleChange}
                                       name="edit_destination"
@@ -1090,15 +1869,17 @@ handleDateChange = date => {
                                       }}
                                       className={classes.selectEmpty}
                                     >
+                                      <MenuItem value={""}>Not Selected</MenuItem>
                                       <MenuItem value={"amman"}>Amman</MenuItem>
                                       <MenuItem value={"aqaba"}>Aqaba</MenuItem>
                                     </Select>
                                     <FormHelperText>Required</FormHelperText>
                                   </FormControl>
+
                                   <FormControl  className={classes.formControl}>
                                   <InputLabel htmlFor="priceType-required">Price Type</InputLabel>
                                   <Select
-                                    disabled={false}
+                                    disabled={true}
                                     value={edit_priceType}
                                     onChange={this.handleChange}
                                     name="edit_priceType"
@@ -1107,37 +1888,42 @@ handleDateChange = date => {
                                     }}
                                     className={classes.selectEmpty}
                                   >
+                                    <MenuItem value={""}>Not Selected</MenuItem>
                                     <MenuItem value={"reg"}>Regular</MenuItem>
                                     <MenuItem value={"exp"}>Express</MenuItem>
                                   </Select>
                                   <FormHelperText>Required</FormHelperText>
                                 </FormControl>
-                                { prices != null  && price_selection != null ?
+
+                                { prices != null  && price_selection != null && price_selection != ''?
+                                <div className="flex flex-wrap">
                                 <FormControl  className={classes.formControl}>
-                                <InputLabel htmlFor="sale_price-required">Sale Price</InputLabel>
+                                <InputLabel htmlFor="price_selection-required">Sale Price Options</InputLabel>
                                 <Select
                                   disabled={false}
                                   value={price_selection}
                                   onChange={this.handleChange}
                                   name="price_selection"
                                   inputProps={{
-                                    id: 'sale_price-required',
+                                    id: 'price_selection-required',
                                   }}
                                   className={classes.selectEmpty}
                                 >
-                                { Object.keys(prices).map(p => {
-                                  return  prices[p].price!= null?
-                                  <MenuItem value={p}>{prices[p].destination + " "+
-                                        prices[p].type + " " +
-                                        prices[p].price + " JD"}</MenuItem>
+                                { Object.keys(prices).map(priceSelection => {
+                                  return  prices[priceSelection].price!= null?
+                                  <MenuItem key={priceSelection} value={priceSelection}>
+                                    {prices[priceSelection].destination + " "+
+                                          prices[priceSelection].type + " " +
+                                          prices[priceSelection].price + " JD"
+                                    }
+                                  </MenuItem>
                                     :  ''
                                     }
                                 )}
-
                                 </Select>
                                 <FormHelperText>Required</FormHelperText>
                               </FormControl>
-                              :null}
+
                               <TextField
                                 disabled={bulkUpdate}
                                 name="sale_price"
@@ -1148,6 +1934,10 @@ handleDateChange = date => {
                                 margin="dense"
                                 className={classes.textField}
                                 />
+                                </div>
+                              :null}
+                              {this.state.pricingNow != null && this.state.pricingNow?
+                              <Loading />:null }
 
             <Button
               disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
@@ -1212,73 +2002,45 @@ QuoteForm.propTypes = {
 QuoteForm.defaultProps = {
   onSubmit: () => {},
 };
-
-const withUsers = graphql(usersQuery, {
-  name: 'usersQuery',
-  options: ({ userSearch }) => ({
+//
+// const withUsers = graphql(usersQuery, {
+//   name: 'usersQuery',
+//   options: ({ userSearch }) => ({
+//     variables: {
+//       userId: (userSearch && Number(userSearch.userId)),
+//       username: (userSearch && userSearch.username),
+//       search: (userSearch && userSearch.search),
+//       searchField: (userSearch && userSearch.searchField),
+//     },
+//   //  pollInterval: 1000*60*5
+//   }),
+// });
+const withCategories = graphql(categoriesQuery, {
+  name: 'categoriesQuery',
+  options: ({ categorySearch }) => ({
     variables: {
-      userId: (userSearch && Number(userSearch.userId)),
-      username: (userSearch && userSearch.username),
-      search: (userSearch && userSearch.search),
-      searchField: (userSearch && userSearch.searchField),
+      category_name: (categorySearch && Number(categorySearch.category_name)),
+
+      search: (categorySearch && categorySearch.search),
+      searchField: (categorySearch && categorySearch.searchField),
     },
   //  pollInterval: 1000*60*5
   }),
 });
 
-
-const genQuote = gql`
-  mutation genQuote($quoteInput: quoteInput!) {
-    genQuote (input: $quoteInput) {
-     _id
-     quote_no
-
-   }
+const updateQuotation = gql`
+  mutation updateQuotation($quoteInput: QuoteInput!) {
+    updateQuotation (input: $quoteInput) {
+      quote_no
+      message
+    }
   }
 `;
 
+
 const QuoteWithMutation =
-graphql( genQuote)
+graphql( updateQuotation)
 (QuoteForm);
 
-export default withUsers(withStyles(styles)(QuoteWithMutation))
-//
-// quoteInfo:
-// created_by: null
-// date_created: "1549442534122"
-// quotation:
-// active: true
-// category: []
-// chargeableWeight: null
-// final: true
-// height: null
-// item: {recipientID: "1337250176375855", ownderId: "1337250176375855", title: "/gp/product/B002DWA2NI/ref=ox_sc_act_title_2", MPN: null, asin: null, …}
-// length: null
-// message: null
-// notes: "NOTES:"
-// ownderId: null
-// po_no: null
-// price: null
-// price_selection: "amm_std"
-// prices: {amm_exp: {…}, amm_std: {…}, aq_std: {…}, __typename: "PriceOptions"}
-// qty: null
-// quote_date: "1549442578979"
-// quote_no: 89181
-// reason: null
-// requestor: null
-// sales_person: "ROBOT"
-// shipping: null
-// source: null
-// thumbnailImage: null
-// title: null
-// url: null
-// username: "Batool Aref Al-Halasa"
-// weight: null
-// width: null
-// __typename: "QuotationInstance"
-// __proto__: Object
-// quote_no: 89181
-// sales_person: "ROBOT"
-// senderId: "1337250176375855"
-// __typename: "Quotation"
-// _id: "5c5a9de6314d7800165420dc"
+//export default withUsers(withCategories(withStyles(styles, { withTheme: true })(QuoteWithMutation)))
+export default withCategories(withStyles(styles, { withTheme: true })(QuoteWithMutation))

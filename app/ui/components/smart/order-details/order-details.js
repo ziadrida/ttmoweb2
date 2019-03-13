@@ -690,7 +690,7 @@ const SelectTable=selectTableHOC(ReactTable)
               style: {
                 textAlign: 'right'
               },
-              views:[view.all,view.payment,view.purchase,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
               //maxWidth: 200
             },
             {
@@ -709,7 +709,7 @@ const SelectTable=selectTableHOC(ReactTable)
               filterMethod: (filter, rows) =>
                           matchSorter(rows, filter.value, { keys: ["destination"] }),
               filterAll: true,
-              views:[view.all,view.payment,view.purchase,view.pack,view.ship,view.deliver,view.book,view.close],
+              views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close],
               width:70,
             },
             {
@@ -1495,17 +1495,37 @@ render() {
     const { loading, error, getOrderDetails ,variables  } = orderDetailsData;
     const recordCount = getOrderDetails? getOrderDetails.length:0;
     var totalSales = 0;
-    var totalPayments = 0;
+  //  var totalPayments = 0;
 
     if (getOrderDetails) getOrderDetails.map(o => {
-      console.log('sale_price:',o.sale_price, "totalSales:",totalSales )
-      totalSales = totalSales + (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price));
+    //  console.log('sale_price:',o.sale_price, "totalSales:",totalSales )
+      totalSales +=  (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price));
 
-      totalPayments = totalPayments +  (!o.first_payment || isNaN(o.first_payment)? 0:parseFloat(o.first_payment)) +
-        (!o.final_payment || isNaN(o.final_payment)? 0:parseFloat(o.final_payment))
+      // totalPayments +=   (!o.first_payment || isNaN(o.first_payment)? 0:parseFloat(o.first_payment)) +
+      //   (!o.final_payment || isNaN(o.final_payment)? 0:parseFloat(o.final_payment))
       })
+
+// var salesPersonSales = {};
+// var result;
+// if (getOrderDetails) {
+//
+//   result = getOrderDetails.reduce(function(r, o) {
+//   var sale = (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price));
+//   var salesPerson = o.sales_person ;
+//
+//   if(!salesPersonSales[o.sales_person]) {
+//     salesPersonSales[o.sales_person] = sale; // create a copy of o
+//     r.push(salesPersonSales[o.sales_person]);
+//   } else {
+//     salesPersonSales[o.sales_person] += sale;
+//
+//   }
+//   return r;
+//   } , []);
+// }
+//   console.log("result:",result)
       console.log("totalSales:",totalSales)
-        console.log("totalPayments:",totalPayments)
+      //  console.log("totalPayments:",totalPayments)
     const columnDefaults = { ...ReactTableDefaults.column, headerClassName: 'wordwrap' }
 
 
@@ -1562,7 +1582,7 @@ render() {
          {loading?
            <Loading />:
            <div className="statusline">
-           <a>Found {recordCount<200? recordCount:'at least '+recordCount} records. T Sales: {totalSales.toFixed(1)} T. Payments: {totalPayments.toFixed(1)}</a>
+           <a>Found {recordCount<200? recordCount:'at least '+recordCount} records. Sales: {totalSales.toFixed(1)} JD</a>
            </div>
          }
           <SelectTable { ...otherProps}

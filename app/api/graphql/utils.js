@@ -3,12 +3,35 @@ import {Counter} from '/app/entry-points/server/models/counter';
 const debugOn = true;
 
 removeEmpty = (obj) => {
-    if (debugOn) console.log("removeEmpty in: ",obj)
+  //  if (debugOn) console.log("removeEmpty in: ",obj)
     Object.keys(obj).forEach((key) => (obj[key] == null || obj[key]==undefined) && delete obj[key]);
-  //   if (debugOn) console.log("removeEmpty out: ",obj)
+  if (debugOn) console.log("removeEmpty out: ",obj)
      return obj;
 
  }
+function removeNull(obj){
+  var isArray = obj instanceof Array;
+  for (var k in obj){
+
+  //  console.log("k=",k, '=>' ,"obj[k]=",obj[k])
+    if (obj[k]===null || obj[k]=== undefined) isArray ? obj.splice(k,1) : delete obj[k];
+    else if (typeof obj[k]=="object") removeNull(obj[k]);
+    //else   console.log("Nothing! typeof", typeof obj[k]);
+  }
+}
+//  removeEmpty = (o) =>  {
+//   for (var k in o) {
+//     if (!o[k] || typeof o[k] !== "object") {
+//       continue // If null or not an object, skip to the next iteration
+//     }
+//
+//     // The property is an object
+//     removeEmpty(o[k]); // <-- Make a recursive call on the nested object
+//     if (Object.keys(o[k]).length === 0) {
+//       delete o[k]; // The object had no properties, so delete that property
+//     }
+//   }
+// }
 
  // async function getNextSeqVal(name) {
  //   console.log('==>getNextSeqVal:',name)
@@ -46,5 +69,6 @@ removeEmpty = (obj) => {
   export {
     getNextSequenceValue,
     removeEmpty,
+    removeNull,
 //getNextSeqVal,
   }
