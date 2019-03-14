@@ -531,11 +531,11 @@ doCalculate =  async function(editItem) {
       //btnTxt = item.title.substring(0,80) + "\n" + btnTxt;
 
      quote_obj = {
-        valid:false,
-        final: false,
-        active: false,
-        quote_no: item.quote_no ? item.quote_no : -1,
-        quote_date: moment().toDate(),
+      //  valid:false,
+        final: true,
+        active: true,
+      //  quote_no: item.quote_no ? item.quote_no : -1,
+        quote_date: moment().format('x') ,
         item: item,
         prices: {
           amm_exp: {
@@ -585,9 +585,9 @@ doCalculate =  async function(editItem) {
       // insert new quotation in the database
       // TODO
       if (doDebugOn) console.log( "<doCalculate><> Amman Exp Price - ceil + fixed(2)", Math.ceil(quote_obj.price.amm_exp * 1).toFixed(2))
-      quote_obj.valid = true;
-      quote_obj.active = true;
-      quote_obj.final = true;
+      //quote_obj.valid = true;
+      quote_obj.active = true; // active = should load in customer cart when final
+      quote_obj.final = true; // final = pricing complete
       quote_obj.message = "Sales prices calculation completed."
       if (debugOn) console.log("<doCalculate> return quote_obj:", JSON.stringify(quote_obj))
       return quote_obj;

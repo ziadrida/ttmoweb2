@@ -64,21 +64,19 @@ const schema = mongoose.Schema({
     final: Boolean,
     requestor: String,
     quote_no: Number,
+    quote_date: Date,
+    price_selection: String,
+    prices: PriceOptions,
+    notes: String,
 
+    active: Boolean,
+    po_no: String,
 
-      quote_date: Date,
-      price_selection: String,
-      prices: PriceOptions,
-      notes: String,
+    sales_person: String,
+    message: String,
+    reason: String,
 
-      active: Boolean,
-      po_no: String,
-
-      sales_person: String,
-      message: String,
-      reason: String,
-
-      item: {
+    item: {
 
           recipientID: String,
           ownderId: String,
@@ -125,11 +123,11 @@ const schema = mongoose.Schema({
           },
               recipentID: String
           }
-      },
-      date_created:{ type: Date, default: Date.now },
-      create_by: String,
-      last_updated: Date,
-      updated_by: String,
+    },
+    date_created:{ type: Date, default: Date.now },
+    create_by: String,
+    last_updated: Date,
+    updated_by: String,
   }
 ,{ collection: 'quotation' });
 

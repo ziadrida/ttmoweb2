@@ -603,7 +603,8 @@ handleDateChange = date => {
                 this.state.formEditInfo.edit_first_payment!=''  ?
                 parseFloat(this.state.formEditInfo.edit_first_payment):null,
             "first_payment_date":this.state.formEditInfo.edit_first_payment_date &&
-                  this.state.formEditInfo.edit_first_payment_date!='' && this.state.formEditInfo.edit_first_payment_date   ?
+                  this.state.formEditInfo.edit_first_payment_date!='' &&
+                  this.state.formEditInfo.edit_first_payment_date   ?
                     moment(this.state.formEditInfo.edit_first_payment_date).toDate():null,
             "final_payment":this.state.formEditInfo.edit_final_payment &&
                         this.state.formEditInfo.edit_final_payment!='' ?

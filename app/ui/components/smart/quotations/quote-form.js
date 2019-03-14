@@ -295,24 +295,7 @@ class QuoteForm extends React.Component {
   formEditInfo: {
 
   },
-  // item: {
-  //       recipientID: '',
-  //       url: '',
-  //       thumbnailImage:'',
-  //       price: '',
-  //       qty: '',
-  //       shipping: '',
-  //       category: [],
-  //       title: '',
-  //       condition: '',
-  //       weight: '',
-  //       height: '',
-  //       length: '',
-  //       width: '',
-  //       language:'',
-  //       username: '',
-  //       chargeableWeight: '',
-  //     },
+
   quoteInfo: {
     _id:'',
     quote_no:'',
@@ -476,7 +459,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_title: quotation.title? quotation.title:   item.title?item.title:'',
           edit_url: quotation.url? quotation.url:
               item.url?item.url:'',
-          price_selection: quotation.price_selection,
+          edit_price_selection: quotation.price_selection,
           edit_priceType: quotation.prices && quotation.price_selection?
             quotation.prices[quotation.price_selection].type:'',
           edit_destination: quotation.prices && quotation.price_selection?
@@ -492,8 +475,8 @@ static  getDerivedStateFromProps(props, state) {
           edit_category_info: item.category_info,
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
           edit_condition: item.condition? item.condition:'',
-          edit_active: quotation.active!=null? quotation.active:false,
-          edit_final: quotation.final!=null? quotation.final:false,
+          // edit_active: quotation.active!=null? quotation.active:false,
+          // edit_final: quotation.final!=null? quotation.final:false,
           edit_reason: quotation.reason!=null? quotation.reason:false,
           edit_height_inch: item.height,
           edit_length_inch: item.length,
@@ -520,6 +503,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_requestor: item.requestor? item.requestor:'',
           edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
           edit_source: item.source? item.source:'',
+          edit_condition: item.condition? item.condition:'New',
 
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
         },
@@ -587,7 +571,7 @@ handleDateChange = date => {
             edit_username: username,
             userInfo: userInfo,
         },
-        allowSave: false,
+        allowSave: true,
         readyForPricing: false,
       });
 
@@ -642,7 +626,7 @@ handleDateChange = date => {
               edit_category_info: category_info,
 
           },
-          allowSave: false,
+          allowSave: true,
           readyForPricing: false,
         });
 
@@ -843,10 +827,10 @@ handleDateChange = date => {
      console.log('<handleCostingChange> <QuoteForm> newState:',newState)
 
      if (newState.formEditInfo.edit_chargeableWeight <=0) {
-       if (newState.quoteInfo && newState.quoteInfo.quotation) {
-        newState.quoteInfo.quotation.price = null;
-        newState.quoteInfo.quotation.price_selection = null;
-      }
+       //if (newState.quoteInfo && newState.quoteInfo.quotation) {
+        //newState.quoteInfo.quotation.prices = null;
+        newState.formEditInfo.edit_price_selection = null;
+      //}
        var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
 
        newState = {
@@ -860,7 +844,7 @@ handleDateChange = date => {
          ...newState,
          message:"Recomputing price ..."
        }
-      await this.setStateAsync(newState)
+      await this.setStateAsync(newState);
     // if (this.state.pricingNow != null &&this.state.pricingNow  ) {
     //     console.log("<handleCostingChange> <QuoteForm> !!! waiting for pricing to complete")
     //   return
@@ -868,29 +852,33 @@ handleDateChange = date => {
       var quoteObj = null ;
     try {
         console.log("<handleCostingChange> <QuoteForm> >>>> Call doCalculate:")
-       await doCalculate(this.state.formEditInfo).then( quoteObj=> {
+       quoteObj = await doCalculate(this.state.formEditInfo) //.then( quoteObj=> {
         console.log("<handleCostingChange> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
+      //  quote_obj.active = true; // active = should load in customer cart when final
+      //  quote_obj.final = true; // final = pricing complete
 
-      if (quoteObj != null ) {
         this.setState ( {
-        quoteInfo: {
-          ...this.props.quoteInfo,
-          quotation: quoteObj,
+          formEditInfo: {
+            ...this.state.formEditInfo,
+            edit_price_selection: quoteObj.price_selection?quoteObj.price_selection:'amm_exp',
+          },
+          quoteInfo: {
+            ...this.props.quoteInfo,
+             quotation: quoteObj, // setting for active and final is included
         },
         message:quoteObj.message,
         pricingNow: false,
-        allowSave: true,
+        allowSave: quoteObj!=null,
       })
-      }
-    }).catch(err=> {
+    } catch(err)  {
         console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by calculatePrice:",err)
         var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
         quotation = {
           ...quotation,
-          active: true,
-          final: false,
-          valid: false,
-          price: null,
+          active: true, // active = should load in customer cart when final
+          final: false, // final = is pricing correct and complete?
+        //  valid: false,
+          prices: null,
           price_selection:null,
         }
         console.log("<handleCostingChange> <QuoteForm> quotation:",quotation)
@@ -907,26 +895,8 @@ handleDateChange = date => {
            quotation:quotation,
          }
        })
-     })
-
-
-      console.log("<handleCostingChange>  <QuoteForm> state set Keep going!")
-      return;
-    } catch(error ) {
-       console.log("<handleCostingChange> <QuoteForm> try.catch Error thrown by calculatePrice:",error)
-        this.setState(
-         {
-           message:error && error.message? error.message:
-                   error? error:'Error calculating price. Check input fields',
-           pricingNow:null,
-           allowSave: false,
-          readyForPricing: false,
-        }
-       )
-       return;
      }
-     // console.log("<handleCostingChange> <QuoteForm> >>> set pricingNow to true")
-     // this.setState({pricingNow:true})
+
     console.log("<handleCostingChange> <QuoteForm> >>> After   calculatePrice Continue")
 
     console.log('updateQuotation handleChange',this.state)
@@ -1084,6 +1054,16 @@ handleDateChange = date => {
         this.state.formEditInfo.edit_category && this.state.formEditInfo.edit_category.value) {
           categoryArray.push(this.state.formEditInfo.edit_category.value)
         }
+
+        var quotation = quoteObj.quotation
+          var prices = quotation.prices;
+        delete prices.__typename
+
+        Object.keys(prices).map(priceSelection => {
+            delete  prices[priceSelection].__typename
+
+          })
+        console.log("prices:",prices)
       const response = await mutate({
          variables: {
            "quoteInput": {
@@ -1097,17 +1077,18 @@ handleDateChange = date => {
             },
             quotation: {
               quote_no: this.state.formEditInfo.quote_no,
-              quote_date: moment().toDate,
-              price_selection:  this.state.formEditInfo.price_selection? this.state.formEditInfo.price_selection:'amm_exp',
+              quote_date: moment().format('x'),
+              price_selection:
+              this.state.formEditInfo.edit_price_selection? this.state.formEditInfo.edit_price_selection:'amm_exp',
               notes: this.state.formEditInfo.edit_notes,
 
-              active: this.state.formEditInfo.edit_active,
-              final: this.state.formEditInfo.edit_final,
+              active:  quotation.active!=null? quotation.active:false, // active = should load in customer cart when final
+              final:  quotation.final!=null?  quotation.final:false, // final = pricing complete
               po_no: null, // cannot change PO
               //sales_person: this.state.formEditInfo.sales_person,
-              message: null,
-              reason: null,
-              ownderId: null,
+            //  message: null,
+              //reason: null,
+              ownderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
               // url:null,
               // title: null,
               // thumbnailImage: null,
@@ -1116,7 +1097,6 @@ handleDateChange = date => {
               // qty: null,
               // shipping: null,
               // category: null,
-              //
               // weight: null,
               // height: null,
               // length: null,
@@ -1138,7 +1118,7 @@ handleDateChange = date => {
                 qty: parseInt(this.state.formEditInfo.edit_qty),
                 shipping: parseFloat(this.state.formEditInfo.edit_shipping),
                 category: categoryArray,
-                condition: null,
+                condition: this.state.formEditInfo.edit_condition,
                 availability: null,
                 weight: parseFloat(this.state.formEditInfo.edit_weight_lb),
                 height: parseFloat(this.state.formEditInfo.edit_height_inch),
@@ -1149,7 +1129,7 @@ handleDateChange = date => {
                 chargeableWeight: parseFloat(this.state.formEditInfo.edit_chargeableWeight),
                 final: this.state.formEditInfo.edit_final,
                 requestor: null,
-                quote_no: this.state.formEditInfo.quote_no,
+              //  quote_no: this.state.formEditInfo.quote_no,
                 category_info: {
                   _id:   this.state.formEditInfo.edit_category_info._id,
                   category_name: this.state.formEditInfo.edit_category_info.category_name,
@@ -1172,7 +1152,7 @@ handleDateChange = date => {
                 recipentID: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
               },
               prices: {
-                ...this.state.quoteInfo.quotation.prices
+                ...prices
               },
                 // amm_exp: {
                 //   destination: this.state.quoteIno.prices,
@@ -1303,9 +1283,9 @@ handleDateChange = date => {
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
-        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source, edit_notes,
-      edit_destination, edit_priceType, edit_options,price_selection} = this.state.formEditInfo
-  console.log("<render> <QuoteForm> price_selection:",price_selection)
+        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition, edit_notes,
+      edit_destination, edit_priceType, edit_options,edit_price_selection} = this.state.formEditInfo
+  console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
       console.log('<render> <QuoteForm> edit_destination:',edit_destination)
         console.log('<render> <QuoteForm> edit_priceType:',edit_priceType)
       const {message, bulkUpdate,validBulkUpdate,selectedQuoteList} = this.state
@@ -1424,7 +1404,7 @@ handleDateChange = date => {
               name="quote_date"
               type="String"
               label="Date"
-              value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
+                value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
 
               margin="dense"
               className={classes.textField}
@@ -1519,6 +1499,29 @@ handleDateChange = date => {
               }}
               className={classes.textField}
               />
+              <FormControl  className={classes.formControl}>
+              <InputLabel htmlFor="edit_condition-required">Item Condition</InputLabel>
+              <Select
+                disabled={false}
+                value={edit_condition}
+                onChange={this.handleChange}
+                name="edit_condition"
+                inputProps={{
+                  id: 'edit_condition-required',
+                }}
+                className={classes.selectEmpty}
+              >
+                <MenuItem value={""}>Not Selected</MenuItem>
+                <MenuItem value={"New"}>New</MenuItem>
+                <MenuItem value={"New No Box/Tags"}>New No Box/Tags</MenuItem>
+                <MenuItem value={"Manufacturer refurbished"}>Manufacturer refurbished</MenuItem>
+                <MenuItem value={"Seller refurbished"}>Seller refurbished</MenuItem>
+                <MenuItem value={"Used"}>Used</MenuItem>
+                <MenuItem value={"For parts or not working"}>For parts or not working</MenuItem>
+                <MenuItem value={"Other"}>Other</MenuItem>
+              </Select>
+              <FormHelperText>Required</FormHelperText>
+            </FormControl>
           <TextField
             disabled={bulkUpdate}
             name="edit_source"
@@ -1895,15 +1898,15 @@ handleDateChange = date => {
                                   <FormHelperText>Required</FormHelperText>
                                 </FormControl>
 
-                                { prices != null  && price_selection != null && price_selection != ''?
+                                { prices != null  && edit_price_selection != null && edit_price_selection != ''?
                                 <div className="flex flex-wrap">
                                 <FormControl  className={classes.formControl}>
                                 <InputLabel htmlFor="price_selection-required">Sale Price Options</InputLabel>
                                 <Select
                                   disabled={false}
-                                  value={price_selection}
+                                  value={edit_price_selection}
                                   onChange={this.handleChange}
-                                  name="price_selection"
+                                  name="edit_price_selection"
                                   inputProps={{
                                     id: 'price_selection-required',
                                   }}
@@ -1929,7 +1932,7 @@ handleDateChange = date => {
                                 name="sale_price"
                                 type="Number"
                                 label="Sale Price"
-                                value={prices? prices[price_selection].price:''}
+                                value={prices? prices[edit_price_selection].price:''}
 
                                 margin="dense"
                                 className={classes.textField}

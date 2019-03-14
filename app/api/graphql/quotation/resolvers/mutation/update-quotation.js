@@ -97,6 +97,7 @@ async function updateQuotation(root, args, context) {
       updateObj.sales_person = args.input.sales_person;
 
       var inQuoteObj = args.input.quotation;
+      inQuoteObj.quote_date = moment().toDate();
       // inQuoteObj.active = args.input.active!=null ?args.input.active:null;
       // inQuoteObj.final = args.input.final != null ?args.input.final:null;
       //console.log('<updateQuotation> inQuoteObj:',inQuoteObj)
