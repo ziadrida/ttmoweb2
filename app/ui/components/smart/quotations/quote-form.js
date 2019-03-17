@@ -285,7 +285,7 @@ class QuoteForm extends React.Component {
   super(props);
   this.state = {
     pricingNow:null,
-    readyForPricing:false,
+
     categorySearch: {},
     copySuccess: '',
     bulkUpdate: false,
@@ -579,11 +579,11 @@ handleDateChange = date => {
           {
           formEditInfo: {
           ...this.state.formEditInfo,
-            edit_username: username,
+            edit_username: username, // has name and userId and label and value
             userInfo: userInfo,
         },
         allowSave: true,
-        readyForPricing: false,
+
       });
 
   }
@@ -605,7 +605,7 @@ handleDateChange = date => {
             [name]: value
         },
         allowSave: true,
-        readyForPricing: true,
+
       });
 
     console.log('<QuoteForm> handleChange state:',this.state)
@@ -638,7 +638,7 @@ handleDateChange = date => {
 
           },
           allowSave: true,
-          readyForPricing: false,
+
         });
 
     }
@@ -876,13 +876,14 @@ handleDateChange = date => {
           quoteInfo: {
             ...this.props.quoteInfo,
              quotation: quoteObj, // setting for active and final is included
+
         },
         message:quoteObj.message,
         pricingNow: false,
         allowSave: quoteObj!=null,
       })
     } catch(err)  {
-        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by calculatePrice:",err)
+        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by doCalculate:",err)
         var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
         quotation = {
           ...quotation,
@@ -899,7 +900,7 @@ handleDateChange = date => {
                   err? err:'Error calculating price. Check input fields',
           pricingNow:null,
           allowSave: false,
-         readyForPricing: false,
+
          // invalidate pricing
          quoteInfo: {
            ...this.state.quoteInfo,
@@ -968,8 +969,10 @@ handleDateChange = date => {
     console.log('<handleAction> => <QuoteForm>  props==>\n',this.props)
     console.log('<handleAction> => <QuoteForm>   state\n',this.state)
     const { closePopup } = this.props;
-    await this.setStateAsync({message:"Saving quotation ...",
-                allowSave: false})
+    await this.setStateAsync({
+        message:"Saving quotation ...",
+       allowSave: false
+    })
 
 
      const {  bulkUpdate,  validBulkUpdate } = this.state
@@ -986,9 +989,7 @@ handleDateChange = date => {
 
            console.log("=======>  After bulkUpdate line mutateAction response:",response)
 
-           quoteInfo.closed = response.closed;
 
-           quoteInfo.status =     response.status
 
          })
        })
@@ -1007,13 +1008,7 @@ handleDateChange = date => {
                   refresh: true,
                   quoteInfo: {
                   ...this.state.quoteInfo,
-
-                   accounting_note:resp.accounting_note?
-                       resp.accounting_note:'',
-
-                   booked: resp.booked != null?resp.booked:false,
-                   discount: resp.discount != null?  resp.discount:0,
-              },
+                 },
               formEditInfo: {
                 ...this.state.formEditInfo,
                  edit_status: resp.status,
@@ -1082,10 +1077,11 @@ handleDateChange = date => {
         this.state.quoteInfo.quotation.item == null ||
         this.state.quoteInfo.quotation.prices == null ) {
           throw new Error("Pricing not  ready. ")
+      } else if (!this.state.formEditInfo.userInfo ||  !this.state.formEditInfo.userInfo.userId) {
+          throw new Error("UserId not specified!")
       }
 
-
-        var categoryArray =  [];
+      var categoryArray =  [];
         if(
         this.state.formEditInfo.edit_category && this.state.formEditInfo.edit_category.value) {
           categoryArray.push(this.state.formEditInfo.edit_category.value)
@@ -1104,7 +1100,7 @@ handleDateChange = date => {
          variables: {
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
-            senderId: this.state.formEditInfo.edit_senderId,
+            senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
             sales_person: this.state.quoteInfo.sales_person,
             userInfo: {
                 username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,

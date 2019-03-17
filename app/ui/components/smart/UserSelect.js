@@ -237,7 +237,7 @@ class UserSelect extends React.Component {
   // };
   handleUserSelection = (username) => {
     console.log("*in <handleUserSelection> <UserSelect>  username",username)
-    var newState = { username }
+    var newState = { username } // name and userId as label and value
     console.log("<handleUserSelection> <UserSelect>  props:",this.props)
     // find selection in users list and set phone# and other user Information
     const {  usersQuery } = this.props;
@@ -249,7 +249,8 @@ class UserSelect extends React.Component {
      console.log("<handleUserSelection> userIdx:",userIdx)
      if (userIdx>=0) {
        console.log('<handleUserSelection> User:',getUsers[userIdx])
-       newState = { ...newState,
+       newState = {
+           ...newState,
            userInfo: getUsers[userIdx] }
      }
     }

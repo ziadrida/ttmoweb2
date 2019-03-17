@@ -21,8 +21,8 @@ async function updateQuotation(root, args, context) {
   //console.log('context:', context)
 
 
-   console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
-          context.user.profile.name)
+   console.log("  context.user.profile.name:",context&& context.user&&JSON.stringify(context.user))
+
   var updated_by = context.user && context.user.profile && context.user.profile.name ?
     context.user.profile.name : 'wedadmin';
 
