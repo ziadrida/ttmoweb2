@@ -14,14 +14,15 @@ const errorOn = true;
 
 async function updateQuotation(root, args, context) {
 
-  console.log("=> in <updateQuotation> args:", JSON.stringify(args, 2, null))
+  //console.log("=> in <updateQuotation> args:", JSON.stringify(args, 2, null))
+  if (debugOn) console.log("=> in updateQuotation:", JSON.stringify(args.input));
   //console.log('root:', root)
   //  console.log('args:', args)
   //console.log('context:', context)
 
-  //if (debugOn) console.log("=> in updateQuotation:", JSON.stringify(args.input));
-  //  console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
-  //        context.user.profile.name)
+
+   console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
+          context.user.profile.name)
   var updated_by = context.user && context.user.profile && context.user.profile.name ?
     context.user.profile.name : 'wedadmin';
 
@@ -99,7 +100,7 @@ async function updateQuotation(root, args, context) {
 
       var inQuoteObj = args.input.quotation;
       inQuoteObj.quote_date = moment().toDate();
-      inQuoteObj.ownerId = args.input.userInfo.userId;
+        inQuoteObj.ownerId = args.input.userInfo.userId;
       // inQuoteObj.active = args.input.active!=null ?args.input.active:null;
       // inQuoteObj.final = args.input.final != null ?args.input.final:null;
       //console.log('<updateQuotation> inQuoteObj:',inQuoteObj)
@@ -146,19 +147,19 @@ async function updateQuotation(root, args, context) {
                 "timestamp":0,
                 "message":{"mid":"-","seq":0,
                 "text":
-                  "{ \"action\": \"*quote\", \"quote_no\":"+ doc.quote_no+", \"userId\": "+inQuoteObj.ownerId+" }",
+                  "{ \"action\": \"*quote\", \"quote_no\":"+ doc.quote_no+", \"userId\": \""+inQuoteObj.ownerId+"\" }",
                 "nlp":{"entities":{}}}}
               ]
           }]}
 
 
 
-            console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",quoteMsgPayload)
+            console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",JSON.stringify(quoteMsgPayload))
             axios.post('https://protected-thicket-49120.herokuapp.com/webhook',  quoteMsgPayload )
            .then(res => {
              console.log("Result from call to axios.post")
-             console.log("<handleSendQuotation> <QuoteForm> res:",res);
-             console.log("<handleSendQuotation> <QuoteForm> res.data:" ,res.data);
+            // console.log("<handleSendQuotation> <QuoteForm> res:",res);
+             console.log("<handleSendQuotation> <QuoteForm> res.status:" ,res && res.status);
            })
            console.log("After call to axios.post")
             return result;
