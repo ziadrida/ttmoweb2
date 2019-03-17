@@ -218,7 +218,7 @@ class UserSelect extends React.Component {
         ...returnState,
         userInfo: userInfo
       }
-      console.log('<getDerivedStateFromProps> <UserSelect> Option selected:', props.username);
+      console.log('<getDerivedStateFromProps> <UserSelect> username:', props.username);
       console.log('<getDerivedStateFromProps> <UserSelect>  call parent onChange: userInfo:',
          userIdx>=0 ? getUsers[userIdx]:'not set!')
       if (props.onChange) {

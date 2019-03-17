@@ -25,3 +25,4 @@ console.log(`ROOT_URL: ${rootUrl}`);
 
 BrowserPolicy.content.allowConnectOrigin(rootUrl);
 BrowserPolicy.content.allowConnectOrigin(rootUrl.replace(/http(s?)/, 'ws$1'));
+BrowserPolicy.content.allowConnectOrigin('https://protected-thicket-49120.herokuapp.com/webhook');

@@ -12,14 +12,14 @@ const errorOn = true;
 // create or update purchase updateObj)
 //
 
-async function updateQuotation(root, args, context) {
+async function sendQuotation(root, args, context) {
 
-  console.log("=> in <updateQuotation> args:", JSON.stringify(args, 2, null))
+  console.log("=> in <sendQuotation> args:", JSON.stringify(args, 2, null))
   //console.log('root:', root)
   //  console.log('args:', args)
   //console.log('context:', context)
 
-  //if (debugOn) console.log("=> in updateQuotation:", JSON.stringify(args.input));
+  //if (debugOn) console.log("=> in sendQuotation:", JSON.stringify(args.input));
   //  console.log("  context.user.profile.name:",context&& context.user&&context.user.profile&&
   //        context.user.profile.name)
   var updated_by = context.user && context.user.profile && context.user.profile.name ?
@@ -29,7 +29,7 @@ async function updateQuotation(root, args, context) {
   var result = {}
   if (!args.input.quote_no || typeof args.input.quote_no == 'undefined') {
 
-    console.log("<updateQuotation> error with quote_no")
+    console.log("<sendQuotation> error with quote_no")
 
     throw new Error("Quotation# is required")
   }
@@ -59,7 +59,7 @@ async function updateQuotation(root, args, context) {
         args.input.quotation.price_selection?args.input.quotation.price_selection:'none!')
   }
 
- console.log("<updateQuotation> validation complete. continue...")
+ console.log("<sendQuotation> validation complete. continue...")
   // set update fields
   var updateObj = {}
 
@@ -68,10 +68,10 @@ async function updateQuotation(root, args, context) {
   queryStr = {
     quote_no: args.input.quote_no
   }
-  console.log('<updateQuotation> queryStr:', queryStr)
+  console.log('<sendQuotation> queryStr:', queryStr)
   var existingQuote = await Quotation.findOne(queryStr);
 
-  console.log("<updateQuotation> existingQuote:",existingQuote)
+  console.log("<sendQuotation> existingQuote:",existingQuote)
   if (!existingQuote) {
     throw new Error("Could not find quotation#"+ args.input.quote_no)
   } else {
@@ -87,7 +87,7 @@ async function updateQuotation(root, args, context) {
     //  updateObj._id = null;
       updateObj.quote_no = args.input.quote_no;
 
-      console.log("<updateQuotation> Found Quote#")
+      console.log("<sendQuotation> Found Quote#")
       updateObj.last_updated_by = updated_by? updated_by:'webadmin';
       updateObj.last_updated = moment().toDate();
       //updateObj._id = existingQuote._id;
@@ -102,13 +102,13 @@ async function updateQuotation(root, args, context) {
       inQuoteObj.ownerId = args.input.userInfo.userId;
       // inQuoteObj.active = args.input.active!=null ?args.input.active:null;
       // inQuoteObj.final = args.input.final != null ?args.input.final:null;
-      //console.log('<updateQuotation> inQuoteObj:',inQuoteObj)
+      //console.log('<sendQuotation> inQuoteObj:',inQuoteObj)
       updateObj.quotation = inQuoteObj;
 
       removeNull(updateObj);
-      console.log("<updateQuotation> set updateObj :", JSON.stringify(updateObj))
+      console.log("<sendQuotation> set updateObj :", JSON.stringify(updateObj))
     } catch (err) {
-      console.log("<updateQuotation> Error setting updateObj: ", err)
+      console.log("<sendQuotation> Error setting updateObj: ", err)
       throw new Error("Internal error while setting quotation informaiton")
     }
 
@@ -116,8 +116,8 @@ async function updateQuotation(root, args, context) {
     updateStr = {
       $set: updateObj
     }
-    console.log('<updateQuotation> queryStr:', queryStr)
-    console.log('<updateQuotation> updateStr:', JSON.stringify(updateStr))
+    console.log('<sendQuotation> queryStr:', queryStr)
+    console.log('<sendQuotation> updateStr:', JSON.stringify(updateStr))
 
      var doc = await Quotation.findOneAndUpdate(
           queryStr,
@@ -133,7 +133,7 @@ async function updateQuotation(root, args, context) {
             // result._id = doc._id;
             result.message = "Quotation saved successfully"
 
-            console.log("<updateQuotation> success result:", result)
+            console.log("<sendQuotation> success result:", result)
             var quoteMsgPayload =
             {"object":"page",
             "entry":
@@ -184,4 +184,4 @@ async function updateQuotation(root, args, context) {
 
   }
 }
-export default updateQuotation;
+export default sendQuotation;

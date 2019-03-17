@@ -201,6 +201,7 @@ const types = gql`
 
   type Mutation {
     updateQuotation (input: QuoteInput!): QuotationResponse
+    sendQuotation (input: QuoteInput!): QuotationResponse
   }
 
 `;

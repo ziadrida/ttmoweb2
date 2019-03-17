@@ -8,6 +8,8 @@ import moment from 'moment';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import {  graphql } from 'react-apollo';
+import { compose } from "recompose";
+
 import gql from 'graphql-tag';
 import { onError } from "apollo-link-error";
 import {DatePicker} from 'material-ui-pickers';
@@ -58,6 +60,7 @@ import Chip from '@material-ui/core/Chip';
 
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
+//import axios from 'axios';
 // const usersQueryx = gql`
 //
 // query users ($search: String,$searchField: String) {
@@ -268,7 +271,6 @@ function Menu(props) {
 const components = {
   Control,
   Menu,
-
   NoOptionsMessage,
   Option,
   Placeholder,
@@ -451,6 +453,10 @@ static  getDerivedStateFromProps(props, state) {
         },
 
         formEditInfo: {
+          userInfo: {
+            username: quotation.username,
+            userId: quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,
+          },
           quote_no:props.quoteInfo.quote_no,
           edit_senderId:props.quoteInfo.senderId,
           edit_ownderId: quotation.ownerId? quotation.ownerId:item.ownerId? item.ownerId:'',
@@ -471,7 +477,12 @@ static  getDerivedStateFromProps(props, state) {
 
           edit_MPN: item.MPM? item.MPN:'',
           edit_asin: item.asin? item.asin:'',
-          edit_category: {value: item.category && item.category.length>0? item.category[0]:''},
+          edit_category:
+            {value: item.category_info && item.category_info.category_name?
+                item.category_info.category_name:'',
+             label:item.category_info && item.category_info.category_name?
+                 item.category_info.category_name + '/'+item.category_info.category_name_ar:'',
+               },
           edit_category_info: item.category_info,
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
           edit_condition: item.condition? item.condition:'',
@@ -926,6 +937,31 @@ handleDateChange = date => {
         });
     }
 
+    handleSendQuotation = async (evt) => {
+      console.log('<handleSendQuotation> <QuoteForm> :',evt)
+       console.log('<handleSendQuotation> <QuoteForm> state:',this.state)
+       const userId = this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null;
+       if(!userId) {
+         this.setState({
+           message:"Invalid user ID"
+         })
+         return;
+       }
+      var quoteMsgPayload = {action: '*quote', quote_no: this.state.formEditInfo.quote_no,
+        userId:this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null
+
+      }
+      console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",quoteMsgPayload)
+     //  axios.post('https://protected-thicket-49120.herokuapp.com/webhook', { quoteMsgPayload })
+     // .then(res => {
+     //   console.log("<handleSendQuotation> <QuoteForm> res:",res);
+     //   console.log("<handleSendQuotation> <QuoteForm> res.data:" ,res.data);
+     // })
+     this.setState({
+       message:"Sent quotation to user"
+     })
+    }
+
    handleAction = async (evt) => {
     evt.preventDefault();
     console.log('<handleAction> <QuoteForm> :',evt)
@@ -1012,8 +1048,8 @@ handleDateChange = date => {
     var message =  ""
     var sucess = false
     var rtnquoteInfo = selectedRow;
-    const { mutate, setRow} = this.props
-    if (mutate) {
+    const { updateQuotation, setRow} = this.props
+    if (updateQuotation) {
 
       console.log("<mutateAction> <QuoteForm>  +>>>selectedRow:",selectedRow)
       var updateInfo ;
@@ -1064,7 +1100,7 @@ handleDateChange = date => {
 
           })
         console.log("prices:",prices)
-      const response = await mutate({
+      const response = await updateQuotation({
          variables: {
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
@@ -1263,11 +1299,11 @@ handleDateChange = date => {
     const {getCategories} = categoriesQuery
 
 
-    const { created_by, date_created, quotation,quote_no, sales_person, senderId, _id} =  this.state.quoteInfo;
+    const { created_by, date_created, quotation,quote_no,sales_person, senderId, _id} =  this.state.quoteInfo;
     // const {title,url,quotation, active, category, chargeableWeight, final, height, item, length, message, notes,
     //   ownderId, po_no, price, price_selection, prices, qty, quote_date, reason, requestor, sales_person, shipping,
     //   source, thumbnailImage, username, weight, width, senderId } = quotation;
-    const {item, prices, quote_date, qSenderId, ownderId} = quotation;
+    const {item, prices, quote_date, qSenderId, ownderId,po_no} = quotation;
 
     console.log("<render> <QuoteForm> senderId/ownderId:",qSenderId,"/", ownderId)
   //  const category = item? item.category:null;
@@ -1324,7 +1360,8 @@ handleDateChange = date => {
 
     const tax_amm = catIdx >=0? getCategories[catIdx].tax_amm*100:  null
     const tax_aqaba =  catIdx >=0? getCategories[catIdx].tax_aqaba*100:null
-
+    const special_tax =  catIdx >=0? getCategories[catIdx].special_tax*100:null
+    const customs =  catIdx >=0? getCategories[catIdx].customs*100:null
 
 // console.log("usersQuery.loading:",usersQuery.loading)
 //
@@ -1368,6 +1405,23 @@ handleDateChange = date => {
               label="Quote#"
               value={quote_no}
               onClick={(e) => {this.copyToClipboard(e, quote_no)}}
+              margin="dense"
+              className={classes.textField}
+              style={{
+                //backgroundColor:'pink',
+                'whiteSpace': 'unset',
+                 'fontSize': '12px' ,
+                 'fontWeight':'bold',
+                'width' : '8em',
+              }}
+            />
+            <TextField
+              disabled={bulkUpdate}
+              name="po_no"
+              type="String"
+              label="PO#"
+              value={po_no}
+              onClick={(e) => {this.copyToClipboard(e, po_no)}}
               margin="dense"
               className={classes.textField}
               style={{
@@ -1430,6 +1484,11 @@ handleDateChange = date => {
                 onChange={this.handleUserSelection}
                 onInputChange={this.handleUserInputChange}
             />
+            <Button size="medium"  variant="contained"
+              color="primary"
+              margin="dense" onClick={this.handleSendQuotation}>
+              Send Quote
+            </Button>
             </div>
 
             <div className="flex flex-row">
@@ -1552,7 +1611,7 @@ handleDateChange = date => {
                     required={true}
                     value={edit_category}
                     onChange={(val)=> {this.handleCostingChange({target: { name:'edit_category', value: val }})}}
-                    placeholder="Search Categories"
+                    placeholder="Enter Categories"
                     isClearable={false}
                     isSearchable={true}
                   />
@@ -1564,10 +1623,6 @@ handleDateChange = date => {
                     type="number"
                     label="Amm Tax"
                     value={tax_amm !=null ?tax_amm.toFixed(2):''}
-                    InputProps={{
-                                  startAdornment: <InputAdornment position="start">%</InputAdornment>,
-
-                      }}
                     style={{
                        backgroundColor: 'lightblue',
 
@@ -1582,14 +1637,40 @@ handleDateChange = date => {
                     />
                     <TextField
                         disabled={bulkUpdate}
+                        name="special_tax"
+                        type="number"
+                        label="Amm Special Tax"
+                        value={special_tax !=null ?special_tax.toFixed(2):''}
+
+                        style={{
+                           backgroundColor: 'lightblue',
+                            fontSize: '12px' ,
+                            font: 'bold',
+                        }}
+                        margin="dense"
+                        className={classes.textField}
+                    />
+                    <TextField
+                        disabled={bulkUpdate}
+                        name="customs"
+                        type="number"
+                        label="Amm Customs"
+                        value={customs !=null ?customs.toFixed(2):''}
+
+                        style={{
+                           backgroundColor: 'lightblue',
+                            fontSize: '12px' ,
+                            font: 'bold',
+                        }}
+                        margin="dense"
+                        className={classes.textField}
+                        />
+                    <TextField
+                        disabled={bulkUpdate}
                         name="tax_aqaba"
                         type="Number"
                         label="Aqaba Tax"
                         value={tax_aqaba!=null ? tax_aqaba.toFixed(1):''}
-                        InputProps={{
-                                      startAdornment: <InputAdornment position="start">%</InputAdornment>,
-
-                                  }}
                         margin="dense"
                         style={{
 
@@ -1943,7 +2024,7 @@ handleDateChange = date => {
                               <Loading />:null }
 
             <Button
-              disabled={this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
+              disabled={po_no!=null? true:this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
               size="medium"
               type="submit"
               variant="contained"
@@ -2038,12 +2119,27 @@ const updateQuotation = gql`
       message
     }
   }
+
+`;
+const sendQuotation = gql`
+  mutation sendQuotation($quoteInput: QuoteInput!) {
+    sendQuotation (input: $quoteInput) {
+      quote_no
+      message
+    }
+  }
 `;
 
 
-const QuoteWithMutation =
-graphql( updateQuotation)
-(QuoteForm);
+// const QuoteWithMutation =
+// graphql( updateQuotation)
+// (QuoteForm);
+
+const QuoteWithMutation = compose(
+  graphql( updateQuotation,{ name: 'updateQuotation' }),
+  graphql( sendQuotation,{ name: 'sendQuotation' })
+)(QuoteForm);
+
 
 //export default withUsers(withCategories(withStyles(styles, { withTheme: true })(QuoteWithMutation)))
 export default withCategories(withStyles(styles, { withTheme: true })(QuoteWithMutation))

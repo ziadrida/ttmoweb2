@@ -240,9 +240,10 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
         filterAll: false,
       accessor: d =>
       (d.quotation.active != null && d.quotation.final != null?
+        d.quotation.po_no &&   d.quotation.po_no!=''? 'PO Created':
         d.quotation.active && d.quotation.final? 'In CART':
         !d.quotation.active && !d.quotation.final? 'Pending':
-        !d.quotation.active && d.quotation.final? d.quotation.po_no? 'PO Created':'Discarded':
+        !d.quotation.active && d.quotation.final? 'Discarded':
         d.quotation.active && !d.quotation.final? 'Not Quoted':
         'Needs Help':'Incomplete'
       ),
