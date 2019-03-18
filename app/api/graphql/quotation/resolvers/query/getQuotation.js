@@ -103,8 +103,8 @@ const getQuotation = async(root, args, context) => {
 
   if (!dateFrom && !dateTo) {
     //  const today = moment().startOf('day')
-    dateFrom = moment().add(-1, 'days').toDate()
-    dateTo = moment().toDate()
+    dateFrom = moment().add(-4, 'days').toDate()
+    dateTo = moment().add(1,'days').toDate()
   }
   console.log("moment:", moment())
   console.log("moment toDate:", moment().toDate())

@@ -17,6 +17,7 @@ import {  graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import usersQuery from '/app/ui/apollo-client/user/query/users.js';
 import Loading from '/app/ui/components/dumb/loading';
+import ChatView from './ChatView';
 
 const styles = theme => ({
   root: {
@@ -154,7 +155,6 @@ function Menu(props) {
 const components = {
   Control,
   Menu,
-
   NoOptionsMessage,
   Option,
   Placeholder,
@@ -172,6 +172,7 @@ class UserSelect extends React.Component {
       username: { label:'',value:''},
       userInput:'',
       userInfo:{},
+      chatMessagesSearch: null
     };
 
 
@@ -179,6 +180,19 @@ class UserSelect extends React.Component {
 
     this.handleUserSelection = this.handleUserSelection.bind(this)
 }
+
+
+  copyToClipboard = (e,val) => {
+    console.log(e);
+      console.log('val:',val)
+    var textField = document.createElement('textarea')
+    textField.innerText = val
+    document.body.appendChild(textField)
+    textField.select()
+    document.execCommand('copy')
+    textField.remove()
+    };
+
   static getDerivedStateFromProps(props, state) {
     console.log("<><> <getDerivedStateFromProps> <UserSelect> \nprops",props, "\nstate",state)
     var returnState = {}
@@ -208,6 +222,7 @@ class UserSelect extends React.Component {
       returnState = {
         ...returnState,
         username: props.username,
+
       }
 
     } else if (userInfo && state.userInfo && state.userInfo._id != userInfo._id ){
@@ -216,7 +231,8 @@ class UserSelect extends React.Component {
 
       returnState = {
         ...returnState,
-        userInfo: userInfo
+        userInfo: userInfo,
+        chatMessagesSearch: { username: userInfo.name}
       }
       console.log('<getDerivedStateFromProps> <UserSelect> username:', props.username);
       console.log('<getDerivedStateFromProps> <UserSelect>  call parent onChange: userInfo:',
@@ -251,7 +267,9 @@ class UserSelect extends React.Component {
        console.log('<handleUserSelection> User:',getUsers[userIdx])
        newState = {
            ...newState,
-           userInfo: getUsers[userIdx] }
+           userInfo: getUsers[userIdx],
+           chatMessagesSearch: { username: getUsers[userIdx].name}
+      }
      }
     }
 
@@ -302,9 +320,9 @@ class UserSelect extends React.Component {
   render() {
     console.log('render UserSelect props:',this.props)
     console.log('render UserSelect state:',this.state)
-    const {userInput, userInfo} = this.state
+    const {userInput, userInfo,chatMessagesSearch} = this.state
     console.log('<UserSelect> <render> userInfo:',userInfo)
-
+    console.log('<UserSelect> <render> chatMessagesSearch:',chatMessagesSearch)
     console.log("render UserSelect userInput:",userInput)
     const { classes, theme, value, name, usersQuery,username } = this.props;
     const { getUsers } = usersQuery
@@ -353,6 +371,7 @@ class UserSelect extends React.Component {
 
     return (
       <div className="flex flex-row">
+      <div className="flex flex-column">
           <NoSsr>
             <ReactSelect
               classes={classes}
@@ -363,7 +382,7 @@ class UserSelect extends React.Component {
               inputValue={userInput}
               onInputChange={this.handleInputChange}
               onChange={this.handleUserSelection}
-
+              onClick={(e) => {this.copyToClipboard(e, username.label)}}
               placeholder="Search Users"
               isClearable={false}
               isSearchable={true}
@@ -378,6 +397,7 @@ class UserSelect extends React.Component {
 
         margin="dense"
         className={classes.textField}
+          onClick={(e) => {this.copyToClipboard(e, userId)}}
         style={{
           //backgroundColor:'pink'
 
@@ -390,7 +410,7 @@ class UserSelect extends React.Component {
         type="String"
         label="Phone#"
         value={phoneNo}
-
+          onClick={(e) => {this.copyToClipboard(e, phoneNo)}}
         margin="dense"
         className={classes.textField}
         style={{
@@ -399,6 +419,21 @@ class UserSelect extends React.Component {
           'width' : '15em',
         }}
       />
+      </div>
+      <div className="flex  border">
+      <ChatView
+          chatMessagesSearch={chatMessagesSearch}
+          style={{
+            //backgroundColor:'pink'
+              'fontSize': '12px',
+              'overflowY':'scroll',
+              'overflow':'scroll',
+              'width':'600px',
+              'height':'5em',
+          }}
+          />
+        </div>
+
     {usersQuery && usersQuery.loading? <Loading/>:null}
 
       </div>
@@ -425,6 +460,7 @@ const withUsers = graphql(usersQuery, {
   //  pollInterval: 1000*60*5
   }),
 });
+
 
 export default withUsers(withStyles(styles, { withTheme: true })(UserSelect));
 

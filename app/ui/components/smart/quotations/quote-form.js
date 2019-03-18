@@ -486,6 +486,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_category_info: item.category_info,
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
           edit_condition: item.condition? item.condition:'',
+          edit_send_action: '',
           // edit_active: quotation.active!=null? quotation.active:false,
           // edit_final: quotation.final!=null? quotation.final:false,
           edit_reason: quotation.reason!=null? quotation.reason:false,
@@ -515,7 +516,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
           edit_source: item.source? item.source:'',
           edit_condition: item.condition? item.condition:'New',
-
+          edit_send_action: '',
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
         },
 
@@ -1315,7 +1316,7 @@ handleDateChange = date => {
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
-        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition, edit_notes,
+        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition,edit_send_action, edit_user_message, edit_notes,
       edit_destination, edit_priceType, edit_options,edit_price_selection} = this.state.formEditInfo
   console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
       console.log('<render> <QuoteForm> edit_destination:',edit_destination)
@@ -1411,23 +1412,6 @@ handleDateChange = date => {
                 'width' : '8em',
               }}
             />
-            <TextField
-              disabled={bulkUpdate}
-              name="po_no"
-              type="String"
-              label="PO#"
-              value={po_no}
-              onClick={(e) => {this.copyToClipboard(e, po_no)}}
-              margin="dense"
-              className={classes.textField}
-              style={{
-                //backgroundColor:'pink',
-                'whiteSpace': 'unset',
-                 'fontSize': '12px' ,
-                 'fontWeight':'bold',
-                'width' : '8em',
-              }}
-            />
             <FormControlLabel
               control={
                 <Checkbox
@@ -1451,6 +1435,24 @@ handleDateChange = date => {
             />
             <TextField
               disabled={bulkUpdate}
+              name="po_no"
+              type="String"
+              label="PO#"
+              value={po_no}
+              onClick={(e) => {this.copyToClipboard(e, po_no)}}
+              margin="dense"
+              className={classes.textField}
+              style={{
+                //backgroundColor:'pink',
+                'whiteSpace': 'unset',
+                 'fontSize': '12px' ,
+                 'fontWeight':'bold',
+                'width' : '8em',
+              }}
+            />
+
+            <TextField
+              disabled={bulkUpdate}
               name="quote_date"
               type="String"
               label="Date"
@@ -1469,24 +1471,62 @@ handleDateChange = date => {
               margin="dense"
               className={classes.textField}
               />
-
-
             </div>
-
-            <div className="flex flex-row">
             <UserSelect
                 username={edit_username}
                 userSearch={this.state.userSearch}
                 onChange={this.handleUserSelection}
                 onInputChange={this.handleUserInputChange}
             />
+            <div className="flex flex-row border">
+            <FormControl  className={classes.formControl}>
+            <InputLabel htmlFor="edit_send_action">Send Quote or saved Message</InputLabel>
+            <Select
+              disabled={false}
+              value={edit_send_action}
+              onChange={this.handleChange}
+              name="edit_send_action"
+              inputProps={{
+                id: 'edit_send_action',
+              }}
+              className={classes.selectEmpty}
+            >
+              <MenuItem value={""}>Not Selected</MenuItem>
+              <MenuItem value={"PricingNow"}>Pricing Now</MenuItem>
+              <MenuItem value={"Wait"}>Please wait</MenuItem>
+              <MenuItem value={"SendQuote"}>Send Text Quote</MenuItem>
+              <MenuItem value={"UpdateCart"}>Update Cart</MenuItem>
+              <MenuItem value={"Buy"}>Would you like to buy?</MenuItem>
+              <MenuItem value={"Thanks"}>Thank You</MenuItem>
+              <MenuItem value={"ThumbsUp"}>Thumbs Up!</MenuItem>
+            </Select>
+            <FormHelperText>Send quote or saved message to User</FormHelperText>
+          </FormControl>
+          <TextField
+            disabled={bulkUpdate}
+            name="edit_user_message"
+            type="String"
+            label="Enter user message"
+            value={edit_user_message}
+            onChange={this.handleChange}
+
+            margin="dense"
+            className={classes.textField}
+            style={{
+              //backgroundColor:'pink',
+              'whiteSpace': 'unset',
+               'fontSize': '10px' ,
+
+              'width' : '42em',
+            }}
+          />
             <Button size="medium"  variant="contained"
+              disabled={true}
               color="primary"
               margin="dense" onClick={this.handleSendQuotation}>
-              Send Quote
+              Send
             </Button>
             </div>
-
             <div className="flex flex-row">
 
             <TextField
