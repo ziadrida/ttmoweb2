@@ -46,7 +46,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
   const { chatMessagesData, classes } = props
 
   const { loading, error, getChatMessages ,variables  } = chatMessagesData;
-
+console.log('<render> <ChatView> loading:',loading)
   if (!getChatMessages) return <p>No Chat Messages</p>
   const recordCount = getChatMessages? getChatMessages.length:0;
   console.log('variables:',variables)
@@ -114,8 +114,8 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
             columns={columns}
             defaultPageSize={100}
             style={{
-              height: "280px", // This will force the table body to overflow and scroll, since there is not enough room
-              width: "600px", // This will force the table body to overflow and scroll, since there is not enough room
+              height: "300px", // This will force the table body to overflow and scroll, since there is not enough room
+              width: "650px", // This will force the table body to overflow and scroll, since there is not enough room
               'fontSize': '10px',
               'overflowY':'scroll',
               'overflowX':'scroll',

@@ -18,7 +18,7 @@ import gql from 'graphql-tag';
 import usersQuery from '/app/ui/apollo-client/user/query/users.js';
 import Loading from '/app/ui/components/dumb/loading';
 import ChatView from './ChatView';
-
+import Button from '@material-ui/core/Button';
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -222,7 +222,7 @@ class UserSelect extends React.Component {
       returnState = {
         ...returnState,
         username: props.username,
-
+        chatMessagesSearch: { search: userInfo? userInfo.userId:props.username.value, searchField:"userId"}
       }
 
     } else if (userInfo && state.userInfo && state.userInfo._id != userInfo._id ){
@@ -232,7 +232,7 @@ class UserSelect extends React.Component {
       returnState = {
         ...returnState,
         userInfo: userInfo,
-        chatMessagesSearch: { username: userInfo.name}
+        chatMessagesSearch: { search: userInfo? userInfo.userId:props.username.value, searchField:"userId"}
       }
       console.log('<getDerivedStateFromProps> <UserSelect> username:', props.username);
       console.log('<getDerivedStateFromProps> <UserSelect>  call parent onChange: userInfo:',
@@ -268,7 +268,8 @@ class UserSelect extends React.Component {
        newState = {
            ...newState,
            userInfo: getUsers[userIdx],
-           chatMessagesSearch: { username: getUsers[userIdx].name}
+           //chatMessagesSearch: { username: getUsers[userIdx].name}
+           chatMessagesSearch: { search: getUsers[userIdx].userId, searchField:"userId"}
       }
      }
     }
@@ -329,7 +330,7 @@ class UserSelect extends React.Component {
 
     const phoneNo = userInfo &&  userInfo.phone_no?userInfo.phone_no:'';
     const userId = userInfo && userInfo.userId? userInfo.userId:username? username.value:'';
-
+    const fbInboxLink = userInfo && userInfo.fbInboxLink? 'https://www.facebook.com/'+userInfo.fbInboxLink:'';
     console.log("render UserSelect props username:",username)
 
 
@@ -419,6 +420,15 @@ class UserSelect extends React.Component {
           'width' : '15em',
         }}
       />
+
+      <a target="_blank" href={fbInboxLink}>
+      <Button size="medium"  variant="contained"
+        disabled={false}
+        color="primary"
+        margin="dense" >
+        FB Inbox
+      </Button>
+      </a>
       </div>
       <div className="flex  border">
       <ChatView

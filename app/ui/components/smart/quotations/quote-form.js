@@ -443,7 +443,7 @@ static  getDerivedStateFromProps(props, state) {
       returnState =  {
         ...returnState,
         userSearch: {
-          userId:quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,
+          userId:props.quoteInfo.senderId,
         },
         message:props.quoteInfo.quote_no?'Loaded Quote#'+props.quoteInfo.quote_no:'',
         quoteInfo: props.quoteInfo ,
@@ -455,11 +455,11 @@ static  getDerivedStateFromProps(props, state) {
         formEditInfo: {
           userInfo: {
             username: quotation.username,
-            userId: quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,
+            userId: props.quoteInfo.senderId,
           },
           quote_no:props.quoteInfo.quote_no,
           edit_senderId:props.quoteInfo.senderId,
-          edit_ownderId: quotation.ownerId? quotation.ownerId:item.ownerId? item.ownerId:'',
+          edit_ownderId: props.quoteInfo.senderId,
           edit_notes:props.quoteInfo.notes? props.quoteInfo.notes:'',
           edit_options: props.quoteInfo.options?props.quoteInfo.options:'',
           edit_title: quotation.title? quotation.title:   item.title?item.title:'',
@@ -472,8 +472,9 @@ static  getDerivedStateFromProps(props, state) {
             quotation.prices[quotation.price_selection].destination:'',
 
           edit_username:
-            {value:quotation.ownerId? quotation.ownerId:item.ownderId? item.ownderId:props.quoteInfo.senderId,// yes ownderId is misspelled!
-            label: item.username? item.username:quotation.username? quotation.username:''},
+            { value: props.quoteInfo.senderId,
+            label: quotation.username
+            },
 
           edit_MPN: item.MPM? item.MPN:'',
           edit_asin: item.asin? item.asin:'',
@@ -507,7 +508,7 @@ static  getDerivedStateFromProps(props, state) {
 
           edit_language: item.language? item.language:'en',
 
-          edit_ownderId: item.ownderId? item.ownderId:'',
+          edit_ownderId: props.quoteInfo.senderId,
           edit_price: item.price,
           edit_qty: item.qty,
 

@@ -11,6 +11,8 @@ const userFragment = gql`
     address
     email
     phone_no
+    fbInboxLink
+    profile_pic
 
     createdAt
     services

@@ -34,6 +34,8 @@ const types = gql`
     city: String
     vip: Boolean
     phone_no: String
+    fbInboxLink: String
+    profile_pic: String
     tax_exempt: Boolean
     company: String
     user_title: String
