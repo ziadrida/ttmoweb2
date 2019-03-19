@@ -426,7 +426,7 @@ class UserSelect extends React.Component {
         disabled={false}
         color="primary"
         margin="dense" >
-        FB Inbox
+        Go to User Inbox
       </Button>
       </a>
       </div>
