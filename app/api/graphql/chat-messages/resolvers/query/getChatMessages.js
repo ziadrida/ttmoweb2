@@ -171,7 +171,7 @@ const getChatMessages = async (root, args, context) => {
           return row
     })
     console.log("result.length:",result.length)
-    console.log("curChatMessages:",JSON.stringify(result))
+//console.log("curChatMessages:",JSON.stringify(result))
     return result;
   } catch (exc) {
     console.log(exc);

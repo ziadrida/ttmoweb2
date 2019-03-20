@@ -60,7 +60,7 @@ import Chip from '@material-ui/core/Chip';
 
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
-//import axios from 'axios';
+
 // const usersQueryx = gql`
 //
 // query users ($search: String,$searchField: String) {
@@ -487,7 +487,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_category_info: item.category_info,
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
           edit_condition: item.condition? item.condition:'',
-          edit_send_action: '',
+          edit_canned_message_selection: '',
           // edit_active: quotation.active!=null? quotation.active:false,
           // edit_final: quotation.final!=null? quotation.final:false,
           edit_reason: quotation.reason!=null? quotation.reason:false,
@@ -517,7 +517,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
           edit_source: item.source? item.source:'',
           edit_condition: item.condition? item.condition:'New',
-          edit_send_action: '',
+          edit_canned_message_selection: '',
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
         },
 
@@ -590,6 +590,46 @@ handleDateChange = date => {
 
   }
   // handleChange function
+handleCannedMessage = ({target}) => {
+    console.log('<handleCannedMessage><QuoteForm>  ',target)
+
+    const { value, name } = target;
+    var text = "..."
+    switch (value) {
+
+      case 'pleaseWait':
+        text = "Please wait الرجاء الأنتظار"
+      case 'pricingNow':
+        text = "Pricing now  يتم التسعير الأن"
+        break;
+      case 'textQuote':
+
+        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std']}\n `
+        break;
+
+      case 'buy':
+        text = "Would you like to confirm the order? هل ترغب بتثبيت الطلب؟"
+        break;
+      case 'thanks':
+        text = "Thank you! شكرا "
+        break;
+      case 'thumbsup':
+        text = ":)"
+        break;
+
+      default:
+    }
+    this.setState(
+          {
+          formEditInfo: {
+          ...this.state.formEditInfo,
+          [name]: value,
+          edit_canned_message: text
+        },
+
+
+      });
+    }
 
   //  handleChange = name => value => {
   handleChange = ({ target }) => {
@@ -600,6 +640,7 @@ handleDateChange = date => {
 
     console.log('<><>quoteForm in handleChange ')
     console.log("name:",name,"  value:",value)
+
     this.setState(
           {
           formEditInfo: {
@@ -965,6 +1006,68 @@ handleDateChange = date => {
      })
     }
 
+    handleSendQuotation = async (evt) => {
+        console.log('<handleSendQuotation> <QuoteForm> :',evt)
+        console.log('<handleSendQuotation> => <QuoteForm>  props==>\n',this.props)
+        console.log('<handleSendQuotation> => <QuoteForm>   state\n',this.state)
+        await this.setStateAsync({
+            message:"Sending Quotation to user cart ...",
+
+        })
+      this.sendFbAction('sendQuotation')
+
+    }
+
+
+    handleSendMessage = async (evt) => {
+        console.log('<v> <QuoteForm> :',evt)
+        console.log('<handleSendMessage> => <QuoteForm>  props==>\n',this.props)
+        console.log('<handleSendMessage> => <QuoteForm>   state\n',this.state)
+        await this.setStateAsync({
+            message:"Sending Message ...",
+
+        })
+        this.sendFbAction('sendMessage')
+    }
+
+    sendFbAction = async (action) => {
+      console.log('<sendFbAction> => <QuoteForm>  Action==>\n',action)
+      console.log('<sendFbAction> => <QuoteForm>  props==>\n',this.props)
+      console.log('<sendFbAction> => <QuoteForm>   state\n',this.state)
+      const { sendFBQuoteAction} = this.props
+      if (sendFBQuoteAction) {
+          try {
+            console.log("<handleSendQuotation> <QuoteForm> call sendFBQuoteAction")
+            const response = await sendFBQuoteAction({
+             variables: {
+               "sendAction":action ,
+               "actionInput": {
+                quote_no: this.state.formEditInfo.quote_no,
+                senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
+                text: this.state.formEditInfo.edit_canned_message,
+              }
+            }
+          })
+          if (response) {
+            console.log("<handleSendQuotation> <QuoteForm> Got valid response:",response)
+            await this.setStateAsync({
+                message:"Quotation sent to user. Cart updated."
+            })
+          } else {
+            console.log("<handleSendQuotation> <QuoteForm> Got null response:")
+            await this.setStateAsync({
+                message:"Could not send Quotation"
+            })
+          }
+        } catch(err) {
+          console.log("<handleSendQuotation> <QuoteForm> Error from sendFBQuoteAction err:",err)
+          await this.setStateAsync({
+              message:"Could not send Quotation. "+err
+          })
+        }
+      }
+    }
+
    handleAction = async (evt) => {
     evt.preventDefault();
     console.log('<handleAction> <QuoteForm> :',evt)
@@ -1100,6 +1203,7 @@ handleDateChange = date => {
         console.log("prices:",prices)
       const response = await updateQuotation({
          variables: {
+
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
             senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
@@ -1317,7 +1421,8 @@ handleDateChange = date => {
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
-        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition,edit_send_action, edit_user_message, edit_notes,
+        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition,edit_canned_message_selection,
+         edit_canned_message, edit_notes,
       edit_destination, edit_priceType, edit_options,edit_price_selection} = this.state.formEditInfo
   console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
       console.log('<render> <QuoteForm> edit_destination:',edit_destination)
@@ -1481,34 +1586,34 @@ handleDateChange = date => {
             />
             <div className="flex flex-row border">
             <FormControl  className={classes.formControl}>
-            <InputLabel htmlFor="edit_send_action">Send Quote or saved Message</InputLabel>
+            <InputLabel htmlFor="edit_canned_message_selection">Send Quote or saved Message</InputLabel>
             <Select
               disabled={false}
-              value={edit_send_action}
-              onChange={this.handleChange}
-              name="edit_send_action"
+              value={edit_canned_message_selection}
+              onChange={this.handleCannedMessage}
+              name="edit_canned_message_selection"
               inputProps={{
-                id: 'edit_send_action',
+                id: 'edit_canned_message_selection',
               }}
               className={classes.selectEmpty}
             >
               <MenuItem value={""}>Not Selected</MenuItem>
-              <MenuItem value={"PricingNow"}>Pricing Now</MenuItem>
-              <MenuItem value={"Wait"}>Please wait</MenuItem>
-              <MenuItem value={"SendQuote"}>Send Text Quote</MenuItem>
-              <MenuItem value={"UpdateCart"}>Update Cart</MenuItem>
-              <MenuItem value={"Buy"}>Would you like to buy?</MenuItem>
-              <MenuItem value={"Thanks"}>Thank You</MenuItem>
-              <MenuItem value={"ThumbsUp"}>Thumbs Up!</MenuItem>
+              <MenuItem value={"pricingNow"}>Pricing Now</MenuItem>
+              <MenuItem value={"pleaseWait"}>Please Wait</MenuItem>
+              <MenuItem value={"textQuote"}>Send Text Quote</MenuItem>
+
+              <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
+              <MenuItem value={"thanks"}>Thank You</MenuItem>
+              <MenuItem value={"thumbsup"}>Thumbs Up!</MenuItem>
             </Select>
             <FormHelperText>Send quote or saved message to User</FormHelperText>
           </FormControl>
           <TextField
             disabled={bulkUpdate}
-            name="edit_user_message"
+            name="edit_canned_message"
             type="String"
             label="Enter user message"
-            value={edit_user_message}
+            value={edit_canned_message}
             onChange={this.handleChange}
 
             margin="dense"
@@ -1521,11 +1626,18 @@ handleDateChange = date => {
               'width' : '42em',
             }}
           />
+
             <Button size="medium"  variant="contained"
-              disabled={true}
+              disabled={false}
+              color="secondary"
+              margin="dense" onClick={this.handleSendMessage}>
+              Send Message
+            </Button>
+            <Button size="medium"  variant="contained"
+              disabled={false}
               color="primary"
               margin="dense" onClick={this.handleSendQuotation}>
-              Send
+              Send Quote
             </Button>
             </div>
             <div className="flex flex-row">
@@ -2158,10 +2270,10 @@ const updateQuotation = gql`
   }
 
 `;
-const sendQuotation = gql`
-  mutation sendQuotation($quoteInput: QuoteInput!) {
-    sendQuotation (input: $quoteInput) {
-      quote_no
+const sendFBQuoteAction = gql`
+  mutation sendFBQuoteAction($sendAction: String!, $actionInput: FBQuoteAction!) {
+    sendFBQuoteAction (action: $sendAction, input: $actionInput) {
+      status
       message
     }
   }
@@ -2174,7 +2286,7 @@ const sendQuotation = gql`
 
 const QuoteWithMutation = compose(
   graphql( updateQuotation,{ name: 'updateQuotation' }),
-  graphql( sendQuotation,{ name: 'sendQuotation' })
+  graphql( sendFBQuoteAction,{ name: 'sendFBQuoteAction' })
 )(QuoteForm);
 
 

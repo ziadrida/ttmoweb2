@@ -1,10 +1,10 @@
 
 import updateQuotation from './update-quotation';
-import sendQuotation from './send-quotation';
+import sendFBQuoteAction from './send-quotation';
 
 const Mutation = {
   updateQuotation,
-  sendQuotation
+  sendFBQuoteAction
 };
 
 export default Mutation;

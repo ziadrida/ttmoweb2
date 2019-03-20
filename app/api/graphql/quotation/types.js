@@ -199,9 +199,22 @@ const types = gql`
 
   }
 
+  input FBQuoteAction {
+    quote_no: Int
+    senderId: String
+    sales_person: String
+    text: String
+  }
+
+  type ActionResponse {
+
+    status: String
+    message: String
+  }
+
   type Mutation {
     updateQuotation (input: QuoteInput!): QuotationResponse
-    sendQuotation (input: QuoteInput!): QuotationResponse
+    sendFBQuoteAction (action: String!, input: FBQuoteAction!): ActionResponse
   }
 
 `;
