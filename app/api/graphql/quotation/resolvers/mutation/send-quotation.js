@@ -73,6 +73,7 @@ async function sendFBQuoteAction(root, args, context) {
 
     var payload = {
               action: "forward",
+              options: args.input.options,
               userId:args.input.senderId,
               text: args.input.text,
               quote_no: args.input.quote_no?args.input.quote_no:null

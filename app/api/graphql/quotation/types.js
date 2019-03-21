@@ -201,6 +201,7 @@ const types = gql`
 
   input FBQuoteAction {
     quote_no: Int
+    options: String
     senderId: String
     sales_person: String
     text: String

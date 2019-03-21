@@ -603,29 +603,29 @@ handleCannedMessage = ({target}) => {
     switch (value) {
 
       case 'pleaseWait':
-        options: 'message'
+        options ='message'
         text = "Please wait الرجاء الأنتظار"
         break;
       case 'pricingNow':
-        options: 'message'
+        options= 'message'
         text = "Pricing now  يتم التسعير الأن"
         break;
       case 'textQuote':
-        options: 'quote'
-        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std'].price}
-        Price in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} `
+        options= 'quote'
+        text = `Price is ${this.state.quoteInfo.quotation.prices['amm_std'].price} JD
+        \nPrice in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} JD`
         break;
 
       case 'buy':
-        options: 'message'
+        options ='message'
         text = "Would you like to confirm the order? هل ترغب بتثبيت الطلب؟"
         break;
       case 'thanks':
-        options: 'message'
+        options ='message'
         text = "Thank you! شكرا "
         break;
       case 'thumbsup':
-        options: 'message'
+        options ='message'
         text = "(Y)"
         break;
 
@@ -635,10 +635,10 @@ handleCannedMessage = ({target}) => {
           {
           allowSendMessage: true,
           formEditInfo: {
-          ...this.state.formEditInfo,
-          [name]: value,
-          edit_canned_message: text,
-          edit_send_action_options: options
+            ...this.state.formEditInfo,
+            [name]: value,
+            edit_canned_message: text,
+            edit_send_action_options: options
         },
 
 
@@ -1057,9 +1057,9 @@ handleCannedMessage = ({target}) => {
             const response = await sendFBQuoteAction({
              variables: {
                "sendAction":action,
-               "options": this.state.formEditInfo.edit_send_action_options,
                "actionInput": {
                 quote_no: this.state.formEditInfo.quote_no,
+                options: this.state.formEditInfo.edit_send_action_options,
                 senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
                 text: this.state.formEditInfo.edit_canned_message,
 

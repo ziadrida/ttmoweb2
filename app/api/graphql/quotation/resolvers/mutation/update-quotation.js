@@ -133,35 +133,35 @@ async function updateQuotation(root, args, context) {
             result.quote_no = doc.quote_no;
             // result._id = doc._id;
             result.message = "Quotation saved successfully"
-
-            console.log("<updateQuotation> success result:", result)
-            var quoteMsgPayload =
-            {"object":"page",
-            "entry":
-            [{"id":"",
-            "time":0,
-            "messaging":
-              [
-                {"sender":{"id":"1669687099731063"},
-                "recipient":{"id":"243919968953836"},
-                "timestamp":0,
-                "message":{"mid":"-","seq":0,
-                "text":
-                  "{ \"action\": \"*quote\", \"quote_no\":"+ doc.quote_no+", \"userId\": \""+inQuoteObj.ownerId+"\" }",
-                "nlp":{"entities":{}}}}
-              ]
-          }]}
-
-
-
-            console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",JSON.stringify(quoteMsgPayload))
-            axios.post('https://protected-thicket-49120.herokuapp.com/webhook',  quoteMsgPayload )
-           .then(res => {
-             console.log("Result from call to axios.post")
-            // console.log("<handleSendQuotation> <QuoteForm> res:",res);
-             console.log("<handleSendQuotation> <QuoteForm> res.status:" ,res && res.status);
-           })
-           console.log("After call to axios.post")
+          //
+          //   console.log("<updateQuotation> success result:", result)
+          //   var quoteMsgPayload =
+          //   {"object":"page",
+          //   "entry":
+          //   [{"id":"",
+          //   "time":0,
+          //   "messaging":
+          //     [
+          //       {"sender":{"id":"1669687099731063"},
+          //       "recipient":{"id":"243919968953836"},
+          //       "timestamp":0,
+          //       "message":{"mid":"-","seq":0,
+          //       "text":
+          //         "{ \"action\": \"*quote\", \"quote_no\":"+ doc.quote_no+", \"userId\": \""+inQuoteObj.ownerId+"\" }",
+          //       "nlp":{"entities":{}}}}
+          //     ]
+          // }]}
+          //
+          //
+          //
+          //   console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",JSON.stringify(quoteMsgPayload))
+          //   axios.post('https://protected-thicket-49120.herokuapp.com/webhook',  quoteMsgPayload )
+          //  .then(res => {
+          //    console.log("Result from call to axios.post")
+          //   // console.log("<handleSendQuotation> <QuoteForm> res:",res);
+          //    console.log("<handleSendQuotation> <QuoteForm> res.status:" ,res && res.status);
+          //  })
+          //  console.log("After call to axios.post")
             return result;
         } else {
             result = {}
