@@ -284,6 +284,8 @@ class QuoteForm extends React.Component {
     console.log("<QuoteForm> constructor props:",props)
   super(props);
   this.state = {
+    allowSendQuote: false,
+    allowSendMessage: false,
     pricingNow:null,
 
     categorySearch: {},
@@ -599,12 +601,14 @@ handleCannedMessage = ({target}) => {
 
       case 'pleaseWait':
         text = "Please wait الرجاء الأنتظار"
+        break;
       case 'pricingNow':
         text = "Pricing now  يتم التسعير الأن"
         break;
       case 'textQuote':
 
-        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std']}\n `
+        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std'].price}\n
+                Price in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} `
         break;
 
       case 'buy':
@@ -614,13 +618,14 @@ handleCannedMessage = ({target}) => {
         text = "Thank you! شكرا "
         break;
       case 'thumbsup':
-        text = ":)"
+        text = "(Y)"
         break;
 
       default:
     }
     this.setState(
           {
+          allowSendMessage: true,
           formEditInfo: {
           ...this.state.formEditInfo,
           [name]: value,
@@ -643,6 +648,7 @@ handleCannedMessage = ({target}) => {
 
     this.setState(
           {
+          allowSendQuote: true,
           formEditInfo: {
           ...this.state.formEditInfo,
             [name]: value
@@ -981,30 +987,31 @@ handleCannedMessage = ({target}) => {
         });
     }
 
-    handleSendQuotation = async (evt) => {
-      console.log('<handleSendQuotation> <QuoteForm> :',evt)
-       console.log('<handleSendQuotation> <QuoteForm> state:',this.state)
-       const userId = this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null;
-       if(!userId) {
-         this.setState({
-           message:"Invalid user ID"
-         })
-         return;
-       }
-      var quoteMsgPayload = {action: '*quote', quote_no: this.state.formEditInfo.quote_no,
-        userId:this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null
-
-      }
-      console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",quoteMsgPayload)
-     //  axios.post('https://protected-thicket-49120.herokuapp.com/webhook', { quoteMsgPayload })
-     // .then(res => {
-     //   console.log("<handleSendQuotation> <QuoteForm> res:",res);
-     //   console.log("<handleSendQuotation> <QuoteForm> res.data:" ,res.data);
-     // })
-     this.setState({
-       message:"Sent quotation to user"
-     })
-    }
+    // handleSendQuotation = async (evt) => {
+    //   console.log('<handleSendQuotation> <QuoteForm> :',evt)
+    //    console.log('<handleSendQuotation> <QuoteForm> state:',this.state)
+    //    const userId = this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null;
+    //    if(!userId) {
+    //      this.setState({
+    //        message:"Invalid user ID"
+    //      })
+    //      return;
+    //    }
+    //   var quoteMsgPayload = {action: '*quote', quote_no: this.state.formEditInfo.quote_no,
+    //     userId:this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null
+    //
+    //   }
+    //   console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",quoteMsgPayload)
+    //  //  axios.post('https://protected-thicket-49120.herokuapp.com/webhook', { quoteMsgPayload })
+    //  // .then(res => {
+    //  //   console.log("<handleSendQuotation> <QuoteForm> res:",res);
+    //  //   console.log("<handleSendQuotation> <QuoteForm> res.data:" ,res.data);
+    //  // })
+    //  this.setState({
+    //    message:"Sent quotation to user",
+    //    allowSendQuote: false,
+    //  })
+    // }
 
     handleSendQuotation = async (evt) => {
         console.log('<handleSendQuotation> <QuoteForm> :',evt)
@@ -1012,7 +1019,7 @@ handleCannedMessage = ({target}) => {
         console.log('<handleSendQuotation> => <QuoteForm>   state\n',this.state)
         await this.setStateAsync({
             message:"Sending Quotation to user cart ...",
-
+            allowSendQuote:false,
         })
       this.sendFbAction('sendQuotation')
 
@@ -1025,7 +1032,7 @@ handleCannedMessage = ({target}) => {
         console.log('<handleSendMessage> => <QuoteForm>   state\n',this.state)
         await this.setStateAsync({
             message:"Sending Message ...",
-
+            allowSendMessage: false,
         })
         this.sendFbAction('sendMessage')
     }
@@ -1628,13 +1635,13 @@ handleCannedMessage = ({target}) => {
           />
 
             <Button size="medium"  variant="contained"
-              disabled={false}
+              disabled={!this.state.allowSendMessage}
               color="secondary"
               margin="dense" onClick={this.handleSendMessage}>
               Send Message
             </Button>
             <Button size="medium"  variant="contained"
-              disabled={false}
+              disabled={!this.state.allowSendQuote}
               color="primary"
               margin="dense" onClick={this.handleSendQuotation}>
               Send Quote

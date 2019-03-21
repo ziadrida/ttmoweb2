@@ -28,7 +28,7 @@ async function sendFBQuoteAction(root, args, context) {
   // Peform a simple find and return one  documents
   var result = {}
   if (!args.action) {
-      throw new Error("Internal error. Action required")
+    throw new Error("Internal error. Action required")
   }
 
   if (!args.input.quote_no || typeof args.input.quote_no == 'undefined') {
@@ -42,67 +42,90 @@ async function sendFBQuoteAction(root, args, context) {
 
     throw new Error("User Id  is required")
   }
-    var quoteMsgPayload ;
+  var quoteMsgPayload;
   if (args.action == "sendQuotation") {
-     quoteMsgPayload =
-    {"object":"page",
-    "entry":
-    [{"id":"",
-    "time":new Date().getTime(),
-    "messaging":
-      [
-        {"sender":{"id":"1669687099731063"},
-        "recipient":{"id":"243919968953836"},
-        "timestamp":0,
-        "message":{"mid":"-","seq":0,
-        "text":
-          "{ \"action\": \"*quote\", \"quote_no\":"+ args.input.quote_no+", \"userId\": \""+args.input.senderId+"\" }",
-        "nlp":{"entities":{}}}}
-      ]
-    }]}
+    quoteMsgPayload = {
+      "object": "page",
+      "entry": [{
+        "id": "",
+        "time": new Date().getTime(),
+        "messaging": [{
+          "sender": {
+            "id": "1669687099731063"
+          },
+          "recipient": {
+            "id": "243919968953836"
+          },
+          "timestamp": 0,
+          "message": {
+            "mid": "-",
+            "seq": 0,
+            "text": "{ \"action\": \"*quote\", \"quote_no\":" + args.input.quote_no + ", \"userId\": \"" + args.input.senderId + "\" }",
+            "nlp": {
+              "entities": {}
+            }
+          }
+        }]
+      }]
+    }
   } // sendQuotation
   else if (args.action == 'sendMessage') {
-    quoteMsgPayload =
-    {"object":"page",
-    "entry":[
-      {"id":"",
-        "time":new Date().getTime(),
-        "messaging":
-          [{"recipient":{"id":"243919968953836"},"timestamp":new Date().getTime(),
-          "sender":{"id":args.input.senderId},
-          "postback":{"payload":"{\"action\":\"forward\"}","userId":args.input.senderId,"text": args.input.text}}
-          ]
-       }
-     ]
-     }
+
+    var payload = {
+              action: "forward",
+              userId:args.input.senderId,
+              text: args.input.text,
+              quote_no: args.input.quote_no?args.input.quote_no:null
+            } //,quotation: payloadMsg.quotation}
+    payloadStr = JSON.stringify(payload)
+    quoteMsgPayload = {
+      "object": "page",
+      "entry": [{
+        "id": "",
+        "time": new Date().getTime(),
+        "messaging": [{
+          "recipient": {
+            "id": "243919968953836"
+          },
+          "timestamp": new Date().getTime(),
+          "sender": {
+            "id": args.input.senderId
+          },
+          "postback": {
+            "payload": payloadStr
+          }
+        }]
+      }]
+    }
+
   }
 
 
-    console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",JSON.stringify(quoteMsgPayload))
-    try {
-    const res = axios.post('https://protected-thicket-49120.herokuapp.com/webhook',  quoteMsgPayload )
+  console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:", JSON.stringify(quoteMsgPayload))
+  try {
+    const res = axios.post('https://protected-thicket-49120.herokuapp.com/webhook', quoteMsgPayload)
     //.then(res => {
     if (res) {
-     console.log("Result from call to axios.post")
-    // console.log("<handleSendQuotation> <QuoteForm> res:",res);
-     console.log("<handleSendQuotation> <QuoteForm> success from axios.post => res.status:" ,res);
-     result.status = 200
-     result.message = "Action complete"
-     return result;
-   } else {
-  //  .catch(function (error) {
+      console.log("Result from call to axios.post")
+      // console.log("<handleSendQuotation> <QuoteForm> res:",res);
+      console.log("<handleSendQuotation> <QuoteForm> success from axios.post => res.status:", res);
+      result.status = 200
+      result.message = "Action complete"
+      return result;
+    } else {
+      //  .catch(function (error) {
       // handle error
 
       console.log("no res After call to axios.post")
-      result.status=-1
-      result.message="Internal Error during send request"
+      result.status = -1
+      result.message = "Internal Error during send request"
       return result;
     }
-  } catch(err) {
-    console.log("Err",err);
+  } catch (err) {
+    console.log("Err", err);
     console.log("error After call to axios.post")
-    result.status=-1
-    result.message="Internal Error during send request. "+err
+    result.status = -1
+    result.message = "Internal Error during send request. " + err
     return result;
   }
 
