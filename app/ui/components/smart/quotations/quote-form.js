@@ -490,6 +490,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
           edit_condition: item.condition? item.condition:'',
           edit_canned_message_selection: '',
+          edit_send_action_options: '',
           // edit_active: quotation.active!=null? quotation.active:false,
           // edit_final: quotation.final!=null? quotation.final:false,
           edit_reason: quotation.reason!=null? quotation.reason:false,
@@ -520,6 +521,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_source: item.source? item.source:'',
           edit_condition: item.condition? item.condition:'New',
           edit_canned_message_selection: '',
+          edit_send_action_options:'',
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
         },
 
@@ -597,27 +599,33 @@ handleCannedMessage = ({target}) => {
 
     const { value, name } = target;
     var text = "..."
+    var options = "message"
     switch (value) {
 
       case 'pleaseWait':
+        options: 'message'
         text = "Please wait الرجاء الأنتظار"
         break;
       case 'pricingNow':
+        options: 'message'
         text = "Pricing now  يتم التسعير الأن"
         break;
       case 'textQuote':
-
-        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std'].price}\n
-                Price in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} `
+        options: 'quote'
+        text = `Price in Amman ${this.state.quoteInfo.quotation.prices['amm_std'].price}
+        Price in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} `
         break;
 
       case 'buy':
+        options: 'message'
         text = "Would you like to confirm the order? هل ترغب بتثبيت الطلب؟"
         break;
       case 'thanks':
+        options: 'message'
         text = "Thank you! شكرا "
         break;
       case 'thumbsup':
+        options: 'message'
         text = "(Y)"
         break;
 
@@ -629,7 +637,8 @@ handleCannedMessage = ({target}) => {
           formEditInfo: {
           ...this.state.formEditInfo,
           [name]: value,
-          edit_canned_message: text
+          edit_canned_message: text,
+          edit_send_action_options: options
         },
 
 
@@ -1047,11 +1056,13 @@ handleCannedMessage = ({target}) => {
             console.log("<handleSendQuotation> <QuoteForm> call sendFBQuoteAction")
             const response = await sendFBQuoteAction({
              variables: {
-               "sendAction":action ,
+               "sendAction":action,
+               "options": this.state.formEditInfo.edit_send_action_options,
                "actionInput": {
                 quote_no: this.state.formEditInfo.quote_no,
                 senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
                 text: this.state.formEditInfo.edit_canned_message,
+
               }
             }
           })
