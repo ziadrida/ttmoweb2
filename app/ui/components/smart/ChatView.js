@@ -156,7 +156,7 @@ const withData = graphql(chatMessagesQuery, {
       dateFrom: (chatMessagesSearch && chatMessagesSearch.dateFrom),
       dateTo: (chatMessagesSearch && chatMessagesSearch.dateTo)
     },
-    pollInterval: 1000*60*0.5
+    pollInterval: 1000*60*1
   }),
 });
 //export default withData(withStyles(styles)(ChatView));

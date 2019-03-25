@@ -24,6 +24,7 @@ const types = gql`
     notes: String
 
     active: Boolean
+    deleted: Boolean
     po_no: String
     sales_person: String
 
@@ -104,6 +105,7 @@ const types = gql`
       price_selection: String
       notes: String
       active: Boolean
+      deleted: Boolean
       po_no: String
       sales_person: String
       message: String

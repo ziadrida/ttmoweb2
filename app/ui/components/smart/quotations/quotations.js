@@ -242,6 +242,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       (d.quotation.active != null && d.quotation.final != null?
         d.quotation.po_no &&   d.quotation.po_no!=''? 'PO Created':
         d.quotation.active && d.quotation.final? 'In CART':
+        d.quotation.deleted!=null && d.quotation.deleted? 'Deleted':
         !d.quotation.active && !d.quotation.final? 'Pending':
         !d.quotation.active && d.quotation.final? 'Discarded':
         d.quotation.active && !d.quotation.final? 'Not Quoted':
@@ -254,8 +255,11 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       if (filter.value === "all") {
 
                         return true;
-                      } else  if (filter.value === "Attention!") {
-                        var regex = /In CART|Needs Quote|Error|Discarded|Needs Help|Incomplete/g;
+                      }   else  if (filter.value === "Deleted") {
+                            return row[filter.id].includes('Deleted') ;
+                      }
+                      else  if (filter.value === "Action Needed") {
+                        var regex = /In CART|Not Quoted|Error|Discarded|Needs Help|Incomplete|Pending/g;
                         var found = filter.value.match(regex);
 
                         return found == null ;
@@ -280,12 +284,12 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       <select
                         onChange={event => onChange(event.target.value)}
                         style={{ width: "100%" }}
-                        value={filter ? filter.value : "all"}
+                        value={filter ? filter.value : "Action Needed"}
                       >
                         <option value="all">Show All</option>
-                          <option value="Attention!">Attention!</option>
+                        <option value="Action Needed">Action Needed</option>
                         <option value="In CART">In CART!</option>
-                        <option value="Error">Error</option>
+                        <option value="Deleted">Deleted</option>
                         <option value="Not Quoted">Not Quoted</option>
                         <option value="Discarded">Discarded</option>
                         <option value="Needs Help">Needs Help</option>
@@ -306,20 +310,21 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
         Header: "Title",
         accessor: d =>(d.quotation.item && d.quotation.item.title? d.quotation.item.title: d.quotation.title),
 
-        filterMethod: (filter, rows) => {
-                  //  console.log('rows:',rows)
-                    //console.log('filter:',filter)
 
-                    return matchSorter(rows, filter.value, { keys: ["title"] })
-                  },
-        filterAll: true,
+        filterMethod: (filter, row) => {
+                  return    row[filter.id] && row[filter.id] != '' &&
+
+                    row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
+
+                } ,
+        filterAll: false,
         style: { 'whiteSpace': 'unset',
           'fontSize': '12px',
           'overflowY':'scroll',
-          'width':'340px',
+          'width':'360px',
           'height':'3em'
          },
-        width:340,
+        width:350,
       },
     {
       id: 'url',

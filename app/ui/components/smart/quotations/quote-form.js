@@ -332,6 +332,7 @@ class QuoteForm extends React.Component {
       notes:'',
       final:'',
       active:'',
+      deleted:'',
       po_no:'',
 
       sales_person:'',
@@ -491,7 +492,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_condition: item.condition? item.condition:'',
           edit_canned_message_selection: '',
           edit_send_action_options: '',
-          // edit_active: quotation.active!=null? quotation.active:false,
+          edit_deleted: quotation.deleted!=null? quotation.deleted:false,
           // edit_final: quotation.final!=null? quotation.final:false,
           edit_reason: quotation.reason!=null? quotation.reason:false,
           edit_height_inch: item.height,
@@ -518,7 +519,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_recipientID: item.recipientID? item.recipientID:'',
           edit_requestor: item.requestor? item.requestor:'',
           edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
-          edit_source: item.source? item.source:'',
+          edit_source: quotation.source? quotation.source: item.source? item.source:'',
           edit_condition: item.condition? item.condition:'New',
           edit_canned_message_selection: '',
           edit_send_action_options:'',
@@ -588,7 +589,7 @@ handleDateChange = date => {
             edit_username: username, // has name and userId and label and value
             userInfo: userInfo,
         },
-        allowSave: true,
+      //  allowSave: false,
 
       });
 
@@ -596,7 +597,9 @@ handleDateChange = date => {
   // handleChange function
 handleCannedMessage = ({target}) => {
     console.log('<handleCannedMessage><QuoteForm>  ',target)
+    const { quotation} =  this.state.quoteInfo;
 
+    const {edit_price_selection} = this.state.formEditInfo
     const { value, name } = target;
     var text = "..."
     var options = "message"
@@ -612,8 +615,11 @@ handleCannedMessage = ({target}) => {
         break;
       case 'textQuote':
         options= 'quote'
-        text = `Price is ${this.state.quoteInfo.quotation.prices['amm_std'].price} JD
-        \nPrice in Aqaba ${this.state.quoteInfo.quotation.prices['aq_std'].price} JD`
+        if (quotation && quotation.prices) {
+          text =
+          `${this.state.formEditInfo.edit_title}\nPrice is ${quotation.prices[edit_price_selection].price} JD
+          \nPrice in Aqaba ${quotation.prices['aq_std'].price} JD`
+        } else text = 'Pricing not ready yet!'
         break;
 
       case 'buy':
@@ -652,17 +658,19 @@ handleCannedMessage = ({target}) => {
     const { value, name } = target;
 
 
-    console.log('<><>quoteForm in handleChange ')
+    console.log('<handleChange> <quoteForm> ')
     console.log("name:",name,"  value:",value)
 
     this.setState(
           {
-          allowSendQuote: true,
+
           formEditInfo: {
           ...this.state.formEditInfo,
             [name]: value
-        },
-        allowSave: true,
+         },
+      //  allowSave: true,
+        allowSendQuote: true,
+        allowSendMessage:true,
 
       });
 
@@ -695,7 +703,9 @@ handleCannedMessage = ({target}) => {
               edit_category_info: category_info,
 
           },
-          allowSave: true,
+        //  allowSave: true,
+          allowSendMessage:true,
+          allowSendQuote:true,
 
         });
 
@@ -938,7 +948,9 @@ handleCannedMessage = ({target}) => {
         },
         message:quoteObj.message,
         pricingNow: false,
-        allowSave: quoteObj!=null,
+        //allowSave: quoteObj!=null,
+        allowSendMessage:true,
+        allowSendQuote:true,
       })
     } catch(err)  {
         console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by doCalculate:",err)
@@ -947,6 +959,7 @@ handleCannedMessage = ({target}) => {
           ...quotation,
           active: true, // active = should load in customer cart when final
           final: false, // final = is pricing correct and complete?
+
         //  valid: false,
           prices: null,
           price_selection:null,
@@ -985,8 +998,10 @@ handleCannedMessage = ({target}) => {
       this.setState({
         formEditInfo: {
         ...this.state.formEditInfo,
-         [name]: event.target.checked },
-       allowSave:false
+         [name]: event.target.checked
+       },
+       allowSave:true,
+       quoteChanged: true,
      });
     };
 
@@ -1093,8 +1108,11 @@ handleCannedMessage = ({target}) => {
     console.log('<handleAction> => <QuoteForm>   state\n',this.state)
     const { closePopup } = this.props;
     await this.setStateAsync({
+        allowSendMessage: true,
+        allowSendQuote: true,
         message:"Saving quotation ...",
-       allowSave: false
+       allowSave: false,
+
     })
 
 
@@ -1136,7 +1154,10 @@ handleCannedMessage = ({target}) => {
                 ...this.state.formEditInfo,
                  edit_status: resp.status,
                },
-              allowSave: false
+              allowSave: false,
+              quoteChanged: false,
+              allowSendMessage: true,
+              allowSendQuote: true,
               }
             );
           } else {
@@ -1144,7 +1165,9 @@ handleCannedMessage = ({target}) => {
             this.setState(
               { message:  'Internal error during quotation update (null!)' ,
                 refresh: false,
-                allowSave: false
+                allowSave: false,
+                allowSendMessage: true,
+                allowSendQuote: true,
               })
           }
          }
@@ -1153,7 +1176,9 @@ handleCannedMessage = ({target}) => {
             this.setState(
               { message:  err&& err.message? err.message:'Internal error during quotation update' ,
                 refresh: false,
-                allowSave: false
+                allowSave: false,
+                allowSendMessage: true,
+                allowSendQuote: true,
               })
           }
      }
@@ -1196,10 +1221,11 @@ handleCannedMessage = ({target}) => {
       console.log('***** updateInfo:',updateInfo)
       console.log("+++ before calling props.mutate ")
       var quoteObj =  this.state.quoteInfo;
-      if (this.state.quoteInfo == null || this.state.quoteInfo.quotation == null ||
-        this.state.quoteInfo.quotation.item == null ||
-        this.state.quoteInfo.quotation.prices == null ) {
-          throw new Error("Pricing not  ready. ")
+      if ((quoteObj == null || quoteObj.quotation == null ||
+        quoteObj.quotation.item == null ||
+        quoteObj.quotation.prices == null ) &&
+        (this.state.quoteChanged!=null && !this.state.quoteChanged)) {
+          throw new Error("Pricing not  ready or no changes made. ")
       } else if (!this.state.formEditInfo.userInfo ||  !this.state.formEditInfo.userInfo.userId) {
           throw new Error("UserId not specified!")
       }
@@ -1210,14 +1236,17 @@ handleCannedMessage = ({target}) => {
           categoryArray.push(this.state.formEditInfo.edit_category.value)
         }
 
-        var quotation = quoteObj.quotation
-          var prices = quotation.prices;
-        delete prices.__typename
+
+        var quotation = quoteObj? quoteObj.quotation:null
+        var prices = quotation? quotation.prices:null;
+        if (prices) {
+          delete prices.__typename
 
         Object.keys(prices).map(priceSelection => {
             delete  prices[priceSelection].__typename
 
           })
+        }
         console.log("prices:",prices)
       const response = await updateQuotation({
          variables: {
@@ -1225,7 +1254,7 @@ handleCannedMessage = ({target}) => {
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
             senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
-            sales_person: this.state.quoteInfo.sales_person,
+            sales_person: quoteObj.sales_person,
             userInfo: {
                 username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,
                 userId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
@@ -1240,6 +1269,7 @@ handleCannedMessage = ({target}) => {
 
               active:  quotation.active!=null? quotation.active:false, // active = should load in customer cart when final
               final:  quotation.final!=null?  quotation.final:false, // final = pricing complete
+              deleted:this.state.formEditInfo.edit_deleted!=null?this.state.formEditInfo.edit_deleted:false,
               po_no: null, // cannot change PO
               //sales_person: this.state.formEditInfo.sales_person,
             //  message: null,
@@ -1307,28 +1337,10 @@ handleCannedMessage = ({target}) => {
 
                 recipentID: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null,
               },
-              prices: {
+              prices:prices? {
                 ...prices
-              },
-                // amm_exp: {
-                //   destination: this.state.quoteIno.prices,
-                //   type: null,
-                //   delivery: null,
-                //   price: null,
-                // },
-                // amm_std: {
-                //   destination: null,
-                //   type: null,
-                //   delivery: null,
-                //   price: null,
-                // },
-                // aq_std: {
-                //   destination: null,
-                //   type: null,
-                //   delivery: null,
-                //   price: null,
+              }:null,
 
-            //  }
             }
 
           }
@@ -1435,7 +1447,7 @@ handleCannedMessage = ({target}) => {
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { edit_title, edit_url, edit_username,edit_ownderId,edit_senderId,
+     const { edit_deleted,edit_title, edit_url, edit_username,edit_ownderId,edit_senderId,
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
@@ -1541,21 +1553,33 @@ handleCannedMessage = ({target}) => {
                 <Checkbox
                   checked={quotation.active!=null?quotation.active:false}
                   value="quotation.active"
-                  color="primary"
+                  color="secondary"
                 />
               }
               label="Active"
             />
+
 
             <FormControlLabel
               control={
                 <Checkbox
                   checked={quotation.final!=null?quotation.final:false}
                   value="quotation.final"
-                  color="primary"
+                  color="secondary"
                 />
               }
               label="Final"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={edit_deleted!=null?edit_deleted:false}
+                  value={edit_deleted!=null?edit_deleted:false}
+                  onChange={this.handleCheckbox('edit_deleted')}
+                  color="primary"
+                />
+              }
+              label="Deleted"
             />
             <TextField
               disabled={bulkUpdate}
@@ -2191,7 +2215,10 @@ handleCannedMessage = ({target}) => {
                               <Loading />:null }
 
             <Button
-              disabled={po_no!=null? true:this.state.allowSave? (bulkUpdate &&  !validBulkUpdate)? true:false :true}
+              disabled={po_no!=null? true:
+                this.state.allowSave ||
+                (edit_price_selection &&
+                  prices && prices[edit_price_selection] && prices[edit_price_selection].price) ? false:true}
               size="medium"
               type="submit"
               variant="contained"

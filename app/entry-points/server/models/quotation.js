@@ -61,6 +61,8 @@ const schema = mongoose.Schema({
     language: String,
     username: String,
     chargeableWeight: Number,
+    active: Boolean,
+    deleted: Boolean,
     final: Boolean,
     requestor: String,
     quote_no: Number,
@@ -69,7 +71,7 @@ const schema = mongoose.Schema({
     prices: PriceOptions,
     notes: String,
 
-    active: Boolean,
+
     po_no: String,
 
     sales_person: String,

@@ -41,6 +41,7 @@ fragment quotationFragment on Quotation {
     notes
     final
     active
+    deleted
     po_no
 
     sales_person

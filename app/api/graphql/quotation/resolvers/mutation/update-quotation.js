@@ -50,17 +50,20 @@ async function updateQuotation(root, args, context) {
       throw new Error("Internal error: Missing quotation information")
   } else if (args.input.quotation.item == null) {
       throw new Error("Internal error: Missing item information")
-  } else if (args.input.quotation.prices  == null) {
-      throw new Error("Internal error: Missing prices information")
+  } else if (args.input.quotation.prices  == null  ) {
+      console.log("no prices object")
+    //  throw new Error("Internal error: Missing prices object")
   } else if (args.input.quotation.price_selection  == null ||args.input.quotation.price_selection =='' ) {
-      throw new Error("Internal error: Invalid price selection ",args.input.quotation.price_selection?args.input.quotation.price_selection:'none!')
+      console.log("no price selection ")
+    //  throw new Error("Internal error: Invalid price selection ",args.input.quotation.price_selection?args.input.quotation.price_selection:'none!')
   } else if (args.input.quotation.prices[args.input.quotation.price_selection]  == null ||
       args.input.quotation.prices[args.input.quotation.price_selection] === undefined ) {
-      throw new Error("Internal error: No price found for price selection ",
-        args.input.quotation.price_selection?args.input.quotation.price_selection:'none!')
+      console.log("no price_selection")
+      // throw new Error("Internal error: No price found for price selection ",
+      //   args.input.quotation.price_selection?args.input.quotation.price_selection:'none!')
   }
 
- console.log("<updateQuotation> validation complete. continue...")
+  console.log("<updateQuotation> validation complete. continue... ")
   // set update fields
   var updateObj = {}
 
@@ -99,12 +102,20 @@ async function updateQuotation(root, args, context) {
       updateObj.sales_person = args.input.sales_person;
 
       var inQuoteObj = args.input.quotation;
-      inQuoteObj.quote_date = moment().toDate();
-        inQuoteObj.ownerId = args.input.userInfo.userId;
-      // inQuoteObj.active = args.input.active!=null ?args.input.active:null;
-      // inQuoteObj.final = args.input.final != null ?args.input.final:null;
-      //console.log('<updateQuotation> inQuoteObj:',inQuoteObj)
-      updateObj.quotation = inQuoteObj;
+      if (inQuoteObj) {
+        inQuoteObj.quote_date = moment().toDate();
+          inQuoteObj.ownerId = args.input.userInfo.userId;
+
+        //console.log('<updateQuotation> inQuoteObj:',inQuoteObj)
+        updateObj.quotation = inQuoteObj;
+        if (inQuoteObj.deleted!=null && inQuoteObj.deleted) {
+          inQuoteObj.active = false;
+        }
+      } else {
+        console.log("inQuoteObj is NULL")
+      }
+      console.log("arg deleted?:",args.input.quotation.deleted)
+      console.log("updateObj deleted?:",updateObj.quotation.deleted)
 
       removeNull(updateObj);
       console.log("<updateQuotation> set updateObj :", JSON.stringify(updateObj))
