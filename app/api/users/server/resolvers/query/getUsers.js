@@ -47,10 +47,7 @@ const getUsers = async (root, args, context) => {
   } else if (args.userId !=null ) {
 
       queryStr = {
-      "userId": {
-        "$regex": args.userId,
-        "$options": "i"
-      }
+      "userId": args.userId
     }
   } else if  (args.username !=null ) {
 

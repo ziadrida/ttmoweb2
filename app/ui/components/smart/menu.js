@@ -22,7 +22,7 @@ const Menu = ({ curUser, homeUrl,
 
   ];
 
-  console.log("<menu> curUser.roles:",curUser && curUser.roles)
+  console.log("<menu> curUser:",JSON.stringify(curUser) )
   if (curUser &&  curUser.roles && curUser.roles.includes('admin')) {
     //menuRoutes.push({ path: adminUrl(), label: 'Admin', menu: true, admin: true });
     menuRoutes.push(  { path: quotationsUrl(), label: 'Quotations', menu: true })

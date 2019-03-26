@@ -1057,6 +1057,10 @@ handleCannedMessage = ({target}) => {
         await this.setStateAsync({
             message:"Sending Message ...",
             allowSendMessage: false,
+             formEditInfo: {
+               ...this.state.formEditInfo,
+               edit_canned_message:'',
+             }
         })
         this.sendFbAction('sendMessage')
     }

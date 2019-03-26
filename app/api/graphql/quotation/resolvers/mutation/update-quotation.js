@@ -25,7 +25,7 @@ async function updateQuotation(root, args, context) {
 
   var updated_by = context.user && context.user.profile && context.user.profile.name ?
     context.user.profile.name : 'wedadmin';
-
+    console.log("sales_person:",context.user && context.user.sales_person)
   // Peform a simple find and return one  documents
   var result = {}
   if (!args.input.quote_no || typeof args.input.quote_no == 'undefined') {
@@ -99,7 +99,7 @@ async function updateQuotation(root, args, context) {
 
       updateObj.username =  args.input.userInfo.username;
       //updateObj.phone_no = args.input.userInfo? args.input.userInfo.phone_no:null;
-      updateObj.sales_person = args.input.sales_person;
+      updateObj.sales_person = context.user && context.user.sales_person;
 
       var inQuoteObj = args.input.quotation;
       if (inQuoteObj) {

@@ -616,12 +616,15 @@ const SelectTable=selectTableHOC(ReactTable)
             {
               Header: "Title",
               accessor: "title",
-              filterMethod: (filter, rows) =>
-                matchSorter(rows, filter.value, {
-                  keys: ["title"]
-                }),
-              filterAll: true,
-              views:[view.all,view.payment,
+
+                filterMethod: (filter, row) => {
+
+                                return    row[filter.id] && row[filter.id] != '' &&
+                                (typeof row[filter.id] === 'string' || row[filter.id] instanceof String) &&
+                                row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
+                              } ,
+                    filterAll: false,
+               views:[view.all,view.payment,
                 view.purchase,view.track,view.arrive,
                 view.pack,view.ship,view.deliver,view.book,view.close],
                 style: { 'whiteSpace': 'unset',
@@ -637,13 +640,23 @@ const SelectTable=selectTableHOC(ReactTable)
               Header: "URL/HTTP Link",
               accessor: d =>
               <a href = { d.link } target = "_blank" > {d.link  } </a>,
-              filterMethod: (filter, rows) => {
-                console.log('rows:',rows)
-                console.log('filter:',filter)
+              // filterMethod: (filter, rows) => {
+              //   console.log('rows:',rows)
+              //   console.log('filter:',filter)
+              //
+              //   return matchSorter(rows, filter.value, {keys: ["link.props.href"] })
+              // },
+              // filterAll: true,
 
-                return matchSorter(rows, filter.value, {keys: ["link.props.href"] })
-              },
-              filterAll: true,
+              filterMethod: (filter, row) => {
+                //console.log('filter:',filter)
+                //console.log("row[filter.id]:",row[filter.id])
+                    return    row[filter.id] && row[filter.id] != '' && row[filter.id].props && row[filter.id].props.href &&
+                    (typeof row[filter.id].props.href === 'string' || row[filter.id].props.href instanceof String) &&
+                    row[filter.id].props.href.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
+
+                } ,
+              filterAll: false,
               style: { 'whiteSpace': 'unset',
                 'fontSize': '10px',
                 'overflowY':'scroll',

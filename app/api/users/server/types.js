@@ -26,6 +26,8 @@ const types = gql`
     _id: String!
     # start of old user schema
     name: String
+    username: String
+    sales_person: String
     userId:String
     first_name: String
     last_name: String

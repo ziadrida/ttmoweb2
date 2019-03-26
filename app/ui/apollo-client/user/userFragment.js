@@ -4,6 +4,9 @@ const userFragment = gql`
   fragment userFragment on User {
     _id
     userId
+    username
+    sales_person
+    role
     name
     first_name
     last_name

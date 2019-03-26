@@ -260,9 +260,9 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
                       }
                       else  if (filter.value === "Action Needed") {
                         var regex = /In CART|Not Quoted|Error|Discarded|Needs Help|Incomplete|Pending/g;
-                        var found = filter.value.match(regex);
+                        var found = row[filter.id].match(regex);
 
-                        return found == null ;
+                        return found != null ;
                       }
                       else  if (filter.value === "In CART") {
                         return row[filter.id].includes('In CART') ;
