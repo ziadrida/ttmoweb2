@@ -2,7 +2,7 @@ import { Accounts } from 'meteor/accounts-base';
 
 Accounts.onCreateUser((options, user) => {
   console.log('\nsign up attempt:', new Date());
-
+  console.log('<Accounts.onCreateUser> user:',user)
   // Handle password signup
   if (user.services.password) {
     const email = user.emails[0].address;

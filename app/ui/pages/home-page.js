@@ -26,6 +26,7 @@ const HomePage = ({
   handleSuccess,
 }) => {
   // Display loading indicator while checking for push support
+  console.log("<home-page> curUser:",curUser)
   if (supported === 'loading') {
     return <Loading />;
   }
@@ -82,7 +83,7 @@ const HomePage = ({
         successMsg={successMsg}
       />
       <pre style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-        {JSON.stringify(curUser, null, 2)}
+        {curUser? JSON.stringify(curUser, null, 2):"User Not Found"}
       </pre>
     </div>
   );

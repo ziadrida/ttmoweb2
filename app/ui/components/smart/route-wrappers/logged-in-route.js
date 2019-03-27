@@ -20,7 +20,7 @@ const LoggedInRoute = ({ curUser, component, redirectTo, overlay, emailNotVerifi
       const resolver = redirectTo.trim().length > 0
         ? <Redirect to={redirectTo.trim()} />
         : React.createElement(overlay, { ...rest, ...ownProps });
-      console.log("<LoggedInRoute> curUser:",JSON.stringify(curUser))
+
       if (!curUser) {
         return resolver;
       }

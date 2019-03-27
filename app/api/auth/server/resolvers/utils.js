@@ -10,6 +10,8 @@ export const getConnection = () => ({
 });
 
 export function callMeteorMethod(user, name, ...args) {
+  console.log("<callMeteorMethod> ",name)
+  console.log("<callMeteorMethod> user:",user)
   const handler = Meteor.server.method_handlers[name];
   if (!handler) {
     throw new Meteor.Error(404, `Method '${name}' not found`);

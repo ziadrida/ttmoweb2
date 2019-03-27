@@ -4,6 +4,7 @@ import { callMeteorMethod } from '../utils';
 import hashPassword from '../../../hash-password';
 
 async function createUser(root, options, { user }) {
+  console.log('<createUser> user:',user)
   Meteor._nodeCodeMustBeInFiber();
   if (!options.password && !options.plainPassword) {
     throw new Error('Password is required');

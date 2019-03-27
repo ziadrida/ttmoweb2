@@ -1057,10 +1057,7 @@ handleCannedMessage = ({target}) => {
         await this.setStateAsync({
             message:"Sending Message ...",
             allowSendMessage: false,
-             formEditInfo: {
-               ...this.state.formEditInfo,
-               edit_canned_message:'',
-             }
+
         })
         this.sendFbAction('sendMessage')
     }
@@ -1088,18 +1085,22 @@ handleCannedMessage = ({target}) => {
           if (response) {
             console.log("<handleSendQuotation> <QuoteForm> Got valid response:",response)
             await this.setStateAsync({
-                message:"Quotation sent to user. Cart updated."
+                message:"Message sent to user",
+                formEditInfo: {
+                  ...this.state.formEditInfo,
+                  edit_canned_message:'',
+                }
             })
           } else {
             console.log("<handleSendQuotation> <QuoteForm> Got null response:")
             await this.setStateAsync({
-                message:"Could not send Quotation"
+                message:"Could not send message to user"
             })
           }
         } catch(err) {
           console.log("<handleSendQuotation> <QuoteForm> Error from sendFBQuoteAction err:",err)
           await this.setStateAsync({
-              message:"Could not send Quotation. "+err
+              message:"Could not send message. "+err
           })
         }
       }
