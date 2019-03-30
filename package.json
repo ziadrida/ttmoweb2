@@ -73,6 +73,7 @@
     "moment": "^2.22.2",
     "mongoose": "^5.3.11",
     "mui-datatables": "^2.0.0-beta-38",
+    "probe-image-size": "^4.0.0",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-apollo": "^2.2.4",
@@ -93,7 +94,8 @@
     "trashable": "^1.0.7",
     "trashable-react": "^1.0.7",
     "unfetch": "^4.0.1",
-    "web-push": "^3.3.3"
+    "web-push": "^3.3.3",
+    "x-ray": "^2.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",

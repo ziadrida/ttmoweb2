@@ -458,6 +458,7 @@ static  getDerivedStateFromProps(props, state) {
         formEditInfo: {
           userInfo: {
             username: quotation.username,
+            name: quotation.username,
             userId: props.quoteInfo.senderId,
           },
           quote_no:props.quoteInfo.quote_no,
@@ -475,8 +476,9 @@ static  getDerivedStateFromProps(props, state) {
             quotation.prices[quotation.price_selection].destination:'',
 
           edit_username:
-            { value: props.quoteInfo.senderId,
-            label: quotation.username
+            {
+              value: props.quoteInfo.senderId,
+              label: quotation.username
             },
 
           edit_MPN: item.MPM? item.MPN:'',
@@ -1266,6 +1268,7 @@ handleCannedMessage = ({target}) => {
                 phone_no: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.phone_no:null,
             },
             quotation: {
+              username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,
               quote_no: this.state.formEditInfo.quote_no,
               quote_date: moment().format('x'),
               price_selection:

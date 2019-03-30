@@ -1,6 +1,7 @@
 import Quotation from '/app/entry-points/server/models/quotation';
 import axios from 'axios';
-
+import cheerio from 'cheerio';
+import scraper from './product-scraper'
 import {
   removeEmpty,
   removeNull
@@ -98,6 +99,7 @@ async function updateQuotation(root, args, context) {
       updateObj.senderId = args.input.senderId;
 
       updateObj.username =  args.input.userInfo.username;
+      console.log("updateObj.username:",updateObj.username)
       //updateObj.phone_no = args.input.userInfo? args.input.userInfo.phone_no:null;
       updateObj.sales_person = context.user && context.user.sales_person;
 
@@ -144,36 +146,23 @@ async function updateQuotation(root, args, context) {
             result.quote_no = doc.quote_no;
             // result._id = doc._id;
             result.message = "Quotation saved successfully"
-          //
-          //   console.log("<updateQuotation> success result:", result)
-          //   var quoteMsgPayload =
-          //   {"object":"page",
-          //   "entry":
-          //   [{"id":"",
-          //   "time":0,
-          //   "messaging":
-          //     [
-          //       {"sender":{"id":"1669687099731063"},
-          //       "recipient":{"id":"243919968953836"},
-          //       "timestamp":0,
-          //       "message":{"mid":"-","seq":0,
-          //       "text":
-          //         "{ \"action\": \"*quote\", \"quote_no\":"+ doc.quote_no+", \"userId\": \""+inQuoteObj.ownerId+"\" }",
-          //       "nlp":{"entities":{}}}}
-          //     ]
-          // }]}
-          //
-          //
-          //
-          //   console.log("'<handleSendQuotation> <QuoteForm> quoteMsgPayload:",JSON.stringify(quoteMsgPayload))
-          //   axios.post('https://protected-thicket-49120.herokuapp.com/webhook',  quoteMsgPayload )
-          //  .then(res => {
-          //    console.log("Result from call to axios.post")
-          //   // console.log("<handleSendQuotation> <QuoteForm> res:",res);
-          //    console.log("<handleSendQuotation> <QuoteForm> res.status:" ,res && res.status);
-          //  })
-          //  console.log("After call to axios.post")
+
+          console.log("get URL:",doc.quotation && doc.quotation.item&& doc.quotation.item.url)
+          if (1==2 && doc.quotation && doc.quotation.item && doc.quotation.item.url) {
+
+            console.log("Call scraper:")
+           var data = await scraper.asyncInit(doc.quotation.item.url);//, function(data) {
+              console.log("*** <update-quote> After callback from scraper.init")
+              console.log("<update-quote> scrapped data :",data);
+
+          //  });
             return result;
+          } else {
+            console.log("Return - could not scrape")
+              return result;
+          }
+
+
         } else {
             result = {}
             result.quote_no = doc.quote_no;
