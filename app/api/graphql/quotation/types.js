@@ -33,7 +33,7 @@ const types = gql`
     ownderId: String
     url: String
     title: String
-    thumbnailImage: String
+
     source: String,
     price: Float
     qty: Float
@@ -57,6 +57,7 @@ const types = gql`
       ownderId: String
       url: String
       title: String
+      brand: String
       MPN: String
       asin: String
       thumbnailImage: String
@@ -113,7 +114,7 @@ const types = gql`
       ownderId: String
       url: String
       title: String
-      thumbnailImage: String
+
       source: String,
       price: Float
       qty: Float
@@ -215,9 +216,29 @@ const types = gql`
     message: String
   }
 
+  type ProductResponse {
+
+    title: String
+    url: String
+    price: Float
+    currency: String
+    category: String
+    shipping: Float
+    thumbnailImage: String
+    weight: Float
+    length: Float
+    width: Float
+    height: Float
+    brand: String
+    dimensions: String
+    domain: String
+    message: String
+  }
+
   type Mutation {
     updateQuotation (input: QuoteInput!): QuotationResponse
     sendFBQuoteAction (action: String!, input: FBQuoteAction!): ActionResponse
+    productScraper (url: String!): ProductResponse
   }
 
 `;

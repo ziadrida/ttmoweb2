@@ -18,7 +18,17 @@ BrowserPolicy.content.allowFrameOrigin('https://staticxx.facebook.com');
 BrowserPolicy.content.allowFrameOrigin('https://www.facebook.com');
 BrowserPolicy.content.allowConnectOrigin('https://graph.facebook.com');
 BrowserPolicy.content.allowImageOrigin('https://www.facebook.com');
+BrowserPolicy.content.allowImageOrigin('https://www.amazon.com');
+BrowserPolicy.content.allowImageOrigin('https://www.ebay.com');
+BrowserPolicy.content.allowImageOrigin('https://www.walmart.com');
+BrowserPolicy.content.allowImageOrigin('https://www.bestbuy.com');
+BrowserPolicy.content.allowImageOrigin('https://www.aliexpress.com');
+BrowserPolicy.content.allowImageOrigin('https://i5.walmartimages.com');
+BrowserPolicy.content.allowImageOrigin('https://images-na.ssl-images-amazon.com');
+BrowserPolicy.content.allowImageOrigin('https://images-na');
 
+BrowserPolicy.content.allowImageOrigin('https://i5');
+BrowserPolicy.content.allowImageOrigin('https://i5.wal.co');
 // Allow Meteor DDP Connections
 const rootUrl = __meteor_runtime_config__.ROOT_URL;
 console.log(`ROOT_URL: ${rootUrl}`);

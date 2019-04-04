@@ -134,20 +134,3 @@ async function sendFBQuoteAction(root, args, context) {
 
 }
 export default sendFBQuoteAction;
-/*
-
- {"object":"page","entry":[{"id":"243919968953836",
- "time":1553067705574,
- "messaging":[{"recipient":{"id":"243919968953836"},"timestamp":1553067705574,
- "sender":{"id":"1669687099731063"},
- "postback":{"payload":"{\"action\":\"showCart\"}","title":"Show Cart🛒"}}]}]}
-
- {"object":"page","entry":[{"id":"243919968953836",
- "time":1553068056746,
- "messaging":
- [{"sender":{"id":"1669687099731063"},"recipient":{"id":"243919968953836"},"timestamp":1553068055766,
-"message":{"mid":"wHBCFpIqNWexzb5QifsO8MZ-5V5yo7LgwWR474_6cQ-ULhVXqdsKAtSLaKPbS_OjclRCzaJjUkRTpz2_Q07NQg",
-"seq":141072,"text":"hello there",
-"nlp":{"entities":
- {"greetings_ar":[{"suggested":true,"confidence":0.41031232418062,"value":"hello there","type":"value"}]}}}}]}]}
- */

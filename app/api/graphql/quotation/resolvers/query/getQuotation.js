@@ -28,6 +28,40 @@ const getQuotation = async(root, args, context) => {
              }
            }]
          })
+        
+         console.log("matchArray1:",matchArray)
+         // start of duplicate code with all get query
+         var dateTo = null;
+           var dateFrom = null;
+         if (args.searchField == 'days_back' && args.search != null  ) {
+           searchTrim = args.search.trim();
+           days_back = isNaN(searchTrim)? 1:parseFloat(searchTrim);
+           dateFrom = moment().add(-1*days_back,'day').toDate()
+           dateTo = moment().add(1,'day').toDate();
+         } else {
+
+         if (args.dateFrom) dateFrom = moment(args.dateFrom).toDate()
+         if (args.dateTo) dateTo = moment(args.dateTo).toDate()
+
+         if (!dateFrom && !dateTo) {
+           //  const today = moment().startOf('day')
+           dateFrom = moment().add(-4, 'days').toDate()
+           dateTo = moment().add(1,'days').toDate()
+         }
+         console.log("moment:", moment())
+         console.log("moment toDate:", moment().toDate())
+         if (!dateFrom) dateFrom = moment(dateTo).add(-1, 'days').toDate()
+         if (!dateTo) dateTo = moment(dateFrom).add(1, 'days').toDate()
+       }
+       console.log("dateFrom:", dateFrom)
+       console.log("dateTo:", dateTo)
+       matchArray.push({
+         "date_created": {
+           "$gte": dateFrom,
+           "$lt": dateTo
+         }
+       })
+
        }
     }
   if (args.search && (searchField == null || searchField == '' || searchField == 'all')) {
@@ -87,38 +121,7 @@ const getQuotation = async(root, args, context) => {
   if (args.quote_no && args.quote_no != 0) matchArray.push({
     quote_no:  args.quote_no
   })
-  console.log("matchArray1:",matchArray)
-  // start of duplicate code with all get query
-  var dateTo = null;
-    var dateFrom = null;
-  if (args.searchField == 'days_back' && args.search != null  ) {
-    searchTrim = args.search.trim();
-    days_back = isNaN(searchTrim)? 1:parseFloat(searchTrim);
-    dateFrom = moment().add(-1*days_back,'day').toDate()
-    dateTo = moment().add(1,'day').toDate();
-  } else {
 
-  if (args.dateFrom) dateFrom = moment(args.dateFrom).toDate()
-  if (args.dateTo) dateTo = moment(args.dateTo).toDate()
-
-  if (!dateFrom && !dateTo) {
-    //  const today = moment().startOf('day')
-    dateFrom = moment().add(-4, 'days').toDate()
-    dateTo = moment().add(1,'days').toDate()
-  }
-  console.log("moment:", moment())
-  console.log("moment toDate:", moment().toDate())
-  if (!dateFrom) dateFrom = moment(dateTo).add(-1, 'days').toDate()
-  if (!dateTo) dateTo = moment(dateFrom).add(1, 'days').toDate()
-}
-console.log("dateFrom:", dateFrom)
-console.log("dateTo:", dateTo)
-matchArray.push({
-  "date_created": {
-    "$gte": dateFrom,
-    "$lt": dateTo
-  }
-})
   // end of duplicate code with all get query
   // Query current logged in quotation
   andOr = andOr.toLowerCase()

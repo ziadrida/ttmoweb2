@@ -20,7 +20,7 @@ fragment quotationFragment on Quotation {
     quote_date
     ownderId
     url
-    thumbnailImage
+
     source
     price
     qty

@@ -46,7 +46,8 @@ import categoriesQuery from '/app/ui/apollo-client/category/query/categories.js'
 // withStyles takes the styles and change them to classes props
 import { Query } from 'react-apollo'
 import {calculatePrice,validateItem} from './helper'
-
+// import { ActivityIndicator } from 'react-native';
+// import { Image } from 'react-native-elements';
 
 import classNames from 'classnames';
 import ReactSelect from 'react-select';
@@ -59,8 +60,12 @@ import Chip from '@material-ui/core/Chip';
 
 
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import Avatar from '@material-ui/core/Avatar';
 
-
+import matchSorter from 'match-sorter'
+import Fuse from 'fuse.js';
+var fuse = null;
+const dimRegEx = /^[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*$/
 // const usersQueryx = gql`
 //
 // query users ($search: String,$searchField: String) {
@@ -285,6 +290,7 @@ class QuoteForm extends React.Component {
   super(props);
   this.state = {
     allowSendQuote: false,
+    allowScraping: true,
     allowSendMessage: false,
     pricingNow:null,
 
@@ -394,6 +400,7 @@ class QuoteForm extends React.Component {
     this.mutateAction = this.mutateAction.bind(this)
     this.handleCatgChange = this.handleCatgChange.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.doCalculate = this.doCalculate.bind(this)
 }
 componentDidUpdate() {
   console.log("<componentDidUpdate> <QuoteForm> \nprops",this.props, "\nstate",this.state)
@@ -467,6 +474,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_notes:props.quoteInfo.notes? props.quoteInfo.notes:'',
           edit_options: props.quoteInfo.options?props.quoteInfo.options:'',
           edit_title: quotation.title? quotation.title:   item.title?item.title:'',
+          edit_thumbnailImage: item.thumbnailImage,
           edit_url: quotation.url? quotation.url:
               item.url?item.url:'',
           edit_price_selection: quotation.price_selection,
@@ -521,12 +529,13 @@ static  getDerivedStateFromProps(props, state) {
           edit_recipientID: item.recipientID? item.recipientID:'',
           edit_requestor: item.requestor? item.requestor:'',
           edit_shipping: item.shipping!=null && !isNaN(item.shipping)? parseFloat(item.shipping):0,
-          edit_source: quotation.source? quotation.source: item.source? item.source:'',
+          edit_source: item.source? item.source: quotation.source? quotation.source:'',
           edit_condition: item.condition? item.condition:'New',
           edit_canned_message_selection: '',
           edit_send_action_options:'',
-          edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:null,
+          edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:'',
         },
+        allowScraping: true,
 
       } } catch(err) {
         console.log("<getDerivedStateFromProps> <QuoteForm> error setting State err:",err)
@@ -673,6 +682,7 @@ handleCannedMessage = ({target}) => {
       //  allowSave: true,
         allowSendQuote: true,
         allowSendMessage:true,
+        allowScraping: name == 'edit_url'? true: this.state.allowScraping,
 
       });
 
@@ -713,6 +723,60 @@ handleCannedMessage = ({target}) => {
 
     }
 
+  doCalculate = async () => {
+    var quoteObj = null ;
+    try {
+        console.log("<handleCostingChange> <QuoteForm> >>>> Call doCalculate:")
+       quoteObj = await doCalculate(this.state.formEditInfo) //.then( quoteObj=> {
+        console.log("<handleCostingChange> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
+      //  quote_obj.active = true; // active = should load in customer cart when final
+      //  quote_obj.final = true; // final = pricing complete
+
+        this.setState ( {
+          formEditInfo: {
+            ...this.state.formEditInfo,
+            edit_price_selection: quoteObj.price_selection?quoteObj.price_selection:'amm_exp',
+          },
+          quoteInfo: {
+            ...this.props.quoteInfo,
+             quotation: quoteObj, // setting for active and final is included
+
+        },
+        message:quoteObj.message,
+
+        //allowSave: quoteObj!=null,
+        allowSendMessage:true,
+        allowSendQuote:true,
+      })
+    } catch(err)  {
+        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by doCalculate:",err)
+        var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
+        quotation = {
+          ...quotation,
+          active: true, // active = should load in customer cart when final
+          final: false, // final = is pricing correct and complete?
+
+        //  valid: false,
+          prices: null,
+          price_selection:null,
+        }
+        console.log("<handleCostingChange> <QuoteForm> quotation:",quotation)
+       this.setState(
+        {
+          message:err && err.message? err.message:
+                  err? err:'Error calculating price. Check input fields',
+
+          allowSave: false,
+
+         // invalidate pricing
+         quoteInfo: {
+           ...this.state.quoteInfo,
+           quotation:quotation,
+         }
+       })
+     }
+  }
+
   handleCostingChange = async ({ target }) => {
     console.log('in <handleCostingChange> <QuoteForm> ',target)
       console.log('<handleCostingChange> props:',this.props)
@@ -734,7 +798,7 @@ handleCannedMessage = ({target}) => {
 
     }
 
-      const dimRegEx = /^[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*$/
+
       var dim=[]
     switch (name) {
 
@@ -883,6 +947,8 @@ handleCannedMessage = ({target}) => {
         case 'edit_height_inch':
         case 'edit_weight_lb':
         case 'edit_weight_kg':
+        case 'edit_dimensions_cm':
+        case 'edit_dimensions_inch':
         newState.formEditInfo.edit_chargeableWeight =
             Math.max(
               parseFloat(((newState.formEditInfo.edit_width_cm *
@@ -930,57 +996,7 @@ handleCannedMessage = ({target}) => {
     //     console.log("<handleCostingChange> <QuoteForm> !!! waiting for pricing to complete")
     //   return
     // }
-      var quoteObj = null ;
-    try {
-        console.log("<handleCostingChange> <QuoteForm> >>>> Call doCalculate:")
-       quoteObj = await doCalculate(this.state.formEditInfo) //.then( quoteObj=> {
-        console.log("<handleCostingChange> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
-      //  quote_obj.active = true; // active = should load in customer cart when final
-      //  quote_obj.final = true; // final = pricing complete
-
-        this.setState ( {
-          formEditInfo: {
-            ...this.state.formEditInfo,
-            edit_price_selection: quoteObj.price_selection?quoteObj.price_selection:'amm_exp',
-          },
-          quoteInfo: {
-            ...this.props.quoteInfo,
-             quotation: quoteObj, // setting for active and final is included
-
-        },
-        message:quoteObj.message,
-        pricingNow: false,
-        //allowSave: quoteObj!=null,
-        allowSendMessage:true,
-        allowSendQuote:true,
-      })
-    } catch(err)  {
-        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by doCalculate:",err)
-        var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
-        quotation = {
-          ...quotation,
-          active: true, // active = should load in customer cart when final
-          final: false, // final = is pricing correct and complete?
-
-        //  valid: false,
-          prices: null,
-          price_selection:null,
-        }
-        console.log("<handleCostingChange> <QuoteForm> quotation:",quotation)
-       this.setState(
-        {
-          message:err && err.message? err.message:
-                  err? err:'Error calculating price. Check input fields',
-          pricingNow:null,
-          allowSave: false,
-
-         // invalidate pricing
-         quoteInfo: {
-           ...this.state.quoteInfo,
-           quotation:quotation,
-         }
-       })
-     }
+   this.doCalculate();
 
     console.log("<handleCostingChange> <QuoteForm> >>> After   calculatePrice Continue")
 
@@ -1051,9 +1067,158 @@ handleCannedMessage = ({target}) => {
 
     }
 
+    handleScrapeAction = async (evt) => {
+        console.log('<handleScrapeAction> <QuoteForm> :',evt)
+        console.log('<handleScrapeAction> => <QuoteForm>  props==>\n',this.props)
+        console.log('<handleScrapeAction> => <QuoteForm>   state\n',this.state)
+        if (!this.state.formEditInfo.edit_url || this.state.formEditInfo.edit_url=='') {
+          await this.setStateAsync({
+              message:"Enter product URL",
+              allowScraping: true,
+
+          })
+          return;
+        }
+        await this.setStateAsync({
+            message:"Getting product information ...",
+            allowScraping: false,
+
+        })
+        const { productScraper,categoriesQuery} = this.props
+        const {getCategories} = categoriesQuery
+
+        console.log("<handleScrapeAction> <QuoteForm> categoriesQuery:",categoriesQuery)
+
+
+        if (productScraper) {
+            try {
+              console.log("<handleScrapeAction> <QuoteForm> call productScraper")
+              const response = await productScraper({
+               variables: {
+                 "url":this.state.formEditInfo.edit_url,
+              }
+            })
+            if (response && response.data && response.data.productScraper) {
+              var prod = response.data.productScraper
+              console.log("<handleScrapeAction> <QuoteForm> Got valid prod:",prod)
+              var newState = {
+                formEditInfo: {
+                  ...this.state.formEditInfo,
+
+                },
+              }
+              var value  = prod.dimensions?prod.dimensions:'0 x 0 x 0';
+              var dim = [];
+              if ( new RegExp(dimRegEx).test(value)) {
+
+                 dim = value.split('x');
+                  console.log('<QuoteForm> <after scraper> dims:',dim)
+
+                if (dim && dim.length>0) {
+                  newState.formEditInfo.edit_dimensions_inch = value;
+                  newState.formEditInfo.edit_length_inch =  parseFloat(dim[0].trim())
+                  newState.formEditInfo.edit_width_inch =  parseFloat(dim[1].trim())
+                  newState.formEditInfo.edit_height_inch =  parseFloat(dim[2].trim())
+
+                  newState.formEditInfo.edit_length_cm =parseFloat((newState.formEditInfo.edit_length_inch*2.54).toFixed(2))
+                  newState.formEditInfo.edit_width_cm =parseFloat((newState.formEditInfo.edit_width_inch*2.54).toFixed(2))
+                  newState.formEditInfo.edit_height_cm =parseFloat((newState.formEditInfo.edit_height_inch*2.54).toFixed(2))
+
+                  newState.formEditInfo.edit_dimensions_cm =
+                  parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
+                  parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
+                  parseFloat(newState.formEditInfo.edit_height_cm).toFixed(2) ;
+
+                  newState.formEditInfo.edit_chargeableWeight =
+                      Math.max(
+                        parseFloat(((newState.formEditInfo.edit_width_cm *
+                          newState.formEditInfo.edit_length_cm *
+                          newState.formEditInfo.edit_height_cm) / 5000).toFixed(2)),
+                      parseFloat(newState.formEditInfo.edit_weight_kg))
+                }
+              }
+              // find category
+              var useCategory = {
+                label: 'Accessories (General)',
+                value:'Accessories (General)'
+              } ;
+              const fuseOptions = {
+
+                shouldSort: true,
+                  tokenize: true,
+                  includeScore: true,
+                  threshold: 0.6,
+                  location: 0,
+                  distance: 100,
+                  maxPatternLength: 400,
+                  minMatchCharLength: 5,
+
+                    keys: [{
+                      name: 'category_name',
+                      weight: 0.4
+                    }, {
+                      name: 'keywords',
+                      weight: 0.6
+                    }],
+              }
+              if ((prod.category || prod.title) && !categoriesQuery.loading ) {
+
+                if (!fuse) {
+                  console.log("All Categories:",JSON.stringify(getCategories))
+                  fuse = new Fuse(getCategories,fuseOptions)
+                }
+                console.log("look for category:",prod.category)
+              //  var catList = matchSorter(getCategories, prod.category, { keys: ["category_name","keywords"] });
+                var catList  = fuse.search(prod.category?prod.category:prod.title)
+                console.log("<handleScrapeAction> catList:",catList)
+                if (catList && catList.length>0 && catList[0].item) {
+
+                  useCategory.value = catList[0].item.category_name;
+                  useCategory.label = catList[0].item.category_name + "/" + catList[0].item.category_name_ar;
+                  console.log("<handleScrapeAction> useCategory:",useCategory)
+                  console.log("<handleScrapeAction> catList:",catList[0].item)
+                  newState.formEditInfo.edit_category_info=  catList[0].item;
+
+                }
+              }
+
+              console.log("<handleScrapeAction> final useCategory:",useCategory)
+              await this.setStateAsync({
+                  message:"Got product information",
+                  allowScraping: false,
+                  formEditInfo: {
+                    ...newState.formEditInfo,
+                    edit_source: prod.domian? prod.domain:'',
+                    edit_title: prod.title?prod.title:'',
+                    edit_price: prod.price?prod.price:-1,
+                    edit_thumbnailImage: prod.thumbnailImage?prod.thumbnailImage:'',
+                    edit_weight_lb: prod.weight &&!isNaN(prod.weight)? prod.weight:0,
+                    edit_weight_kg: prod.weight && !isNaN(prod.weight)? (parseFloat(prod.weight)/2.2).toFixed(2):0,
+                  //  edit_dimensions_inch: prod.dimensions?prod.dimensions:'0 x 0 x 0',
+                    edit_category:useCategory,
+
+                  }
+              })
+              this.doCalculate();
+            } else {
+              console.log("<handleScrapeAction> <QuoteForm> Got null response:")
+              await this.setStateAsync({
+                  message:"Could not get product info",
+                  allowScraping: true,
+              })
+            }
+          } catch(err) {
+            console.log("<handleSendQuotation> <QuoteForm> Error from scrapeProduct err:",err)
+            await this.setStateAsync({
+                message:"Could not get product info. "+err
+            })
+          }
+        }
+    }
+
 
     handleSendMessage = async (evt) => {
-        console.log('<v> <QuoteForm> :',evt)
+        console.log('<handleSendMessage> <QuoteForm> :',evt)
         console.log('<handleSendMessage> => <QuoteForm>  props==>\n',this.props)
         console.log('<handleSendMessage> => <QuoteForm>   state\n',this.state)
         await this.setStateAsync({
@@ -1306,7 +1471,7 @@ handleCannedMessage = ({target}) => {
                 title: this.state.formEditInfo.edit_title,
                 MPN: null,
                 asin: null,
-                thumbnailImage: null,
+                thumbnailImage: this.state.formEditInfo.edit_thumbnailImage,
                 source: this.state.formEditInfo.edit_source,
                 price: parseFloat(this.state.formEditInfo.edit_price),
                 qty: parseInt(this.state.formEditInfo.edit_qty),
@@ -1455,7 +1620,7 @@ handleCannedMessage = ({target}) => {
 
     // const rowSelection =  this.props.getRow(_id)
     // console.log("rowSelection:",rowSelection)
-     const { edit_deleted,edit_title, edit_url, edit_username,edit_ownderId,edit_senderId,
+     const { edit_deleted,edit_thumbnailImage,edit_title, edit_url, edit_username,edit_ownderId,edit_senderId,
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
@@ -1694,49 +1859,63 @@ handleCannedMessage = ({target}) => {
 
             <TextField
               disabled={bulkUpdate}
+              multiline
               name="edit_url"
               type="String"
               label="URL"
               value={edit_url}
               onChange={this.handleChange}
-
+              maxRows="2"
               margin="dense"
               className={classes.textField}
               style={{
                 //backgroundColor:'pink',
                 'whiteSpace': 'unset',
                  'fontSize': '10px' ,
-
+                 'height': '3em',
                 'width' : '42em',
               }}
             />
-            <div className="flex py2"
-              style={{'overflowX': 'hidden',
+            <div className="flex py2">
+            {  <a href = {edit_url} target = "_blank" >
 
-              'fontSize': '12px' ,
-               width:'10em',height:'2em'}}>
-            {  <a href = { edit_url } target = "_blank" > {'URL link'  } </a>}
+              <Avatar alt="Link" src={edit_thumbnailImage}
+                style={{margin: 1, width: 100, height: 100,  borderRadius: 0  }} />
+                  </a>}
             </div>
 
+            {/*   <img border="0" alt="Image" src={edit_thumbnailImage} margin="10" width="200" height="200"
+              onerror="" /> */}
+           {/* <Avatar alt="Link" src={edit_thumbnailImage}
+             style={{margin: 10, width: 200, height: 200 }} />
+             > */}
+
             <TextField
+            multiline
               disabled={bulkUpdate}
               name="edit_title"
               type="String"
               label="Title"
               value={edit_title}
               onChange={this.handleChange}
-
+              maxRows="2"
               margin="dense"
               className={classes.textField}
               style={{
-                //backgroundColor:'pink',
+                //backgroundColor:'pink
                 'whiteSpace': 'unset',
                  'fontSize': '10px' ,
                  'fontWeight':'bold',
                 'width' : '42em',
+                'height': '3em',
               }}
             />
-
+            <Button size="medium"  variant="contained"
+              disabled={!this.state.allowScraping}
+              color="secondary"
+              margin="dense" onClick={this.handleScrapeAction}>
+              Get Prod  Info
+            </Button>
             </div>
             <div className="flex flex-wrap">
             <TextField
@@ -2332,6 +2511,24 @@ const sendFBQuoteAction = gql`
   }
 `;
 
+const productScraper = gql `
+mutation productScraper($url: String!) {
+  productScraper (url: $url) {
+    title
+    price
+    shipping
+    weight
+    length
+    width
+    height
+    category
+    thumbnailImage
+    domain
+    dimensions
+    message
+  }
+}
+`;
 
 // const QuoteWithMutation =
 // graphql( updateQuotation)
@@ -2339,7 +2536,8 @@ const sendFBQuoteAction = gql`
 
 const QuoteWithMutation = compose(
   graphql( updateQuotation,{ name: 'updateQuotation' }),
-  graphql( sendFBQuoteAction,{ name: 'sendFBQuoteAction' })
+  graphql( sendFBQuoteAction,{ name: 'sendFBQuoteAction' }),
+    graphql( productScraper,{ name: 'productScraper' })
 )(QuoteForm);
 
 

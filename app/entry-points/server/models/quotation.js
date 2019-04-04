@@ -86,6 +86,7 @@ const schema = mongoose.Schema({
           title: String,
           url: String,
           thumbnailImage: String,
+          brand: String,
           MPN: String,
           asin: String,
           availability: String,

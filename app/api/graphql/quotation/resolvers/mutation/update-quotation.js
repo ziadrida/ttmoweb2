@@ -1,7 +1,7 @@
 import Quotation from '/app/entry-points/server/models/quotation';
 import axios from 'axios';
 import cheerio from 'cheerio';
-import scraper from './product-scraper'
+import scraper from './product-scraper-lib'
 import {
   removeEmpty,
   removeNull
@@ -147,21 +147,8 @@ async function updateQuotation(root, args, context) {
             // result._id = doc._id;
             result.message = "Quotation saved successfully"
 
-          console.log("get URL:",doc.quotation && doc.quotation.item&& doc.quotation.item.url)
-          if (1==2 && doc.quotation && doc.quotation.item && doc.quotation.item.url) {
-
-            console.log("Call scraper:")
-           var data = await scraper.asyncInit(doc.quotation.item.url);//, function(data) {
-              console.log("*** <update-quote> After callback from scraper.init")
-              console.log("<update-quote> scrapped data :",data);
-
           //  });
             return result;
-          } else {
-            console.log("Return - could not scrape")
-              return result;
-          }
-
 
         } else {
             result = {}
