@@ -64,6 +64,7 @@ import Avatar from '@material-ui/core/Avatar';
 
 import matchSorter from 'match-sorter'
 import Fuse from 'fuse.js';
+import URL from 'url-parse';
 var fuse = null;
 const dimRegEx = /^[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*x[ |\t]*\d+(\.\d+)?[ |\t]*$/
 // const usersQueryx = gql`
@@ -450,6 +451,23 @@ static  getDerivedStateFromProps(props, state) {
       }
       console.log("<getDerivedStateFromProps> <QuoteForm>   items preset",item)
       try {
+        var useUrl = quotation.url?quotation.url:            item.url?item.url:''
+        var scrape = false;
+        if (useUrl != '') {
+          var parse = new URL(useUrl);
+          console.log("<getDerivedStateFromProps> parse:",parse.host)
+          switch(parse && parse.host?parse.host: '') {
+            case 'www.ebay.com':
+            case 'www.aliexpress.com':
+            case 'www.amazon.com':
+            case 'www.walmart.com':
+            scrape = true;
+            break;
+            default:
+
+
+          }
+        }
       returnState =  {
         ...returnState,
         userSearch: {
@@ -475,8 +493,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_options: props.quoteInfo.options?props.quoteInfo.options:'',
           edit_title: quotation.title? quotation.title:   item.title?item.title:'',
           edit_thumbnailImage: item.thumbnailImage,
-          edit_url: quotation.url? quotation.url:
-              item.url?item.url:'',
+          edit_url: useUrl,
           edit_price_selection: quotation.price_selection,
           edit_priceType: quotation.prices && quotation.price_selection?
             quotation.prices[quotation.price_selection].type:'',
@@ -535,7 +552,7 @@ static  getDerivedStateFromProps(props, state) {
           edit_send_action_options:'',
           edit_thumbnailImage: item.thumbnailImage? item.thumbnailImage:'',
         },
-        allowScraping: true,
+        allowScraping: scrape,
 
       } } catch(err) {
         console.log("<getDerivedStateFromProps> <QuoteForm> error setting State err:",err)
@@ -668,10 +685,24 @@ handleCannedMessage = ({target}) => {
     console.log('in quoteForm handlesChange ',target)
     const { value, name } = target;
 
-
     console.log('<handleChange> <quoteForm> ')
     console.log("name:",name,"  value:",value)
+    var scrape = this.state.allowScraping!= null? this.state.allowScraping:false;
+    if (name == 'edit_url') {
+      var parse = new URL(value);
+      console.log("<handleChange> parse:",parse.host)
+      switch(parse && parse.host?parse.host: '') {
+        case 'www.ebay.com':
+        case 'www.aliexpress.com':
+        case 'www.amazon.com':
+        case 'www.walmart.com':
+        scrape = true;
+        break;
+        default:
+          scrape = false;
 
+      }
+    }
     this.setState(
           {
 
@@ -682,8 +713,7 @@ handleCannedMessage = ({target}) => {
       //  allowSave: true,
         allowSendQuote: true,
         allowSendMessage:true,
-        allowScraping: name == 'edit_url'? true: this.state.allowScraping,
-
+        allowScraping: scrape,
       });
 
     console.log('<QuoteForm> handleChange state:',this.state)
@@ -1147,7 +1177,7 @@ handleCannedMessage = ({target}) => {
                 shouldSort: true,
                   tokenize: true,
                   includeScore: true,
-                  threshold: 0.6,
+                  threshold: 0.4,
                   location: 0,
                   distance: 100,
                   maxPatternLength: 400,
@@ -1164,10 +1194,10 @@ handleCannedMessage = ({target}) => {
               if ((prod.category || prod.title) && !categoriesQuery.loading ) {
 
                 if (!fuse) {
-                  console.log("All Categories:",JSON.stringify(getCategories))
+                  console.log("<handleScrapeAction> All Categories:",JSON.stringify(getCategories))
                   fuse = new Fuse(getCategories,fuseOptions)
                 }
-                console.log("look for category:",prod.category)
+                console.log("<handleScrapeAction> look for category:",prod.category)
               //  var catList = matchSorter(getCategories, prod.category, { keys: ["category_name","keywords"] });
                 var catList  = fuse.search(prod.category?prod.category:prod.title)
                 console.log("<handleScrapeAction> catList:",catList)
@@ -1188,14 +1218,17 @@ handleCannedMessage = ({target}) => {
                   allowScraping: false,
                   formEditInfo: {
                     ...newState.formEditInfo,
-                    edit_source: prod.domian? prod.domain:'',
+                    edit_source: prod.domain? prod.domain:'',
                     edit_title: prod.title?prod.title:'',
                     edit_price: prod.price?prod.price:-1,
+                    edit_shipping: prod.shipping? prod.shipping:0,
                     edit_thumbnailImage: prod.thumbnailImage?prod.thumbnailImage:'',
                     edit_weight_lb: prod.weight &&!isNaN(prod.weight)? prod.weight:0,
                     edit_weight_kg: prod.weight && !isNaN(prod.weight)? (parseFloat(prod.weight)/2.2).toFixed(2):0,
                   //  edit_dimensions_inch: prod.dimensions?prod.dimensions:'0 x 0 x 0',
                     edit_category:useCategory,
+                    edit_condition: prod.condition,
+                    edit_options: prod.options,
 
                   }
               })
@@ -2319,7 +2352,7 @@ handleCannedMessage = ({target}) => {
                                             className={classes.textField}
                                             />
                                       </div>
-                                    <FormControl  className={classes.formControl}>
+                                {/*    <FormControl  className={classes.formControl}>
                                     <InputLabel htmlFor="destination-required">Destination</InputLabel>
                                     <Select
                                       disabled={true}
@@ -2356,7 +2389,7 @@ handleCannedMessage = ({target}) => {
                                   </Select>
                                   <FormHelperText>Required</FormHelperText>
                                 </FormControl>
-
+*/}
                                 { prices != null  && edit_price_selection != null && edit_price_selection != ''?
                                 <div className="flex flex-wrap">
                                 <FormControl  className={classes.formControl}>
@@ -2525,6 +2558,8 @@ mutation productScraper($url: String!) {
     thumbnailImage
     domain
     dimensions
+    options
+    condition
     message
   }
 }

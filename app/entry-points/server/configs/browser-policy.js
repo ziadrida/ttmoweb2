@@ -26,6 +26,9 @@ BrowserPolicy.content.allowImageOrigin('https://www.aliexpress.com');
 BrowserPolicy.content.allowImageOrigin('https://i5.walmartimages.com');
 BrowserPolicy.content.allowImageOrigin('https://images-na.ssl-images-amazon.com');
 BrowserPolicy.content.allowImageOrigin('https://images-na');
+BrowserPolicy.content.allowImageOrigin('https://i.ebayimg.com');
+BrowserPolicy.content.allowImageOrigin('https://ae01.alicdn.com');
+BrowserPolicy.content.allowImageOrigin('https://ae01');
 
 BrowserPolicy.content.allowImageOrigin('https://i5');
 BrowserPolicy.content.allowImageOrigin('https://i5.wal.co');

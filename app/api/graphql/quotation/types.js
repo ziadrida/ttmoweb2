@@ -232,6 +232,8 @@ const types = gql`
     brand: String
     dimensions: String
     domain: String
+    options: String
+    condition: String
     message: String
   }
 

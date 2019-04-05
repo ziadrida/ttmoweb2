@@ -72,11 +72,13 @@ async function productScraper(root, args, context) {
         result.domain = res.site;
       }
 
-      result.shipping = -1 ;
+      result.shipping = 0;
       if (res.shipping  ) {
         console.log("shipping:",res.shipping)
         if (String(res.shipping).match('/Free shipping/gi')) {
           result.shipping = 0;
+        } else {
+          result.shipping = res.shipping;
         }
       }
       if (res.category ) {
@@ -89,6 +91,8 @@ async function productScraper(root, args, context) {
       if (res.weight && !isNaN(res.weight)) {
           result.weight = parseFloat(res.weight) ;
       }
+      result.options = res.options;
+      result.condition = res.condition;
 
       result.message = "Got product data"
       return result;

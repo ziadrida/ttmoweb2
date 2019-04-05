@@ -36,7 +36,7 @@ exports.images = function(url, callback, scope){
 					});
 
 					_images = _images.splice(0, 4);
-          console.log('images.length:',_images && _images.length)
+          //console.log('images.length:',_images && _images.length)
 					if(typeof callback == 'function') callback(_images);
 				}
 			});
@@ -50,16 +50,11 @@ exports.sites = {
 	base: function(){
 		return {
 			title: '',
-			original_price: '',
-			sale_price: '',
 			price: '',
 			image: '',
-			brand: '',
-			details: '',
-		//	description: '',
       category:'',
       dimensions:'',
-      package_dimensions:'',
+
 		};
 	},
 	amazon: function(product_id){
@@ -85,7 +80,58 @@ exports.sites = {
     productSelector.category = "#wayfinding-breadcrumbs_container > ul > li:last-child"
     productSelector.rank1 = "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Seller') >td a"
     productSelector.rank2 = "#SalesRank"
+    productSelector.options = "#variation_size_name > div > span";
     var pageURL = 'http://www.amazon.com' + product_id;
+
+		return {
+			page: pageURL,
+			selectors: productSelector,
+			images: false
+		};
+
+	},
+  ebay: function(product_id){
+    console.log("ebay product_id:",product_id)
+		var productSelector = this.base();
+
+
+    productSelector.title = '#itemTitle'; // remove Details about
+    productSelector.price = '#prcIsum';
+      productSelector.image = xDelay('#icImg@src');
+    productSelector.shipping = "#fshippingCost > span";
+   productSelector.category = "li.bc-w:first-child span"
+    productSelector.category1 = "li.bc-w:last-child span"
+    productSelector.condition = '#vi-itm-cond'
+    productSelector.item_number = '#descItemNumber'
+
+      var pageURL = 'http://www.ebay.com' + product_id;
+
+		return {
+			page: pageURL,
+			selectors: productSelector,
+			images: false
+		};
+
+	},
+  aliexpress: function(product_id){
+    console.log("aliexpress product_id:",product_id)
+		var productSelector = this.base();
+
+
+    productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
+      productSelector.price = '#j-sku-price';
+
+
+    productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
+
+    productSelector.shipping = "#j-product-shipping > dd > div.p-logistics-detail.util-clearfix > span.logistics-cost";
+   productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
+   productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
+   productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
+   productSelector.options = "li.item-sku-image.active  > a@title"
+  //  productSelector.condition = '#vi-itm-cond'
+
+      var pageURL = 'http://www.aliexpress.com' + product_id;
 
 		return {
 			page: pageURL,
@@ -180,10 +226,11 @@ exports.sites = {
 };
 
 exports.scraper = function(opts, callback){
-console.log("in <scraper> opts:",opts)
+console.log("in <scraper> ")
 	var data, lookup, self = this;
- console.log("this.sites[opts.site]:",this.sites[opts.site])
-	if(this.sites[opts.site])
+ console.log("this.sites:",this.sites);
+ console.log("opts.site:",opts.site)
+	if(this.sites &&this.sites[opts.site])
 	{
 		lookup = this.sites[opts.site](opts.product_id);
     console.log("lookup:",lookup)
@@ -192,7 +239,8 @@ console.log("in <scraper> opts:",opts)
 		(function(err, obj){
       if (err) {
         console.log("Err from xray:",err)
-      }
+      } else {
+
       console.log("after call from x-ray:")
 			var _obj = obj;
 			_obj.url = lookup.page;
@@ -207,14 +255,19 @@ console.log("in <scraper> opts:",opts)
 				});
 				_obj.details = details;
 			}
-          console.log("<product-scraper> got title:",_obj.title)
-
+        console.log("<product-scraper> got site:",_obj.site)
+        console.log("<product-scraper> got title:",_obj.title)
+        console.log("<product-scraper> got shipping:",_obj.shipping)
+        console.log("<product-scraper> got condition:",_obj.condition)
+        console.log("<product-scraper> got options:",_obj.options)
         console.log("<product-scraper> got weight:",_obj.weight)
         console.log("<product-scraper> got dimensions:",_obj.dimensions)
-
+        console.log("<product-scraper> got image:",_obj.image)
         console.log("<product-scraper> got brand:",_obj.brand)
         console.log("<product-scraper> got category:",_obj.category)
-      _obj.site = opts.site;
+        console.log("<product-scraper> got rank1:",_obj.rank1)
+        console.log("<product-scraper> got rank2:",_obj.rank2)
+        _obj.site = opts.site;
 
       var usePrice = _obj.deal_price || _obj.sale_price || _obj.price;
 
@@ -222,14 +275,33 @@ console.log("in <scraper> opts:",opts)
 
         console.log("<product-scraper> got price_fraction:",_obj.price_fraction)
       if(usePrice) {
-        var mp = String(usePrice).match(/\d+(?:\.\d*)?/)
+        var mp = String(usePrice).match(/\d+(?:[.,]\d*)?/)
         console.log("match price:",mp)
         var price = mp && mp.length > 0? mp[0]:0;
         _obj.price = price;
       }
+
+      if(_obj.shipping) {
+        console.log("<product-scraper-lib> shipping:",_obj.shipping)
+        if (String(_obj.shipping).match('/Free/i')) {
+          _obj.shipping = 0;
+        }  else {
+          var ship_price = String(_obj.shipping).match(/\d+(?:[.,]\d*)?/)
+          console.log("match ship_price:",ship_price)
+          var s_price = ship_price && ship_price.length > 0? ship_price[0]:0;
+          _obj.shipping = s_price;
+        }
+
+      }
 			if(_obj.title) {
+        if (_obj.site == 'ebay')    _obj.title = _obj.title.replace('Details about','')
         _obj.title = _obj.title.trim();
 
+      }
+      var hasOptions = [_obj.options , _obj.color, _obj.size, _obj.item_number].filter(Boolean).join('; ')
+      if (hasOptions) {
+
+        _obj.options =hasOptions
       }
 
       var useWeight = _obj.shipping_weight || _obj.weight || _obj.item_weight ;
@@ -265,12 +337,17 @@ console.log("in <scraper> opts:",opts)
 
 			if(_obj.brand) _obj.brand = _obj.brand.trim();
       console.log("obj.category:",_obj.category)
-      var category ;
-      if (_obj.category) {
-         category = String(_obj.category).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
+      var useCategory =[_obj.category , _obj.category1, _obj.rank1 , _obj.rank2].filter(Boolean).join(' ')  ;
+      var category
+      if (useCategory) {
+
+         useCategory = useCategory.replace(/\/\&\.\[\]/,' ')
+         console.log("category after cleanup:", useCategory)
+         category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
          console.log("matched category:",category)
         _obj.category = category && category.length>0? category[0].trim():"general accessories"
       }
+
 
 			if(1==2 && lookup.images && self)
 			{
@@ -286,8 +363,9 @@ console.log("in <scraper> opts:",opts)
         console.log("*** return _obj no images")
 				callback(_obj);
 			}
-
+    }
 		});
+
 	}
 	else
 	{
@@ -326,7 +404,29 @@ console.log('in <parseURL>')
 
       return callback(obj);
     });
-	}
+	} else if (parse.host == 'www.ebay.com')
+  	{
+        console.log("<product-scraper> call ebay scraper parse:",parse)
+  		this.scraper({
+  			site: 'ebay',
+  			product_id: parse.pathname + parse.query
+  		}, function(obj) {
+        console.log("<product-scraper> after callback fom scraper");
+
+        return callback(obj);
+      });
+  	} else if (parse.host == 'www.aliexpress.com')
+    	{
+          console.log("<product-scraper> call ebay scraper parse:",parse)
+    		this.scraper({
+    			site: 'aliexpress',
+    			product_id: parse.pathname + parse.query
+    		}, function(obj) {
+          console.log("<product-scraper> after callback fom scraper");
+
+          return callback(obj);
+        });
+    	}
 	else if(parse.host == 'www.bestbuy.com')
 	{
 		this.scraper({
