@@ -119,6 +119,8 @@ exports.sites = {
 
 
     productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
+		productSelector.title1 = "#j-product-detail-bd  h1.product-name"
+		productSelector.title2 = "h1.product-name"
       productSelector.price = '#j-sku-price';
 
 
@@ -293,9 +295,12 @@ console.log("in <scraper> ")
         }
 
       }
-			if(_obj.title) {
-        if (_obj.site == 'ebay')    _obj.title = _obj.title.replace('Details about','')
-        _obj.title = _obj.title.trim();
+			var useTitle = _obj.title || _obj.title1 || _obj.title2
+			console.log("useTitle:",useTitle)
+			if(useTitle) {
+        if (_obj.site == 'ebay')    _obj.title = useTitle.replace('Details about','')
+
+				_obj.title = useTitle.trim();
 
       }
       var hasOptions = [_obj.options , _obj.color, _obj.size, _obj.item_number].filter(Boolean).join('; ')
@@ -324,15 +329,44 @@ console.log("in <scraper> ")
       }
       var useDimensions = _obj.package_dimensions || _obj.dimensions || _obj.product_dimensions || _obj.item_dimensions
       if (useDimensions) {
-         var dim = "0 x 0 x 0";
-          var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
-          console.log("match dimensions:",m1)
-          dim = m1 && m1.length > 0? String(m1[0]).toLowerCase():"0 x 0 x 0";
-          if (String(useDimensions).match("inches")) {
-            console.log("in inches!")
-          }
-          _obj.dimensions = dim;
-          console.log("Final dimensions:",dim)
+         var dim ;
+        //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
+				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*/i);
+          console.log("match dimensions:",dim)
+
+          //
+					if (dim && dim.length > 5) {
+						var l = dim[1];
+						var w = dim[3];
+						var h = dim[5];
+						console.log("unit is:",dim && dim.length>2 && dim[2]);
+						switch(dim[2]) { // contains unit
+
+							case 'cm':
+								l = parseFloat(l) / 2.54;
+							 	w= parseFloat(w) / 2.54;
+								h = parseFloat(h) / 2.54;
+								break;
+							case 'inch':
+							case '\"':
+							break;
+							case '\'':
+							l = parseFloat(l) *12
+							w = parseFloat(w)  * 12
+							h = parseFloat(h) * 12
+							break;
+							default:
+
+						}
+
+          	_obj.dimensions =l.toFixed(2) + ' x ' + w.toFixed(2) + ' x ' + h.toFixed(2);
+
+					} else if (dim && dim.length>0){
+						_obj.dimensions = dim && dim.length>0 ? dim[0]:''
+					} else {
+						_obj.dimensions = '0 x 0 x 0';
+					}
+         	console.log('final dimensions:',_obj.dimensions)
       }
 
 			if(_obj.brand) _obj.brand = _obj.brand.trim();
