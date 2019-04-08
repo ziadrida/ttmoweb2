@@ -7,7 +7,7 @@ var Xray = require('x-ray')
 	probe = require('probe-image-size');
 
 exports.images = function(url, callback, scope){
-  console.log("in <images> <product-scraper>")
+  console.log("in <images> <product-scraper-lib>")
 	request(url, function(err, resp, html){
     console.log(" exports.images <request> after callback html:")
 		var $ = cheerio.load(html);
@@ -113,26 +113,28 @@ exports.sites = {
 		};
 
 	},
-  aliexpress: function(product_id){
-    console.log("aliexpress product_id:",product_id)
-		var productSelector = this.base();
+  aliexpress: function(product_id) {
+      console.log("aliexpress product_id:", product_id)
+      var productSelector = this.base();
 
 
-    productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
-		productSelector.title1 = "#j-product-detail-bd  h1.product-name"
-		productSelector.title2 = "h1.product-name"
+      productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
+      productSelector.title1 = "#j-product-detail-bd  h1.product-name"
+      productSelector.title2 = "h1.product-name"
       productSelector.price = '#j-sku-price';
 
 
-    productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
+      productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
 
-    productSelector.shipping = "#j-product-shipping > dd > div.p-logistics-detail.util-clearfix > span.logistics-cost";
-   productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
-   productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
-   productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
-   productSelector.options = "li.item-sku-image.active  > a@title"
-  //  productSelector.condition = '#vi-itm-cond'
+      productSelector.shipping = xDelay("#j-product-shipping span.logistics-cost");
 
+      productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
+      productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
+      productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
+      productSelector.weight = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Weight') > span.packaging-des"
+      productSelector.options = "li.item-sku-image.active  > a@title"
+			productSelector.options1 = "div.product-desc li.packaging-item:contains('Unit Type') span.packaging-des"
+      //  productSelector.condition = '#vi-itm-cond'
       var pageURL = 'http://www.aliexpress.com' + product_id;
 
 		return {
@@ -250,32 +252,32 @@ console.log("in <scraper> ")
       // copy values
 			if(_obj.details)
 			{
-          console.log("<product-scraper> in object details")
+          console.log("<product-scraper-lib> in object details")
 				var details = [];
 				_obj.details.forEach(function(element, index, array){
 					details.push(element.trim());
 				});
 				_obj.details = details;
 			}
-        console.log("<product-scraper> got site:",_obj.site)
-        console.log("<product-scraper> got title:",_obj.title)
-        console.log("<product-scraper> got shipping:",_obj.shipping)
-        console.log("<product-scraper> got condition:",_obj.condition)
-        console.log("<product-scraper> got options:",_obj.options)
-        console.log("<product-scraper> got weight:",_obj.weight)
-        console.log("<product-scraper> got dimensions:",_obj.dimensions)
-        console.log("<product-scraper> got image:",_obj.image)
-        console.log("<product-scraper> got brand:",_obj.brand)
-        console.log("<product-scraper> got category:",_obj.category)
-        console.log("<product-scraper> got rank1:",_obj.rank1)
-        console.log("<product-scraper> got rank2:",_obj.rank2)
+        console.log("<product-scraper-lib> got site:",_obj.site)
+        console.log("<product-scraper-lib> got title:",_obj.title)
+        console.log("<product-scraper-lib> got shipping:",_obj.shipping)
+        console.log("<product-scraper-lib> got condition:",_obj.condition)
+        console.log("<product-scraper-lib> got options:",_obj.options)
+        console.log("<product-scraper-lib> got weight:",_obj.weight)
+        console.log("<product-scraper-lib> got dimensions:",_obj.dimensions)
+        console.log("<product-scraper-lib> got image:",_obj.image)
+        console.log("<product-scraper-lib> got brand:",_obj.brand)
+        console.log("<product-scraper-lib> got category:",_obj.category)
+        console.log("<product-scraper-lib> got rank1:",_obj.rank1)
+        console.log("<product-scraper-lib> got rank2:",_obj.rank2)
         _obj.site = opts.site;
 
       var usePrice = _obj.deal_price || _obj.sale_price || _obj.price;
 
-        console.log("<product-scraper> got price:",usePrice)
+      console.log("<product-scraper-lib> got price:",usePrice)
 
-        console.log("<product-scraper> got price_fraction:",_obj.price_fraction)
+      console.log("<product-scraper-lib> got price_fraction:",_obj.price_fraction)
       if(usePrice) {
         var mp = String(usePrice).match(/\d+(?:[.,]\d*)?/)
         console.log("match price:",mp)
@@ -284,7 +286,7 @@ console.log("in <scraper> ")
       }
 
       if(_obj.shipping) {
-        console.log("<product-scraper-lib> shipping:",_obj.shipping)
+
         if (String(_obj.shipping).match('/Free/i')) {
           _obj.shipping = 0;
         }  else {
@@ -294,7 +296,9 @@ console.log("in <scraper> ")
           _obj.shipping = s_price;
         }
 
-      }
+      } else {
+				  _obj.shipping = -1;
+			}
 			var useTitle = _obj.title || _obj.title1 || _obj.title2
 			console.log("useTitle:",useTitle)
 			if(useTitle) {
@@ -302,8 +306,10 @@ console.log("in <scraper> ")
 
 				_obj.title = useTitle.trim();
 
-      }
-      var hasOptions = [_obj.options , _obj.color, _obj.size, _obj.item_number].filter(Boolean).join('; ')
+      } else {
+				_obj.title = "No Title!"
+			}
+      var hasOptions = [_obj.options ,_obj.options1 , _obj.color, _obj.size, _obj.item_number].filter(Boolean).join('; ')
       if (hasOptions) {
 
         _obj.options =hasOptions
@@ -315,23 +321,36 @@ console.log("in <scraper> ")
 
         var weight = 0;
 
-          var m0  = String(useWeight).match(/\d+(?:\.\d*)?\s*?/i);
+          var m0  = String(useWeight).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(kg|lb|pound|ounce)?(?:\s*)/i);
           console.log("match weight:",m0)
-          weight = m0 && m0.length > 0? m0[0]:0;
+          weight = m0 && m0.length > 0? m0[1]:0;
+					var wUnit = m0 && m0.length > 1? m0[2]:'lb';
           console.log("Extracted weight:", weight)
-          if ( String(useWeight).match(/ounc/)) {
-            weight = weight/16.0
-          } else   if ( String(useWeight).match(/kg/)) {
-              weight = useWeight*2.2
-          }
-          _obj.weight = weight;
-          console.log("Final weight: ",weight)
+					console.log("Extracted weight Unit:", wUnit)
+					// convert to pound
+        	switch(wUnit) {
+						case 'kg':
+						weight = parseFloat(weight)* 2.2
+						break;
+						case 'lb':
+						case 'pound':
+						 // no change
+						 console.log("already in pounds")
+						break;
+						case 'ounce':
+							weight = parseFloat(weight) / 16.0
+						break;
+						default:
+
+					}
+          _obj.weight = parseFloat(weight).toFixed(2);
+          console.log("Final weight: ",_obj.weight)
       }
       var useDimensions = _obj.package_dimensions || _obj.dimensions || _obj.product_dimensions || _obj.item_dimensions
       if (useDimensions) {
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
-				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*/i);
+				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|inches|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*/i);
           console.log("match dimensions:",dim)
 
           //
@@ -339,8 +358,9 @@ console.log("in <scraper> ")
 						var l = dim[1];
 						var w = dim[3];
 						var h = dim[5];
-						console.log("unit is:",dim && dim.length>2 && dim[2]);
-						switch(dim[2]) { // contains unit
+						var useUnit = dim && dim.length>6? dim[6] || dim[4] || dim[2]:'inch'
+						console.log("unit is:",useUnit);
+						switch(useUnit) { // contains unit
 
 							case 'cm':
 								l = parseFloat(l) / 2.54;
@@ -348,6 +368,7 @@ console.log("in <scraper> ")
 								h = parseFloat(h) / 2.54;
 								break;
 							case 'inch':
+							case 'inches':
 							case '\"':
 							break;
 							case '\'':
@@ -359,7 +380,7 @@ console.log("in <scraper> ")
 
 						}
 
-          	_obj.dimensions =l.toFixed(2) + ' x ' + w.toFixed(2) + ' x ' + h.toFixed(2);
+          	_obj.dimensions =parseFloat(l).toFixed(2) + ' x ' + parseFloat(w).toFixed(2) + ' x ' + parseFloat(h).toFixed(2);
 
 					} else if (dim && dim.length>0){
 						_obj.dimensions = dim && dim.length>0 ? dim[0]:''
@@ -385,7 +406,7 @@ console.log("in <scraper> ")
 
 			if(1==2 && lookup.images && self)
 			{
-          console.log("<product-scraper> handle images self:",self)
+          console.log("<product-scraper-lib> handle images self:",self)
 				  self.images(_obj.url, function(images){
   					_obj.images = images;
             console.log("*** return _obj")
@@ -429,34 +450,34 @@ console.log('in <parseURL>')
 
 	if(parse.host == 'www.amazon.com')
 	{
-      console.log("<product-scraper> call amazon scraper")
+      console.log("<product-scraper-lib> call amazon scraper")
 		this.scraper({
 			site: 'amazon',
 			product_id: parse.pathname + parse.query
 		}, function(obj) {
-      console.log("<product-scraper> after callback fom scraper");
+      console.log("<product-scraper-lib> after callback fom scraper");
 
       return callback(obj);
     });
 	} else if (parse.host == 'www.ebay.com')
   	{
-        console.log("<product-scraper> call ebay scraper parse:",parse)
+        console.log("<product-scraper-lib> call ebay scraper parse:",parse)
   		this.scraper({
   			site: 'ebay',
   			product_id: parse.pathname + parse.query
   		}, function(obj) {
-        console.log("<product-scraper> after callback fom scraper");
+        console.log("<product-scraper-lib> after callback fom scraper");
 
         return callback(obj);
       });
   	} else if (parse.host == 'www.aliexpress.com')
     	{
-          console.log("<product-scraper> call ebay scraper parse:",parse)
+          console.log("<product-scraper-lib> call ebay scraper parse:",parse)
     		this.scraper({
     			site: 'aliexpress',
     			product_id: parse.pathname + parse.query
     		}, function(obj) {
-          console.log("<product-scraper> after callback fom scraper");
+          console.log("<product-scraper-lib> after callback fom scraper");
 
           return callback(obj);
         });
@@ -492,7 +513,7 @@ console.log('in <parseURL>')
 			site: 'walmart',
 			product_id: parse.pathname.replace('/ip/','')
 		}, function(obj) {
-      console.log("<product-scraper> after callback fom scraper ");
+      console.log("<product-scraper-lib> after callback fom scraper ");
       return callback(obj);
     });
 
@@ -508,19 +529,19 @@ console.log('in <parseURL>')
 }
 
 exports.init =  function(url, callback){
-  console.log("in <product-scraper> init")
+  console.log("in <product-scraper-lib> init")
 	if(!url || !callback) return false;
 	this.parseURL(url, function(obj) {
-    console.log("<product-scraper> after callback from parseURL")
+    console.log("<product-scraper-lib> after callback from parseURL")
     return callback(obj);
 
   });
 }
 exports.asyncInit =  async function(url){
-    console.log("in <product-scraper> asyncInit")
+    console.log("in <product-scraper-lib> asyncInit")
   return new Promise((resolve, reject) => {
     this.init(url,  function(obj) {
-      console.log("<product-scraper> after callback from init - resolve:",obj)
+      console.log("<product-scraper-lib> after callback from init - resolve:",obj)
       resolve(obj);
     });
   })

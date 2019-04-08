@@ -1892,27 +1892,24 @@ handleCannedMessage = ({target}) => {
 
             <TextField
               disabled={bulkUpdate}
+
               multiline
+              rowsMax="4"
               name="edit_url"
               type="String"
               label="URL"
               value={edit_url}
               onChange={this.handleChange}
-              maxRows="2"
-              margin="dense"
+              margin="normal"
               className={classes.textField}
               style={{
-                //backgroundColor:'pink',
-                'whiteSpace': 'unset',
-                 'fontSize': '10px' ,
-                 'height': '3em',
-                'width' : '42em',
+                 'width' : '42em',
               }}
             />
             <div className="flex py2">
             {  <a href = {edit_url} target = "_blank" >
 
-              <Avatar alt="Link" src={edit_thumbnailImage}
+              <Avatar alt="Open Link" src={edit_thumbnailImage}
                 style={{margin: 1, width: 100, height: 100,  borderRadius: 0  }} />
                   </a>}
             </div>
