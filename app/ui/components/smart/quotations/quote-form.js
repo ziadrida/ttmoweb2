@@ -1176,31 +1176,33 @@ handleCannedMessage = ({target}) => {
 
                 shouldSort: true,
                   tokenize: true,
+                  matchAllTokens: false,
                   includeScore: true,
                   threshold: 0.4,
                   location: 0,
                   distance: 100,
                   maxPatternLength: 400,
                   minMatchCharLength: 5,
-
+                  tokenSeparator: /[\,|\/|;|\&|\|]/,
                     keys: [{
                       name: 'category_name',
-                      weight: 0.4
+                      weight: 0.3
                     }, {
                       name: 'keywords',
-                      weight: 0.6
+                      weight: 0.7
                     }],
               }
               if ((prod.category || prod.title) && !categoriesQuery.loading ) {
 
                 if (!fuse) {
-                  console.log("<handleScrapeAction> All Categories:",JSON.stringify(getCategories))
+                  console.log("<handleScrapeAction> configure fuse")
                   fuse = new Fuse(getCategories,fuseOptions)
                 }
-                console.log("<handleScrapeAction> look for category:",prod.category)
+                console.log("<handleScrapeAction> All Categories:",JSON.stringify(getCategories))
+                console.log("<handleScrapeAction>fuse.search  look for category:",prod.category)
               //  var catList = matchSorter(getCategories, prod.category, { keys: ["category_name","keywords"] });
                 var catList  = fuse.search(prod.category?prod.category:prod.title)
-                console.log("<handleScrapeAction> catList:",catList)
+                console.log("<handleScrapeAction> from fuse.search catList:",JSON.stringify(catList))
                 if (catList && catList.length>0 && catList[0].item) {
 
                   useCategory.value = catList[0].item.category_name;

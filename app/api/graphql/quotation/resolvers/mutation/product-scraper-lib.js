@@ -81,6 +81,7 @@ exports.sites = {
     productSelector.rank1 = "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Seller') >td a"
     productSelector.rank2 = "#SalesRank"
     productSelector.options = "#variation_size_name > div > span";
+		productSelector.options1 = "#shelf-label-size_name";
     var pageURL = 'http://www.amazon.com' + product_id;
 
 		return {
@@ -122,11 +123,12 @@ exports.sites = {
       productSelector.title1 = "#j-product-detail-bd  h1.product-name"
       productSelector.title2 = "h1.product-name"
       productSelector.price = '#j-sku-price';
+			productSelector.sale_price = "#j-sku-discount-price"
 
 
       productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
 
-      productSelector.shipping = xDelay("#j-product-shipping span.logistics-cost");
+      productSelector.shipping = "#j-product-shipping span.logistics-cost";
 
       productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
       productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
@@ -272,18 +274,49 @@ console.log("in <scraper> ")
         console.log("<product-scraper-lib> got rank1:",_obj.rank1)
         console.log("<product-scraper-lib> got rank2:",_obj.rank2)
         _obj.site = opts.site;
+  		  console.log("<product-scraper-lib> got deal_price:",_obj.deal_price)
+	   		console.log("<product-scraper-lib> got sale_price:",_obj.sale_price)
+		    console.log("<product-scraper-lib> got price:",_obj.price)
+       var usePrice = _obj.deal_price || _obj.sale_price || _obj.price;
 
-      var usePrice = _obj.deal_price || _obj.sale_price || _obj.price;
-
-      console.log("<product-scraper-lib> got price:",usePrice)
+      console.log("<product-scraper-lib> got usePrice:",usePrice)
 
       console.log("<product-scraper-lib> got price_fraction:",_obj.price_fraction)
       if(usePrice) {
-        var mp = String(usePrice).match(/\d+(?:[.,]\d*)?/)
+        var mp = String(usePrice).match(/^(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
         console.log("match price:",mp)
-        var price = mp && mp.length > 0? mp[0]:0;
-        _obj.price = price;
-      }
+				var priceUnit = mp && mp.length>1? mp[1]? mp[1]:'':'';
+				console.log("price Unit:",priceUnit)
+
+        var price = mp && mp.length>2? mp[2]:0;
+				price = price && !isNaN(price)? parseFloat(price).toFixed(2):0;
+				console.log("Extracted price:",price)
+				switch(priceUnit) {
+					case '':
+					case '$':
+					case 'USD':
+						console.log("price in USD or not specified");
+						break;
+					case '€':
+					case "EUR":
+					 console.log("price in Euro");
+					 price = parseFloat(price) * 1.14; // get conversion online
+					 break;
+					case '£':
+					case 'GBP':
+						console.log("price in British pound")
+						price = parseFloat(price) * 1.35; // get conversion online
+						break;
+					default:
+					break;
+				}
+				price = parseFloat(price) + ((_obj.price_fraction && !isNaN(_obj.price_fraction)) ? parseFloat(_obj.price_fraction) : 0);
+				console.log("final price:",price)
+        _obj.price = price>0? parseFloat(price).toFixed(2):-1;
+      } else {
+				_obj.price = -1;
+			}
+
 
       if(_obj.shipping) {
 
@@ -320,8 +353,11 @@ console.log("in <scraper> ")
       if (useWeight) {
 
         var weight = 0;
-
-          var m0  = String(useWeight).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(kg|lb|pound|ounce)?(?:\s*)/i);
+					var m0 = String(useWeight).match	(/((?:\d{1,3})(?:,\d{1,3})*(?:\.\d{1,})?)(?:[\(|\s|\(])*(kg|lb|pound|ounce)?/i)
+				//var m0 = String(useWeight).match(/((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s|\(])*(kg|lb|pound|ounce)?/);
+				// var m0 = String(useWeight).match(/^(?:\s)*(((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s|\(])*(kg|lb|pound|ounce))?(?:\s|\))*(?:.)*/i);
+	        //  var m0  = String(useWeight).match(/^(?:\s)*((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s])*(kg|lb|pound|ounce)?(?:\s|\))*(?:$)/i)
+					// (?:^|\s)*(\d*\.?\d+|\d	{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(kg|lb|pound|ounce)?(?:\s*)/i);
           console.log("match weight:",m0)
           weight = m0 && m0.length > 0? m0[1]:0;
 					var wUnit = m0 && m0.length > 1? m0[2]:'lb';
@@ -351,7 +387,8 @@ console.log("in <scraper> ")
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
 				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|inches|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*/i);
-          console.log("match dimensions:",dim)
+				 // match number with comma (optional) and fraction \b[0-9]{1,3}(,?[0-9]{3})*(\.[0-9]+)?\b|\.[0-9]+\b
+				  console.log("match dimensions:",dim)
 
           //
 					if (dim && dim.length > 5) {
@@ -393,14 +430,25 @@ console.log("in <scraper> ")
 			if(_obj.brand) _obj.brand = _obj.brand.trim();
       console.log("obj.category:",_obj.category)
       var useCategory =[_obj.category , _obj.category1, _obj.rank1 , _obj.rank2].filter(Boolean).join(' ')  ;
-      var category
+
       if (useCategory) {
+				var words = useCategory.split(' in ');
+
+				console.log("words:",words);
+				if (words && words.length> 1 ) {
+				  console.log(words[1]);
+
+					var words = String(words[1]).split('(');
+					console.log(words[0].trim())
+				  useCategory = words[0].trim();
+				}
+
 
          useCategory = useCategory.replace(/\/\&\.\[\]/,' ')
          console.log("category after cleanup:", useCategory)
-         category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
-         console.log("matched category:",category)
-        _obj.category = category && category.length>0? category[0].trim():"general accessories"
+         //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
+
+         _obj.category = useCategory? useCategory:"general accessories"
       }
 
 

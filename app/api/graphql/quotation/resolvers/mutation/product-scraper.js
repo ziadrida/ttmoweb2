@@ -55,19 +55,22 @@ async function productScraper(root, args, context) {
       if (res.image) {
         result.thumbnailImage = res.image;
       }
-      var price=-1;
-      var sale_price=-1;
-
-
-
-      if (res.price || res.sale_price) {
-         price =  res.price? res.price.match(/\d+(?:\.\d+)?/):9999999999;
-         sale_price  =  res.sale_price? res.sale_price.match(/\d+(?:\.\d+)?/):9999999999;
-         price = Math.min(price,sale_price)
-        console.log("price:",price)
-        result.price = parseFloat(price) +
-          parseFloat(res.price_fraction? res.price.match(/\d+(?:\.\d+)?/):0)/100;
-      }
+      // var price=-1;
+      // var sale_price=-1;
+      //
+      //
+      //
+      // if (res.price || res.sale_price) {
+      //    price =  res.price? res.price.match(/\d+(?:\.\d+)?/):9999999999;
+      //    sale_price  =  res.sale_price? res.sale_price.match(/\d+(?:\.\d+)?/):9999999999;
+      //    price = Math.min(price,sale_price)
+      //   console.log("price:",price)
+      //   result.price = parseFloat(price) +
+      //     parseFloat(res.price_fraction? res.price.match(/\d+(?:\.\d+)?/):0)/100;
+      // }
+      if (res.price) {
+        result.price = res.price
+      } else result.price = -1;
       if (res.site) {
         result.domain = res.site;
       }
