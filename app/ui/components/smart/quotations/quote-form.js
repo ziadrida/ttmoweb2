@@ -458,6 +458,7 @@ static  getDerivedStateFromProps(props, state) {
           console.log("<getDerivedStateFromProps> parse:",parse.host)
           switch(parse && parse.host?parse.host: '') {
             case 'www.ebay.com':
+
             case 'www.aliexpress.com':
             case 'ar.aliexpress.com':
             case 's.click.aliexpress.com':
@@ -695,6 +696,7 @@ handleCannedMessage = ({target}) => {
       console.log("<handleChange> parse:",parse.host)
       switch(parse && parse.host?parse.host: '') {
         case 'www.ebay.com':
+
         case 'www.aliexpress.com':
         case 's.click.aliexpress.com':
         case 'ar.aliexpress.com':
@@ -1254,7 +1256,7 @@ handleCannedMessage = ({target}) => {
                   useCategory.label = bestMatch.item.category_name + "/" + bestMatch.item.category_name_ar;
                   console.log("<handleScrapeAction> useCategory:",useCategory)
 
-                  newState.formEditInfo.edit_category_info=  bestMatch;
+                  newState.formEditInfo.edit_category_info=  bestMatch.item;
 
                 }
               }

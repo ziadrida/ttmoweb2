@@ -67,6 +67,8 @@ exports.sites = {
 		productSelector.sale_price = '#priceblock_saleprice';
     productSelector.deal_price = "#priceblock_dealprice";
 		productSelector.price = '#priceblock_ourprice';
+		productSelector.price1 = '#posPromoPitchPrice > div > span.price-large'
+		productSelector.price_fraction = "#posPromoPitchPrice > div > span:nth-child(3)"
 		productSelector.brand = 'div#leftCol.a-section div.a-section div.a-section div.a-section a.a-link-normal';
 		productSelector.details = x(['#feature-bullets > ul > li']);
 		productSelector.description = '#productDescription';
@@ -124,6 +126,7 @@ exports.sites = {
       productSelector.title1 = "#j-product-detail-bd  h1.product-name"
       productSelector.title2 = "h1.product-name"
       productSelector.price = '#j-sku-price';
+			productSelector.high_price = '#j-sku-discount-price > span:nth-child(2)'
 			productSelector.sale_price = "#j-sku-discount-price"
 
 
@@ -134,7 +137,7 @@ exports.sites = {
       productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
       productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
       productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
-			productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('حجم الحمولة:') > span.packaging-des"
+			productSelector.dimensions1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('حجم الحمولة:') > span.packaging-des"
 
       productSelector.weight = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Weight') > span.packaging-des"
 			productSelector.weight1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('وزن الحمولة:') > span.packaging-des"
@@ -282,7 +285,7 @@ console.log("in <scraper> ")
   		  console.log("<product-scraper-lib> got deal_price:",_obj.deal_price)
 	   		console.log("<product-scraper-lib> got sale_price:",_obj.sale_price)
 		    console.log("<product-scraper-lib> got price:",_obj.price)
-       var usePrice = _obj.deal_price || _obj.sale_price || _obj.price;
+       var usePrice = _obj.high_price || _obj.deal_price || _obj.sale_price || _obj.price;
 
       console.log("<product-scraper-lib> got usePrice:",usePrice)
 
@@ -512,7 +515,7 @@ console.log('in <parseURL>')
 
       return callback(obj);
     });
-	} else if (parse.host == 'www.ebay.com')
+	} else if (parse.host.match(/www.ebay.com/))
   	{
         console.log("<product-scraper-lib> call ebay scraper parse:",parse)
   		this.scraper({
