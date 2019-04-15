@@ -459,6 +459,8 @@ static  getDerivedStateFromProps(props, state) {
           switch(parse && parse.host?parse.host: '') {
             case 'www.ebay.com':
             case 'www.aliexpress.com':
+            case 'ar.aliexpress.com':
+            case 's.click.aliexpress.com':
             case 'www.amazon.com':
             case 'www.walmart.com':
             scrape = true;
@@ -694,6 +696,8 @@ handleCannedMessage = ({target}) => {
       switch(parse && parse.host?parse.host: '') {
         case 'www.ebay.com':
         case 'www.aliexpress.com':
+        case 's.click.aliexpress.com':
+        case 'ar.aliexpress.com':
         case 'www.amazon.com':
         case 'www.walmart.com':
         scrape = true;
@@ -1176,20 +1180,20 @@ handleCannedMessage = ({target}) => {
 
                 shouldSort: true,
                   tokenize: true,
-                  matchAllTokens: false,
+                  matchAllTokens: true,
                   includeScore: true,
-                  threshold: 0.4,
+                  threshold: 0.1,
                   location: 0,
                   distance: 100,
-                  maxPatternLength: 400,
+                  maxPatternLength: 100,
                   minMatchCharLength: 5,
-                  tokenSeparator: /[\,|\/|;|\&|\|]/,
+                  tokenSeparator: /[\|\,|\/|;|\&|]/,
                     keys: [{
                       name: 'category_name',
-                      weight: 0.3
+                      weight: 0.2
                     }, {
                       name: 'keywords',
-                      weight: 0.7
+                      weight: 0.8
                     }],
               }
               if ((prod.category || prod.title) && !categoriesQuery.loading ) {
@@ -1198,18 +1202,59 @@ handleCannedMessage = ({target}) => {
                   console.log("<handleScrapeAction> configure fuse")
                   fuse = new Fuse(getCategories,fuseOptions)
                 }
+              //  organic  (H: 0.03, V: .9) cotton (C: 0.02, H: 0.4)
                 console.log("<handleScrapeAction> All Categories:",JSON.stringify(getCategories))
                 console.log("<handleScrapeAction>fuse.search  look for category:",prod.category)
               //  var catList = matchSorter(getCategories, prod.category, { keys: ["category_name","keywords"] });
-                var catList  = fuse.search(prod.category?prod.category:prod.title)
-                console.log("<handleScrapeAction> from fuse.search catList:",JSON.stringify(catList))
-                if (catList && catList.length>0 && catList[0].item) {
+              // split the category and title into individual keywords
+              var searchStr = (prod.category?prod.category:'')+(prod.title?prod.title:'')
+              searchStr = searchStr.replace(/\/|\&|\.|\[|\]|,/gi,' ')
+              console.log("searchStr:",searchStr)
+             var searchPattern = searchStr.split(' ')
+             var matchCat = {}; // keep match cats keys and score
+             var cats; // result from fuse
+             // search for the whole cat then whole title and by token
+             if (prod.title && prod.title != '') searchPattern.push(prod.title);
+             if (prod.catgory && prod.catgory != '') searchPattern.push(prod.category)
 
-                  useCategory.value = catList[0].item.category_name;
-                  useCategory.label = catList[0].item.category_name + "/" + catList[0].item.category_name_ar;
+             var bestMatch = {
+               item: {
+                 category_name: 'Accessories (General)',
+                 category_name_ar:'Accessories (General)'
+
+               },
+               score: 1
+             } ;
+
+             searchPattern.map(sp => {
+               if (sp.length<2) { console.log("skip search patters:", sp) ; return;}
+               cats = fuse.search(sp);
+               console.log("<handleScrapeAction>  Search results for ",sp , " =>:" , cats)
+
+               cats.map(cat => {
+                 console.log("<handleScrapeAction>  matched category:",cat.item ,' with score:',cat.score)
+                  matchCat[cat.item.category_name] = matchCat[cat.item.category_name]? matchCat[cat.item.category_name] * cat.score: cat.score
+                   console.log('<handleScrapeAction>  new matchCat:', JSON.stringify(matchCat))
+                  if (matchCat[cat.item.category_name] < bestMatch.score) {
+                    bestMatch.item = cat.item;
+                    bestMatch.score = matchCat[cat.item.category_name]
+                    console.log("<handleScrapeAction> best matched catgory so far:",bestMatch)
+                  }
+
+
+              })
+             })
+                // var catList  = fuse.search(prod.category?prod.category:prod.title)
+                // console.log("<handleScrapeAction> from fuse.search catList:",JSON.stringify(catList))
+                // determine best match
+                  console.log("<handleScrapeAction> final bestMatch Cat:",bestMatch)
+                if (bestMatch) {
+
+                  useCategory.value = bestMatch.item.category_name;
+                  useCategory.label = bestMatch.item.category_name + "/" + bestMatch.item.category_name_ar;
                   console.log("<handleScrapeAction> useCategory:",useCategory)
-                  console.log("<handleScrapeAction> catList:",catList[0].item)
-                  newState.formEditInfo.edit_category_info=  catList[0].item;
+
+                  newState.formEditInfo.edit_category_info=  bestMatch;
 
                 }
               }

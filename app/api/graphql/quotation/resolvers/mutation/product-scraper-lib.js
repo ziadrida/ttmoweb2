@@ -114,8 +114,9 @@ exports.sites = {
 		};
 
 	},
-  aliexpress: function(product_id) {
+  aliexpress: function(product_id,host) {
       console.log("aliexpress product_id:", product_id)
+			console.log("aliexpress host:", host)
       var productSelector = this.base();
 
 
@@ -133,11 +134,15 @@ exports.sites = {
       productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
       productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
       productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
+			productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('حجم الحمولة:') > span.packaging-des"
+
       productSelector.weight = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Weight') > span.packaging-des"
+			productSelector.weight1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('وزن الحمولة:') > span.packaging-des"
+
       productSelector.options = "li.item-sku-image.active  > a@title"
 			productSelector.options1 = "div.product-desc li.packaging-item:contains('Unit Type') span.packaging-des"
       //  productSelector.condition = '#vi-itm-cond'
-      var pageURL = 'http://www.aliexpress.com' + product_id;
+      var pageURL = 'http://' + host + product_id;
 
 		return {
 			page: pageURL,
@@ -238,7 +243,7 @@ console.log("in <scraper> ")
  console.log("opts.site:",opts.site)
 	if(this.sites &&this.sites[opts.site])
 	{
-		lookup = this.sites[opts.site](opts.product_id);
+		lookup = this.sites[opts.site](opts.product_id,opts.host);
     console.log("lookup:",lookup)
 
 		x(lookup.page, lookup.selectors)
@@ -348,7 +353,7 @@ console.log("in <scraper> ")
         _obj.options =hasOptions
       }
 
-      var useWeight = _obj.shipping_weight || _obj.weight || _obj.item_weight ;
+      var useWeight = _obj.shipping_weight || _obj.weight || _obj.weight1 || _obj.item_weight ;
       console.log("useWeight:",useWeight)
       if (useWeight) {
 
@@ -382,7 +387,7 @@ console.log("in <scraper> ")
           _obj.weight = parseFloat(weight).toFixed(2);
           console.log("Final weight: ",_obj.weight)
       }
-      var useDimensions = _obj.package_dimensions || _obj.dimensions || _obj.product_dimensions || _obj.item_dimensions
+      var useDimensions = _obj.package_dimensions || _obj.dimensions ||_obj.dimensions1 || _obj.product_dimensions || _obj.item_dimensions
       if (useDimensions) {
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
@@ -518,11 +523,12 @@ console.log('in <parseURL>')
 
         return callback(obj);
       });
-  	} else if (parse.host == 'www.aliexpress.com')
+  	} else if (parse.host.match(/www.aliexpress.com|ar.aliexpress.com|s.click.aliexpress.com/) )
     	{
           console.log("<product-scraper-lib> call ebay scraper parse:",parse)
     		this.scraper({
     			site: 'aliexpress',
+					host: parse.host,
     			product_id: parse.pathname + parse.query
     		}, function(obj) {
           console.log("<product-scraper-lib> after callback fom scraper");
