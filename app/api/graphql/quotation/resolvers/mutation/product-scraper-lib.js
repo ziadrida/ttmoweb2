@@ -297,6 +297,7 @@ console.log("in <scraper> ")
 				console.log("price Unit:",priceUnit)
 
         var price = mp && mp.length>2? mp[2]:0;
+				price = parseFloat(price.replace(/,/g, '')); // assume , is 1000 separator (later use Intl.NumberFormat)
 				price = price && !isNaN(price)? parseFloat(price).toFixed(2):0;
 				console.log("Extracted price:",price)
 				switch(priceUnit) {
