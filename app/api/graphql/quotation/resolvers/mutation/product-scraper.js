@@ -1,20 +1,12 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
-import scraper from './product-scraper-lib'
-import {
-  removeEmpty,
-  removeNull
-} from '/app/api/graphql/utils'
-import moment from 'moment';
-const debugOn = true;
+const {scraper} = require('./smart-product-scraper');
 
+const debugOn = true;
 const errorOn = true;
-// create or update purchase updateObj)
-//
 
 async function productScraper(root, args, context) {
 
   console.log("=> in <productScraper> args:", JSON.stringify(args))
+//  console.log("Location:",location , " location.search:", location && location.search);
   //console.log('root:', root)
   //  console.log('args:', args)
   //console.log('context:', context)
@@ -35,7 +27,7 @@ async function productScraper(root, args, context) {
   console.log("'<productScraper> URL:",  args.url)
   try {
       console.log("Call scraper:")
-     var res = await scraper.asyncInit(args.url);//, function(data) {
+     var res = await scraper(args.url);//, function(data) {
         console.log("*** <update-quote> After callback from scraper.init")
         console.log("<update-quote> scrapped data :",res);
 

@@ -1116,7 +1116,7 @@ handleCannedMessage = ({target}) => {
           return;
         }
         await this.setStateAsync({
-            message:"Getting product information ...",
+            message:"Getting product information",
             allowScraping: false,
 
         })
@@ -1269,15 +1269,15 @@ handleCannedMessage = ({target}) => {
                     ...newState.formEditInfo,
                     edit_source: prod.domain? prod.domain:'',
                     edit_title: prod.title?prod.title:'',
-                    edit_price: prod.price?prod.price:-1,
-                    edit_shipping: prod.shipping? prod.shipping:0,
+                    edit_price: prod.price!= null && prod.price > 0 ?prod.price:-1,
+                    edit_shipping: prod.shipping!=null ? prod.shipping:-1,
                     edit_thumbnailImage: prod.thumbnailImage?prod.thumbnailImage:'',
-                    edit_weight_lb: prod.weight &&!isNaN(prod.weight)? prod.weight:0,
-                    edit_weight_kg: prod.weight && !isNaN(prod.weight)? (parseFloat(prod.weight)/2.2).toFixed(2):0,
+                    edit_weight_lb: prod.weight!=null &&!isNaN(prod.weight)? prod.weight:-1,
+                    edit_weight_kg: prod.weight!= null && !isNaN(prod.weight)? (parseFloat(prod.weight)/2.2).toFixed(2):-1,
                   //  edit_dimensions_inch: prod.dimensions?prod.dimensions:'0 x 0 x 0',
                     edit_category:useCategory,
-                    edit_condition: prod.condition,
-                    edit_options: prod.options,
+                    edit_condition: prod.condition? prod.condition:'',
+                    edit_options: prod.options? prod.options:'',
 
                   }
               })
@@ -1952,7 +1952,7 @@ handleCannedMessage = ({target}) => {
               margin="normal"
               className={classes.textField}
               style={{
-                 'width' : '42em',
+                 'width' : '34em',
               }}
             />
             <div className="flex py2">
@@ -1977,7 +1977,7 @@ handleCannedMessage = ({target}) => {
               label="Title"
               value={edit_title}
               onChange={this.handleChange}
-              maxRows="2"
+              maxRows="4"
               margin="dense"
               className={classes.textField}
               style={{
@@ -1985,16 +1985,19 @@ handleCannedMessage = ({target}) => {
                 'whiteSpace': 'unset',
                  'fontSize': '10px' ,
                  'fontWeight':'bold',
-                'width' : '42em',
+                'width' : '34em',
                 'height': '3em',
               }}
             />
+            <div className="flex">
             <Button size="medium"  variant="contained"
               disabled={!this.state.allowScraping}
               color="secondary"
               margin="dense" onClick={this.handleScrapeAction}>
               Get Prod  Info
             </Button>
+            { message == "Getting product information"? <Loading /> : null}
+            </div>
             </div>
             <div className="flex flex-wrap">
             <TextField

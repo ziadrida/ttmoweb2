@@ -66,9 +66,14 @@ exports.sites = {
 		productSelector.image = xDelay('#landingImage@data-old-hires');
 		productSelector.sale_price = '#priceblock_saleprice';
     productSelector.deal_price = "#priceblock_dealprice";
+
 		productSelector.price = '#priceblock_ourprice';
 		productSelector.price1 = '#posPromoPitchPrice > div > span.price-large'
+		productSelector.price2 = "#soldByThirdParty > span.a-color-price.price3P"
+
 		productSelector.price_fraction = "#posPromoPitchPrice > div > span:nth-child(3)"
+		productSelector.shipping = "#priceBadging_feature_div > span > span"
+		productSelector.shipping1 = "#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P"
 		productSelector.brand = 'div#leftCol.a-section div.a-section div.a-section div.a-section a.a-link-normal';
 		productSelector.details = x(['#feature-bullets > ul > li']);
 		productSelector.description = '#productDescription';
@@ -122,28 +127,28 @@ exports.sites = {
       var productSelector = this.base();
 
 
-      productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
-      productSelector.title1 = "#j-product-detail-bd  h1.product-name"
-      productSelector.title2 = "h1.product-name"
-      productSelector.price = '#j-sku-price';
-			productSelector.high_price = '#j-sku-discount-price > span:nth-child(2)'
-			productSelector.sale_price = "#j-sku-discount-price"
+	      productSelector.title = '#j-product-detail-bd > div.detail-main > div > h1';
+	      productSelector.title1 = "#j-product-detail-bd  h1.product-name"
+	      productSelector.title2 = "h1.product-name"
+	      productSelector.price = '#j-sku-price';
+				productSelector.high_price = '#j-sku-discount-price > span:nth-child(2)'
+				productSelector.sale_price = "#j-sku-discount-price"
 
 
-      productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
+	      productSelector.image = xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src');
 
-      productSelector.shipping = "#j-product-shipping span.logistics-cost";
+	      productSelector.shipping = "#j-product-shipping span.logistics-cost";
 
-      productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
-      productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
-      productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
-			productSelector.dimensions1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('حجم الحمولة:') > span.packaging-des"
+	      productSelector.category = "body > div.ui-breadcrumb > div > h2 > a"
+	      productSelector.category1 = 'body > div.ui-breadcrumb > div > a:nth-child(7)';
+	      productSelector.dimensions = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des"
+				productSelector.dimensions1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('حجم الحمولة:') > span.packaging-des"
 
-      productSelector.weight = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Weight') > span.packaging-des"
-			productSelector.weight1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('وزن الحمولة:') > span.packaging-des"
+	      productSelector.weight = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Weight') > span.packaging-des"
+				productSelector.weight1 = "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('وزن الحمولة:') > span.packaging-des"
 
-      productSelector.options = "li.item-sku-image.active  > a@title"
-			productSelector.options1 = "div.product-desc li.packaging-item:contains('Unit Type') span.packaging-des"
+	      productSelector.options = "li.item-sku-image.active  > a@title"
+				productSelector.options1 = "div.product-desc li.packaging-item:contains('Unit Type') span.packaging-des"
       //  productSelector.condition = '#vi-itm-cond'
       var pageURL = 'http://' + host + product_id;
 
@@ -247,15 +252,15 @@ console.log("in <scraper> ")
 	if(this.sites &&this.sites[opts.site])
 	{
 		lookup = this.sites[opts.site](opts.product_id,opts.host);
-    console.log("lookup:",lookup)
+    console.log("<product-scraper-lib> lookup:",lookup)
 
 		x(lookup.page, lookup.selectors)
 		(function(err, obj){
       if (err) {
-        console.log("Err from xray:",err)
+        conzzzsole.log("product-scraper-lib> Err from xray:",err)
       } else {
 
-      console.log("after call from x-ray:")
+      console.log("product-scraper-lib> after call from x-ray:")
 			var _obj = obj;
 			_obj.url = lookup.page;
 
@@ -269,9 +274,13 @@ console.log("in <scraper> ")
 				});
 				_obj.details = details;
 			}
+			console.log("_obj:",JSON.stringify(_obj))
+			_obj.site = opts.site;
+
         console.log("<product-scraper-lib> got site:",_obj.site)
         console.log("<product-scraper-lib> got title:",_obj.title)
         console.log("<product-scraper-lib> got shipping:",_obj.shipping)
+				console.log("<product-scraper-lib> got shipping1:",_obj.shipping1)
         console.log("<product-scraper-lib> got condition:",_obj.condition)
         console.log("<product-scraper-lib> got options:",_obj.options)
         console.log("<product-scraper-lib> got weight:",_obj.weight)
@@ -281,23 +290,25 @@ console.log("in <scraper> ")
         console.log("<product-scraper-lib> got category:",_obj.category)
         console.log("<product-scraper-lib> got rank1:",_obj.rank1)
         console.log("<product-scraper-lib> got rank2:",_obj.rank2)
-        _obj.site = opts.site;
+				console.log("<product-scraper-lib> got price:",_obj.price)
+				console.log("<product-scraper-lib> got price1:",_obj.price1)
+				console.log("<product-scraper-lib> got price2:",_obj.price2)
   		  console.log("<product-scraper-lib> got deal_price:",_obj.deal_price)
 	   		console.log("<product-scraper-lib> got sale_price:",_obj.sale_price)
-		    console.log("<product-scraper-lib> got price:",_obj.price)
-       var usePrice = _obj.high_price || _obj.deal_price || _obj.sale_price || _obj.price;
+  			console.log("<product-scraper-lib> got price_fraction:",_obj.price_fraction)
+       var usePrice = _obj.high_price || _obj.deal_price || _obj.sale_price || _obj.price || _obj.price1 || _obj.price2;
 
       console.log("<product-scraper-lib> got usePrice:",usePrice)
 
-      console.log("<product-scraper-lib> got price_fraction:",_obj.price_fraction)
+
       if(usePrice) {
-        var mp = String(usePrice).match(/^(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
+        var mp = String(usePrice).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
         console.log("match price:",mp)
 				var priceUnit = mp && mp.length>1? mp[1]? mp[1]:'':'';
 				console.log("price Unit:",priceUnit)
 
-        var price = mp && mp.length>2? mp[2]:0;
-				price = parseFloat(price.replace(/,/g, '')); // assume , is 1000 separator (later use Intl.NumberFormat)
+        var price = mp && mp.length>2? mp[2]:'0';
+				price = price.replace(/,/g, ''); // assume , is 1000 separator (later use Intl.NumberFormat)
 				price = price && !isNaN(price)? parseFloat(price).toFixed(2):0;
 				console.log("Extracted price:",price)
 				switch(priceUnit) {
@@ -326,16 +337,40 @@ console.log("in <scraper> ")
 				_obj.price = -1;
 			}
 
+			var useShipping = _obj.shipping || _obj.shipping1
+			console.log("useShipping:",useShipping)
+      if(useShipping) {
 
-      if(_obj.shipping) {
-
-        if (String(_obj.shipping).match('/Free/i')) {
+        if (String(useShipping).match('/Free/i')) {
           _obj.shipping = 0;
         }  else {
-          var ship_price = String(_obj.shipping).match(/\d+(?:[.,]\d*)?/)
-          console.log("match ship_price:",ship_price)
-          var s_price = ship_price && ship_price.length > 0? ship_price[0]:0;
-          _obj.shipping = s_price;
+					var ms = String(useShipping).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
+					console.log("match ship_price:",ms)
+					var shipUnit = ms && ms.length>1? ms[1]? ms[1]:'':'';
+					console.log("Ship Unit:",shipUnit)
+
+					var shipping = ms && ms.length>2? ms[2]:'0';
+          console.log("match shipping price:",shipping)
+					switch(shipUnit) {
+						case '':
+						case '$':
+						case 'USD':
+							console.log("shipUnit in USD or not specified");
+							break;
+						case '€':
+						case "EUR":
+						 console.log("shipUnit in Euro");
+						 shipping = parseFloat(shipping) * 1.14; // get conversion online
+						 break;
+						case '£':
+						case 'GBP':
+							console.log("shipUnit in British pound")
+							shipping = parseFloat(shipping) * 1.35; // get conversion online
+							break;
+						default:
+						break;
+					}
+          _obj.shipping = shipping;
         }
 
       } else {
