@@ -470,7 +470,7 @@ console.log("in <scraper> ")
 				 result.size,
 				 result.item_number].filter(Boolean).join('; ')
       if (hasOptions) {
-
+				hasOptions = hasOptions.replace(/\s\s+/g, ' ');
         result.options =hasOptions
       }
 

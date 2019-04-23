@@ -99,8 +99,8 @@
     "x-ray": "^2.3.3"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/runtime": "^7.1.2",
@@ -124,6 +124,7 @@
     "jest-meteor-stubs": "^1.5.1",
     "node-sass": "^4.9.4",
     "postcss-reporter": "^1.3.3",
+    "puppeteer": "^1.14.0",
     "react-addons-test-utils": "^15.6.2",
     "regenerator-runtime": "^0.12.1",
     "stylelint": "^9.10.1"
