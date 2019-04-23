@@ -24,9 +24,9 @@ async function productScraper(root, args, context) {
     throw new Error("URL is required")
   }
 
-  console.log("'<productScraper> URL:",  args.url)
+  console.log("<productScraper> URL:",  args.url)
   try {
-      console.log("Call scraper:")
+      console.log("<productScraper> Call scraper:")
      var res = await scraper(args.url);//, function(data) {
         console.log("*** <update-quote> After callback from scraper.init")
         console.log("<update-quote> scrapped data :",res);
