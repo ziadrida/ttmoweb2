@@ -7,7 +7,6 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from "@material-ui/core/styles";
-//import 'font-awesome/css/font-awesome.min.css';
 import AlarmIcon from '@material-ui/icons/Reorder';
 import  classes from "classnames";
 import Tooltip from '@material-ui/core/Tooltip';
