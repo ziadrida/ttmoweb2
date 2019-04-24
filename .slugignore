@@ -5,3 +5,4 @@ logic-flow.txt
 .meteor/local
 .git
 node_modules
+tests
