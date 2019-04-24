@@ -287,8 +287,8 @@ var parse = require('url-parse')
 	 }
  }
 
-const x = Xray().driver(xRayChrome({
-    viewPort:{ width:1280, height:800 },
+const x = Xray().driver(xRayChrome(	{
+	viewPort:{ width:1280, height:800 },
 
     cl: async (page, ctx) => {
 				console.log('in cl function:')
@@ -304,16 +304,15 @@ const x = Xray().driver(xRayChrome({
 						console.log("after setup  initialized:",sites[site_map[host]].initialized)
 				}
 
-            },
-            navigationOptions: {
+      },
+      navigationOptions: {
                 timeout: 30000,
-            },
-						{
-							headless:  true, // launch browser (false = show it)
-							args: ['--no-sandbox', '--disable-setuid-sandbox'],
-					  }
+      },
+			headless:  true, 	// launch browser (false = show it)
+			args: ['--no-sandbox', '--disable-setuid-sandbox']
 
-}));
+		}
+));
 
 exports.scraper = async function(url) {
 console.log("in <scraper> ")
