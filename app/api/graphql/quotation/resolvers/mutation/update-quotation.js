@@ -1,7 +1,5 @@
 import Quotation from '/app/entry-points/server/models/quotation';
-import axios from 'axios';
-import cheerio from 'cheerio';
-import scraper from './product-scraper-lib'
+
 import {
   removeEmpty,
   removeNull
