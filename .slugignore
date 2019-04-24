@@ -2,3 +2,5 @@ db.txt
 a.txt
 logic-flow.txt
 .storybook
+.meteor/local
+.git
