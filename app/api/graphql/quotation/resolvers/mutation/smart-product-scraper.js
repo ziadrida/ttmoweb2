@@ -8,8 +8,6 @@ var parse = require('url-parse')
 //const puppeteer = require('puppeteer');
 	const xDelay = Xray().delay('1s','10s')
 
-
-
 	const site_map = {
 		'www.ebay.com': 'ebay',
 		'www.aliexpress.com': 'aliexpress',
