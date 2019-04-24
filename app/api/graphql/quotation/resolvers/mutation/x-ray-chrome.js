@@ -3,7 +3,7 @@
 // import * as Puppeteer from 'puppeteer';
 // import  {Driver}  from 'x-ray-crawler';
 const Context = require('http-context')
-const Puppeteer = require('puppeteer')
+const Puppeteer = require('puppeteer-core')
 const Driver = require('x-ray-crawler')
 /**
  * Usage
