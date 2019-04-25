@@ -56,15 +56,19 @@ exports.xRayChrome = (options) => {
     } = Object.assign({}, defaults, options);
 
     return async (ctx, done) => {
-
+      try {
         if (!browser) browser = await Puppeteer.launch(launchOptions);
-
-        if (!page) {
+      } catch( err) {
+        console.log("Error lunching puppeteer:",err)
+        done(err,null)
+      }
+        if (!page && browser) {
           page = await browser.newPage();
           await page.setViewport(viewPort);
         }
-        try {
 
+        try {
+          
             await page.goto(ctx.url, navigationOptions);
             if (typeof cl === 'function' && !setup) {
               console.log("call cl function")
