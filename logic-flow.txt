@@ -1,4 +1,8 @@
 
+commands:
+ npm prune --dry-run
+ heroku repo:gc -a ttmoweb2
+heroku repo:purge_cache -a ttmoweb2
 
 
  App Shell Architecture

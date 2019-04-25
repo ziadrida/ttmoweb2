@@ -1,6 +1,9 @@
+removed packages
+______________________
 "glob": "^7.1.3",
 "glob-stream": "^6.1.0",
 "glob-watcher": "^5.0.3",
+  "emitter": "0.0.5",
 
 mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet pricing.js > pricingOut2018.js
 mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet getPOs.js > POsept1-9.js
