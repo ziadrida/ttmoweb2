@@ -46,7 +46,8 @@ exports.xRayChrome = (options) => {
   //       viewPort: { width: 1280, height: 800 }
   //   };
     var defaults = {
-        viewPort: { width: 1280, height: 800 }
+        viewPort: { width: 1280, height: 800 },
+        args: ['--no-sandbox']
     };
     const {
         viewPort,
@@ -57,6 +58,7 @@ exports.xRayChrome = (options) => {
 
     return async (ctx, done) => {
       try {
+        console.log('launchOptions:',launchOptions)
         if (!browser) browser = await Puppeteer.launch(launchOptions);
       } catch( err) {
         console.log("Error lunching puppeteer:",err)
@@ -68,7 +70,7 @@ exports.xRayChrome = (options) => {
         }
 
         try {
-          
+
             await page.goto(ctx.url, navigationOptions);
             if (typeof cl === 'function' && !setup) {
               console.log("call cl function")

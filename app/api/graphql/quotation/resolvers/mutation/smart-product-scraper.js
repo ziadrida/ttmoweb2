@@ -306,8 +306,8 @@ const x = Xray().driver(xRayChrome(	{
       navigationOptions: {
                 timeout: 20000,
       },
-			headless:  true, 	// launch browser (false = show it)
-			args: ['--no-sandbox', '--disable-setuid-sandbox']
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		//	headless:  true, 	// launch browser (false = show it)
 
 		}
 ));
