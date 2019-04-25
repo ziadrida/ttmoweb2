@@ -4,5 +4,4 @@ logic-flow.txt
 .storybook
 .meteor/local
 .git
-node_modules
 tests
