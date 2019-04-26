@@ -24,8 +24,8 @@ var parse = require('url-parse')
 				try {
 				//await page.screenshot({ path: './star1.png' });
 				console.log("step0")
-				let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
-				console.log("bodyHTML:",bodyHTML1)
+				// let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
+				// console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
 				await page.waitForSelector("#viTabs_1[href='#']")
 					console.log("step1")
@@ -74,6 +74,7 @@ var parse = require('url-parse')
 	 amazon: {
 		 initialized: false,
 		 setup: async(page) => {
+			 console.log("setup amazon")
 			 try {
 				 	await page.screenshot({ path: './amazon1.png' });
 			 }
@@ -81,32 +82,53 @@ var parse = require('url-parse')
 				 console.log("error taking screenshot");
 			 }
 			try {
-				console.log("setup amazon")
+
 				console.log("click1")
-				let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-				console.log("bodyHTML:",bodyHTML)
-			await page.waitFor(2000);
-		//	await page.waitForSelector("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit")
-			await page.click("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit > span > input")
+				// let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+				// console.log("bodyHTML:",bodyHTML)
+				try {
+					await page.waitFor(2000);
+					//	await page.waitForSelector("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit")
+			 	await page.click("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit > span > input")
+			} catch(err1) {
+				// a default zip code maybe entered - change it
+					console.log("err1 no #nav-main selector:",err1)
+					try {
+					  console.log("click g2")
+						await page.click("#nav-global-location-slot > span > a");
+					
+						await page.waitFor(2000);
+				    console.log("click g3")
+			     	await page.click("#GLUXChangePostalCodeLink");
+
+
+					} catch(err2) {
+							console.log("err2 no #glow-ingress-block:",err)
+					}
+				}
 		//  await page.waitForNavigation({waitUntil: "load"});
 					console.log("click2")
 			// await page.click("a-button-input")
 			// await page.waitForNavigation({waitUntil: "load"});
 			  console.log("click3")
-			await page.waitFor(2000);
+				await page.waitFor(2000);
 
 		//	await page.waitForSelector('#a-popover-header-6')
 
 			await page.focus('#GLUXZipUpdateInput')
 			await page.waitFor(1000);
 			await page.click('#GLUXZipUpdateInput')
+			await page.keyboard.down('Control');
+			await page.keyboard.press('KeyA');
+			await page.keyboard.up('Control');
+			await page.keyboard.press('Backspace');
 			await page.waitFor(1000);
 
 			await page.keyboard.type('97230')
 
 			console.log("click4")
 			await page.waitFor(1000);
-			await page.waitForSelector("#GLUXZipUpdate");
+		//	await page.waitForSelector("#GLUXZipUpdate");
 			console.log("click5")
 			await page.focus("#GLUXZipUpdate");
 			await page.waitFor(1000);
@@ -120,17 +142,19 @@ var parse = require('url-parse')
 		//	console.log("click7")
 			await page.click('body')
 					console.log("click8")
-			await page.waitForSelector("#twotabsearchtextbox")
+			//await page.waitForSelector("#twotabsearchtextbox")
+			await page.waitFor(2000);
 			await page.focus("#twotabsearchtextbox");
 			console.log("click9")
 			await page.waitFor(1000);
 			await page.click("#twotabsearchtextbox")
 			console.log("click10")
-			await page.waitForNavigation({waitUntil: "load"});
+			await page.waitFor(2000);
+			//await page.waitForNavigation({waitUntil: "load"});
 			console.log("click11")
 			return true;
 			} catch(err) {
-				console.log("Err:",err)
+				console.log("Err3:",err)
 				return false;
 			}
 		},
@@ -327,7 +351,7 @@ const x = Xray().driver(xRayChrome(	{
                 timeout: 20000,
       },
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-		//	headless:  true, 	// launch browser (false = show it)
+			headless:  false, 	// launch browser (false = show it)
 
 		}
 ));
