@@ -20,6 +20,7 @@
     }
   },
   "dependencies": {
+    "@babel/runtime": "^7.4.3",
     "@date-io/date-fns": "0.0.2",
     "@date-io/luxon": "0.0.2",
     "@date-io/moment": "0.0.2",
@@ -36,7 +37,6 @@
     "apollo-server-express": "^2.1.0",
     "axios": "^0.18.0",
     "babel-plugin-react-css-modules": "^3.4.2",
-    "@babel/runtime": "^7.4.3",
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
@@ -81,6 +81,7 @@
     "trashable": "^1.0.7",
     "trashable-react": "^1.0.7",
     "unfetch": "^4.0.1",
+    "url-parse": "^1.4.6",
     "web-push": "^3.3.3",
     "x-ray": "^2.3.3"
   },
@@ -89,7 +90,6 @@
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
-
     "@storybook/addon-actions": "^3.4.11",
     "@storybook/addon-links": "^3.4.11",
     "@storybook/react": "^5.0.10",
