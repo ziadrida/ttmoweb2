@@ -24,6 +24,8 @@ var parse = require('url-parse')
 				try {
 				//await page.screenshot({ path: './star1.png' });
 				console.log("step0")
+				let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
+				console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
 				await page.waitForSelector("#viTabs_1[href='#']")
 					console.log("step1")
@@ -70,17 +72,26 @@ var parse = require('url-parse')
 	 amazon: {
 		 initialized: false,
 		 setup: async(page) => {
+			 try {
+				 	await page.screenshot({ path: './amazon.png' });
+			 }
+			 catch(err) {
+				 console.log("error taking screenshot");
+			 }
 			try {
 				console.log("setup amazon")
-		//	console.log("click1")
-			await page.waitForSelector("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit")
+				console.log("click1")
+				let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+				console.log("bodyHTML:",bodyHTML)
+			await page.waitFor(2000);
+		//	await page.waitForSelector("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit")
 			await page.click("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit > span > input")
 		//  await page.waitForNavigation({waitUntil: "load"});
-			//		console.log("click2")
+					console.log("click2")
 			// await page.click("a-button-input")
 			// await page.waitForNavigation({waitUntil: "load"});
-			//  console.log("click3")
-			await page.waitFor(4000);
+			  console.log("click3")
+			await page.waitFor(2000);
 
 		//	await page.waitForSelector('#a-popover-header-6')
 
@@ -91,30 +102,30 @@ var parse = require('url-parse')
 
 			await page.keyboard.type('97230')
 
-			//console.log("click4")
+			console.log("click4")
 			await page.waitFor(1000);
 			await page.waitForSelector("#GLUXZipUpdate");
-			//console.log("click5")
+			console.log("click5")
 			await page.focus("#GLUXZipUpdate");
 			await page.waitFor(1000);
 
 			await page.click("#GLUXZipUpdate");
 				await page.screenshot({ path: './amazon.png' });
 			await page.waitFor(2000);
-			//console.log("click6")
+			console.log("click6")
 		//	await page.waitForNavigation({waitUntil: "networkidle2"});
 		//  await page.waitForSelector("#a-popover-6 > div > div.a-popover-footer > span")
 		//	console.log("click7")
 			await page.click('body')
-			//		console.log("click8")
+					console.log("click8")
 			await page.waitForSelector("#twotabsearchtextbox")
 			await page.focus("#twotabsearchtextbox");
-			//console.log("click9")
+			console.log("click9")
 			await page.waitFor(1000);
 			await page.click("#twotabsearchtextbox")
-			//console.log("click10")
+			console.log("click10")
 			await page.waitForNavigation({waitUntil: "load"});
-			//console.log("click11")
+			console.log("click11")
 			return true;
 			} catch(err) {
 				console.log("Err:",err)

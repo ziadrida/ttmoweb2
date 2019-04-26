@@ -13,14 +13,12 @@ import { onError } from "apollo-link-error";
 import {DatePicker} from 'material-ui-pickers';
 //import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
 
-import AddIcon from '@material-ui/icons/Add';
-import CancelIcon from '@material-ui/icons/Cancel';
-import DeleteIcon from '@material-ui/icons/Delete';
+
 import Fab from '@material-ui/core/Fab';
 import Icon from '@material-ui/core/Icon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+//import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';

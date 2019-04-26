@@ -3,7 +3,7 @@ commands:
  npm prune --dry-run
  heroku repo:gc -a ttmoweb2
 heroku repo:purge_cache -a ttmoweb2
-
+heroku config:set BUILDPACK_CLEAR_CACHE=1
 
  App Shell Architecture
 client/startup.js renders routes based on locales
