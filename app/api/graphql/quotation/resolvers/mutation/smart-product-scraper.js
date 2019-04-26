@@ -272,10 +272,10 @@ var parse = require('url-parse')
  					await page.waitFor(1000);
 					//	await page.screenshot({ path: './star3.png' });
 					// console.log("click3")
-					await page.screenshot({ path: './aliexpress.png' });
+					await page.screenshot({ path: './aliexpress1.png' });
 			 		await page.click("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-btn.item.util-clearfix > button")
-			 		await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
-
+			 		//await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
+						await page.waitFor(4000);
 		 			//await page.waitFor(5000);
 	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
@@ -598,7 +598,7 @@ console.log("in <scraper> ")
          console.log("category after cleanup:", useCategory)
          //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
 
-				 useImage = result.image || result.image1 || result.image2 || result.image3
+				 var useImage = result.image || result.image1 || result.image2 || result.image3
 				 result.image = useImage;
          result.category = useCategory? useCategory:"general accessories"
       }
