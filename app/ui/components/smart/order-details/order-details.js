@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 import { propType } from 'graphql-anywhere';
 import { withStyles } from '@material-ui/core/styles';
-//import { withTracker } from 'meteor/react-meteor-data';
+
 import orderDetailsFragment from '/app/ui/apollo-client/order-details/fragment/order-details';
 import orderDetailsQuery from '/app/ui/apollo-client/order-details/query/order-details';
 
 import Icon from '@material-ui/core/Icon';
-import CancelIcon from '@material-ui/icons/Cancel';
-import DeleteIcon from '@material-ui/icons/Delete';
+
 import Fab from '@material-ui/core/Fab';
 import Loading from '/app/ui/components/dumb/loading';
 import moment from 'moment'
@@ -1768,16 +1767,3 @@ const withData = graphql(orderDetailsQuery,
 
 const OrderDetailsWithData = withData(OrderDetails);
 export default withStyles(styles)(OrderDetailsWithData)
-
-// const OrderDetailsComp = withStyles(styles)(OrderDetails)
-// export default withData(OrderDetailsComp);
-
-//export default withTracker(withData(OrderDetails));
-// const OrderDetailsData = compose(
-//   connect(...), // some Redux
-//   graphql(...), // some GraphQL
-//   withTracker(...), // some Tracker data
-// )(Foo);
-//cancel svg
-// <path xmlns="http://www.w3.org/2000/svg" d="M512 0c-282.77 0-512 229.23-512 512s229.23 512 512 512 512-229.23 512-512-229.23-512-512-512zM512 928c-229.75 0-416-186.25-416-416s186.25-416 416-416 416 186.25 416 416-186.25 416-416 416z"/>
-// <path xmlns="http://www.w3.org/2000/svg" d="M685.333 234.667l-173.333 173.333-173.333-173.333-104 104 173.333 173.333-173.333 173.333 104 104 173.333-173.333 173.333 173.333 104-104-173.333-173.333 173.333-173.333z"/>

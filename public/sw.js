@@ -12,10 +12,10 @@ const HASHED_CACHE = 'hashedCache';
 // Precache all the files needed by the App Shell, as defined in workbox-config.js
 // If any of these files are updated, run `npm run update-sw` to update this file automatically.
 workbox.precaching.precacheAndRoute([
-  {
-    "url": "css/font-awesome.min.css",
-    "revison": "v10005"
-  },
+  // {
+  //   "url": "css/font-awesome.min.css",
+  //   "revison": "v10005"
+  // },
   {
     "url": "css/react-table.css",
     "revison": "v10005"
