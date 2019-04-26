@@ -75,7 +75,7 @@ var parse = require('url-parse')
 		 initialized: false,
 		 setup: async(page) => {
 			 try {
-				 	await page.screenshot({ path: './amazon.png' });
+				 	await page.screenshot({ path: './amazon1.png' });
 			 }
 			 catch(err) {
 				 console.log("error taking screenshot");
@@ -112,7 +112,7 @@ var parse = require('url-parse')
 			await page.waitFor(1000);
 
 			await page.click("#GLUXZipUpdate");
-				await page.screenshot({ path: './amazon.png' });
+				await page.screenshot({ path: './amazon2.png' });
 			await page.waitFor(2000);
 			console.log("click6")
 		//	await page.waitForNavigation({waitUntil: "networkidle2"});
@@ -141,16 +141,22 @@ var parse = require('url-parse')
 
 			 image: '#landingImage@data-old-hires', //@data-old-hires',
 			 image1: "#landingImage@src",
-		 	 image2: "#ivLargeImage > img@src",
+			 image2: "#imgBlkFront@src",
+		 	 image3: "#ivLargeImage > img@src",
 			 sale_price: '#priceblock_saleprice',
 			 deal_price: "#priceblock_dealprice",
 			 price: '#priceblock_ourprice',
+
 			 price1: '#posPromoPitchPrice > div > span.price-large',
 			 price2: "#soldByThirdParty > span.a-color-price.price3P",
+			 price3: "#priceblock_pospromoprice",
+			 price4: "#buyNewSection",
 			 price_fraction: "#posPromoPitchPrice > div > span:nth-child(3)",
 			 shipping: "#priceBadging_feature_div > span > span",
 			 shipping1: "#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P",
 			 shipping2: "#price-shipping-message > b",
+			 shipping3: "#buyNewInner > div.a-section.a-spacing-small.a-spacing-top-micro > div > span > span > a",
+			 prime: "#priceBadging_feature_div > i.a-icon-prime",
 		   //	brand: 'div#leftCol.a-section div.a-section div.a-section div.a-section a.a-link-normal',
 			 //details: x(['#feature-bullets > ul > li']),
 		   //	description: '#productDescription',
@@ -177,6 +183,7 @@ var parse = require('url-parse')
 			 options3: "#quickPromoBucketContent > div.disclaim",
 			 size: "#dropdown_selected_size_name > span > span > span",
 			 color: "#variation_color_name > div > span",
+			 condition: "#buyNewSection"
 
 		 },
 	 },
@@ -373,6 +380,7 @@ console.log("in <scraper> ")
         console.log("<smart-product-scraper> got image:",result.image)
 				  console.log("<smart-product-scraper> got image1:",result.image1)
 					  console.log("<smart-product-scraper> got image2:",result.image2)
+						 console.log("<smart-product-scraper> got image3:",result.image3)
         console.log("<smart-product-scraper> got brand:",result.brand)
         console.log("<smart-product-scraper> got category:",result.category)
         console.log("<smart-product-scraper> got rank1:",result.rank1)
@@ -380,10 +388,12 @@ console.log("in <scraper> ")
 				console.log("<smart-product-scraper> got price:",result.price)
 				console.log("<smart-product-scraper> got price1:",result.price1)
 				console.log("<smart-product-scraper> got price2:",result.price2)
+					console.log("<smart-product-scraper> got price3:",result.price3)
+						console.log("<smart-product-scraper> got price3:",result.price4)
   		  console.log("<smart-product-scraper> got deal_price:",result.deal_price)
 	   		console.log("<smart-product-scraper> got sale_price:",result.sale_price)
   			console.log("<smart-product-scraper> got price_fraction:",result.price_fraction)
-       var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2;
+       var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
 
@@ -423,8 +433,8 @@ console.log("in <scraper> ")
       } else {
 				result.price = -1;
 			}
-
-			var useShipping = result.shipping || result.shipping1 || result.shipping2
+			if (result.prime) result.prime="FREE";
+			var useShipping = result.shipping || result.shipping1 || result.shipping2 || result.shipping3 || result.prime;
 			console.log("useShipping:",useShipping)
       if(useShipping) {
 				// look for FREE Shipping
@@ -588,7 +598,7 @@ console.log("in <scraper> ")
          console.log("category after cleanup:", useCategory)
          //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
 
-				 useImage = result.image || result.image1 || result.image2
+				 useImage = result.image || result.image1 || result.image2 || result.image3
 				 result.image = useImage;
          result.category = useCategory? useCategory:"general accessories"
       }
