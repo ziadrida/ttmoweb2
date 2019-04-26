@@ -57,10 +57,12 @@ var parse = require('url-parse')
 					return false
 			}
 		 },
+		 // eby selectors
 		 selectors: {
 			 	 title: '#itemTitle',
 				 price: '#prcIsum',
 				 shipping: '#fshippingCost > span',
+				 shipping1: "#shSummary > div.fnfvar0.fnfadjust",
 				 image: '#icImg@src',
 				 category: "li.bc-w:first-child span",
 				 category1: "li.bc-w:last-child span",
