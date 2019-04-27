@@ -19,6 +19,7 @@ var parse = require('url-parse')
  const sites = {
 	 ebay: {
 		 initialized: false,
+		 initAttempts: 0,
 		 setup:async (page) => {
 			 console.log("setup ebay")
 				try {
@@ -73,6 +74,7 @@ var parse = require('url-parse')
 	 },
 	 amazon: {
 		 initialized: false,
+		 initAttempts: 0,
 		 setup: async(page) => {
 			 console.log("setup amazon")
 			 try {
@@ -187,19 +189,24 @@ var parse = require('url-parse')
 			 dimensions: "#detail-bullets .bucket > div.content >ul > li:contains('Product Dimensions')",
 			 //dimensions1:"#detailBullets_feature_div > ul > li:nth-child(1) > span > span:contains('Product Dimensions')",
 			 dimensions1: "#detailBullets_feature_div > ul > li:contains('Product Dimensions') > span",
+			 dimensions2: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Product Dimensions')",
 			 package_dimensions: "tr:contains('Package Dimensions') > td.a-size-base",
 			 product_dimensions: "tr:contains('Product Dimensions') > td.a-size-base",
 			 item_dimensions: "tr:contains('Item Dimensions  L x W x H') td.a-size-base",
 			 weight:"#detail-bullets .bucket > div.content >ul > li:contains('Shipping Weight')",
+
 			 shipping_weight: "tr:contains('Shipping Weight') > td.a-size-base",
 			 shipping_weight1: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight:')",
 			 shipping_weight2: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:nth-child(1) > b",
 			 shipping_weight3: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight') > b",
 			 item_weight: "tr:contains('Item Weight') > td.a-size-base",
+			 item_weight1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Item Weight')",
 			 shipping_weight4: '*[@id="detail-bullets"]/table/tbody/tr/td/div[2]/ul/li[1]/text()[1]',
 			 shipping_weight5: "#detailBullets_feature_div > ul > li:contains('Shipping Weight')> span",
+			  shipping_weight6: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Shipping Weight')",
 			 category: "#wayfinding-breadcrumbs_container > ul > li:last-child",
-			 rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Seller') >td a",
+			// rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Seller') >td a",
+			 rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Sellers Rank')",
 			 rank2: "#SalesRank",
 			 options: "#variation_size_name > div > span",
 			 options1: "#shelf-label-size_name",
@@ -213,6 +220,7 @@ var parse = require('url-parse')
 	 },
 	 walmart: {
 		 initialized: false,
+		 initAttempts: 0,
 		 setup: async(page) => {
 			 console.log("setup walmart ")
 
@@ -276,6 +284,7 @@ var parse = require('url-parse')
 	 },
 	 aliexpress: {
 	   initialized: false,
+		 initAttempts: 0,
 	   setup: async(page) => {
 			 try {
 			     //await page.screenshot({ path: './star1.png' });
@@ -342,9 +351,10 @@ const x = Xray().driver(xRayChrome(	{
 				console.log('host:',host)
 				// the following code can be replaced by a more concide loop (later!)
 				console.log("site map:",site_map[host])
-				if (sites[site_map[host]] && !sites[site_map[host]].initialized ) {
+				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<3 ) {
 					//	console.log("setup ",sites[site_map[host]])
 						sites[site_map[host]].initialized = await sites[site_map[host]].setup(page);
+						sites[site_map[host]].initAttempts++
 						console.log("after setup  initialized:",sites[site_map[host]].initialized)
 				}
 
@@ -525,7 +535,7 @@ console.log("in <scraper> ")
 
       var useWeight = result.shipping_weight || result.shipping_weight1 ||
 						result.shipping_weight2 ||result.shipping_weight3 || result.shipping_weight4
-						|| result.shipping_weight5 ||result.weight || result.weight1 || result.item_weight ;
+						|| result.shipping_weight5 || result.shipping_weight6 ||result.weight || result.weight1 || result.item_weight || result.item_weight1 ;
       console.log("useWeight:",useWeight)
       if (useWeight) {
 
@@ -559,7 +569,8 @@ console.log("in <scraper> ")
           result.weight = parseFloat(weight).toFixed(2);
           console.log("Final weight: ",result.weight)
       }
-      var useDimensions = result.package_dimensions || result.dimensions ||result.dimensions1 || result.product_dimensions || result.item_dimensions
+      var useDimensions = result.package_dimensions || result.dimensions ||result.dimensions1
+			||result.dimensions2 || result.product_dimensions || result.item_dimensions
       if (useDimensions) {
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);

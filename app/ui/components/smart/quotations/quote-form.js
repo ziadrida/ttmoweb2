@@ -648,8 +648,8 @@ handleCannedMessage = ({target}) => {
         options= 'quote'
         if (quotation && quotation.prices) {
           text =
-          `${this.state.formEditInfo.edit_title}\nPrice is ${quotation.prices[edit_price_selection].price} JD
-          \nPrice in Aqaba ${quotation.prices['aq_std'].price} JD`
+          this.state.formEditInfo.edit_title + "\n" + "Price is "+ quotation.prices[edit_price_selection].price +" JD"+
+        ( edit_price_selection == 'aq_std'? '':"\nPrice in Aqaba "+ quotation.prices['aq_std'].price + " JD")
         } else text = 'Pricing not ready yet!'
         break;
 
@@ -1209,7 +1209,7 @@ handleCannedMessage = ({target}) => {
                 console.log("<handleScrapeAction>fuse.search  look for category:",prod.category)
               //  var catList = matchSorter(getCategories, prod.category, { keys: ["category_name","keywords"] });
               // split the category and title into individual keywords
-              var searchStr = (prod.category?prod.category:'')+(prod.title?prod.title:'')
+              var searchStr = (prod.category?prod.category:'')+" "+(prod.title?prod.title:'')
               searchStr = searchStr.replace(/\/|\&|\.|\[|\]|,/gi,' ')
               console.log("searchStr:",searchStr)
              var searchPattern = searchStr.split(' ')
@@ -1229,7 +1229,7 @@ handleCannedMessage = ({target}) => {
              } ;
 
              searchPattern.map(sp => {
-               if (sp.length<2) { console.log("skip search patters:", sp) ; return;}
+               if (sp.length<3) { console.log("skip search patters:", sp) ; return;}
                cats = fuse.search(sp);
                console.log("<handleScrapeAction>  Search results for ",sp , " =>:" , cats)
 
@@ -1908,19 +1908,19 @@ handleCannedMessage = ({target}) => {
           <TextField
             disabled={bulkUpdate}
             name="edit_canned_message"
+            multiline
             type="String"
             label="Enter user message"
             value={edit_canned_message}
             onChange={this.handleChange}
-
+            rowsMax="3"
             margin="dense"
             className={classes.textField}
             style={{
               //backgroundColor:'pink',
               'whiteSpace': 'unset',
                'fontSize': '10px' ,
-
-              'width' : '42em',
+               'width' : '30em',
             }}
           />
 
@@ -1988,7 +1988,7 @@ handleCannedMessage = ({target}) => {
               disabled={!this.state.allowScraping}
               color="secondary"
               margin="dense" onClick={this.handleScrapeAction}>
-              Get Prod  Info
+              Get Prod Info
             </Button>
             { message == "Getting product information"? <Loading /> : null}
             </div>
