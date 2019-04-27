@@ -96,7 +96,7 @@ var parse = require('url-parse')
 					try {
 					  console.log("click g2")
 						await page.click("#nav-global-location-slot > span > a");
-					
+
 						await page.waitFor(2000);
 				    console.log("click g3")
 			     	await page.click("#GLUXChangePostalCodeLink");
@@ -351,7 +351,7 @@ const x = Xray().driver(xRayChrome(	{
                 timeout: 20000,
       },
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-			headless:  false, 	// launch browser (false = show it)
+			headless:  true, 	// launch browser (false = show it)
 
 		}
 ));
