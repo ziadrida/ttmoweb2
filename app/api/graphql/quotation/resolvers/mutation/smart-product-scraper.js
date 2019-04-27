@@ -57,7 +57,7 @@ var parse = require('url-parse')
 					return false
 			}
 		 },
-		 // eby selectors
+		 // ebay selectors
 		 selectors: {
 			 	 title: '#itemTitle',
 				 price: '#prcIsum',
@@ -260,7 +260,9 @@ var parse = require('url-parse')
 		 // walmart selectors
 		 selectors: {
 				 title:'h1.prod-ProductTitle div',
+
 				 price: 'span.hide-content span.price-characteristic',
+				 price1: "#price > div > span.hide-content",
 				 price_fraction: 'span.hide-content span.price-mantissa',
 				 currency: '#price span.price-currency',
 				 brand: 'div.hide-content.display-inline-block-m.valign-middle.secondary-info-margin-right.copy-mini > a > span',
@@ -417,6 +419,7 @@ console.log("in <scraper> ")
   		  console.log("<smart-product-scraper> got deal_price:",result.deal_price)
 	   		console.log("<smart-product-scraper> got sale_price:",result.sale_price)
   			console.log("<smart-product-scraper> got price_fraction:",result.price_fraction)
+
        var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
@@ -451,7 +454,7 @@ console.log("in <scraper> ")
 					default:
 					break;
 				}
-				price = parseFloat(price) + ((result.price_fraction && !isNaN(result.price_fraction)) ? parseFloat(result.price_fraction) : 0);
+				price = parseFloat(price) + ((result.price_fraction && !isNaN(result.price_fraction)) ? parseFloat(result.price_fraction)/100.0 : 0);
 				console.log("final price:",price)
         result.price = price>0? parseFloat(price).toFixed(2):-1;
       } else {

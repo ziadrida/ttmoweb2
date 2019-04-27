@@ -1941,7 +1941,6 @@ handleCannedMessage = ({target}) => {
 
             <TextField
               disabled={bulkUpdate}
-
               multiline
               rowsMax="4"
               name="edit_url"
@@ -1970,23 +1969,18 @@ handleCannedMessage = ({target}) => {
              > */}
 
             <TextField
-            multiline
               disabled={bulkUpdate}
+              multiline
+              rowsMax="4"
               name="edit_title"
               type="String"
               label="Title"
               value={edit_title}
               onChange={this.handleChange}
-              maxRows="4"
-              margin="dense"
+              margin="normal"
               className={classes.textField}
               style={{
-                //backgroundColor:'pink
-                'whiteSpace': 'unset',
-                 'fontSize': '10px' ,
-                 'fontWeight':'bold',
-                'width' : '34em',
-                'height': '3em',
+                 'width' : '34em',
               }}
             />
             <div className="flex">
