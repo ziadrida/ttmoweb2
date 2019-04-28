@@ -11,7 +11,7 @@ import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
- 
+
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import {  graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -193,7 +193,7 @@ class UserSelect extends React.Component {
     textField.remove()
     };
 
-  static getDerivedStateFromProps(props, state) {
+  static  getDerivedStateFromProps(props, state) {
     console.log("<><> <getDerivedStateFromProps> <UserSelect> \nprops",props, "\nstate",state)
     var returnState = {}
     //var username
@@ -201,12 +201,13 @@ class UserSelect extends React.Component {
     const {usersQuery } = props
     const {getUsers} = usersQuery
     console.log('<getDerivedStateFromProps> <UserSelect> usersQuery.loading:',usersQuery.loading)
-
+    console.log('getusers:',getUsers)
     var userIdx = -1;
     var userInfo = null;
     if (getUsers && getUsers.length>0 && props.username) {
       userIdx =getUsers.findIndex(
-     x=>  x.userId == props.username.value)
+          x=>  x.userId == props.username.value
+      )
      console.log("<getDerivedStateFromProps> <UserSelect> userIdx:",userIdx)
      if (userIdx>=0) {
        console.log('<getDerivedStateFromProps> <UserSelect> User:',getUsers[userIdx])
@@ -218,14 +219,15 @@ class UserSelect extends React.Component {
 
     if ( (state.username && props.username) &&  state.username.value != props.username.value   ) {
       console.log("<UserSelect><getDerivedStateFromProps> username changed")
-
+      console.log("userInfo:",userInfo)
       returnState = {
         ...returnState,
         username: props.username,
+        userInfo:userInfo,
         chatMessagesSearch: { search: userInfo? userInfo.userId:props.username.value, searchField:"userId"}
       }
 
-    } else if (userInfo && state.userInfo && state.userInfo._id != userInfo._id ){
+    } else if (userInfo && state.userInfo && state.userInfo._id != userInfo._id ) {
       console.log("<UserSelect><getDerivedStateFromProps> userInfo changed:",userInfo)
 
 
@@ -243,7 +245,7 @@ class UserSelect extends React.Component {
 
     }
 
-
+    console.log("returnState:",returnState)
     return returnState == {}? null: returnState;
 
   }
@@ -331,6 +333,7 @@ class UserSelect extends React.Component {
     const phoneNo = userInfo &&  userInfo.phone_no?userInfo.phone_no:'';
     const userId = userInfo && userInfo.userId? userInfo.userId:username? username.value:'';
     const fbInboxLink = userInfo && userInfo.fbInboxLink? 'https://www.facebook.com/'+userInfo.fbInboxLink:'';
+    console.log("fbInboxLink:",fbInboxLink)
     console.log("render UserSelect props username:",username)
 
 
