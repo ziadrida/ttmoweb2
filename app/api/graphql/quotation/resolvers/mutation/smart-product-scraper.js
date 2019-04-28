@@ -72,7 +72,7 @@ var parse = require('url-parse')
 			 	 title: '#itemTitle',
 				 price: '#prcIsum',
 				 shipping: '#fshippingCost > span',
-				 shipping1: "#shSummary > div.fnfvar0.fnfadjust",
+				 shipping1: "#shSummary",
 				 image: '#icImg@src',
 				 category: "li.bc-w:first-child span",
 				 category1: "li.bc-w:last-child span",
@@ -382,7 +382,9 @@ const x = Xray().driver(xRayChrome(	{
 				console.log('host:',host)
 				// the following code can be replaced by a more concide loop (later!)
 				console.log("site map:",site_map[host])
-				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<3 ) {
+				console.log('initialized:',sites[site_map[host]].initialized)
+			  console.log('initAttempts:',sites[site_map[host]].initAttempts)
+				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<2 ) {
 					//	console.log("setup ",sites[site_map[host]])
 						sites[site_map[host]].initialized = await sites[site_map[host]].setup(page);
 						sites[site_map[host]].initAttempts++
@@ -694,6 +696,16 @@ console.log("in <scraper> ")
 			var useImage = result.image || result.image1 || result.image2 || result.image3
 			result.image = useImage;
 
+			if (result.condition) {
+				if (result.condition.match(/New without tags/i)) {
+					result.condition = 'New No Box/Tags';
+				}  else if (result.condition.match(/New/i)) {
+						result.condition = 'New';
+				}
+				result.options = result.options + "; "+result.condition
+				console.log("final condition:",result.condition)
+					console.log("final options:",result.options)
+			}
       return result;
 
     }
