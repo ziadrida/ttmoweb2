@@ -27,7 +27,7 @@ async function productScraper(root, args, context) {
   console.log("<productScraper> URL:",  args.url)
   try {
       console.log("<productScraper> Call scraper:")
-     var res = await scraper(args.url);//, function(data) {
+     var res = await scraper(args.url.trim());//, function(data) {
         console.log("*** <update-quote> After callback from scraper.init")
         console.log("<update-quote> scrapped data :",res);
 

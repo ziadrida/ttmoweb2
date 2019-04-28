@@ -70,8 +70,8 @@ exports.xRayChrome = (options) => {
         }
 
         try {
-
             await page.goto(ctx.url, navigationOptions);
+
             if (typeof cl === 'function' && !setup) {
               console.log("call cl function")
               await cl(page, ctx);
@@ -81,6 +81,13 @@ exports.xRayChrome = (options) => {
             if (!ctx.body) {
                 ctx.body = await page.content();
             }
+            try {
+              console.log("wait for page to load")
+              await page.waitForNavigation({timeout: 2*1000,waitUntil: "networkidle2"})
+            } catch(err) {
+              console.log('!!!ERROR WAITING ON PAGE LOAD ')
+            }
+            console.log("assume page loaded")
             done(null, ctx);
         } catch (err) {
            done(err, null);

@@ -6,7 +6,7 @@ const {xRayChrome} = require('./x-ray-chrome');
 var parse = require('url-parse')
 
 //const puppeteer = require('puppeteer');
-	const xDelay = Xray().delay('1s','10s')
+	const xDelay = Xray().delay('3s','10s')
 
 	const site_map = {
 		'www.ebay.com': 'ebay',
@@ -28,7 +28,9 @@ var parse = require('url-parse')
 				// let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
 				// console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
-				await page.waitForSelector("#viTabs_1[href='#']")
+				try {
+					await page.waitForSelector("#viTabs_1[href='#']")
+				} catch(err) { console.log('#viTabs not found')}
 					console.log("step1")
 				await page.click("#viTabs_1[href='#']");
 				await page.waitFor(2000);
@@ -48,7 +50,14 @@ var parse = require('url-parse')
 
 					// if not already starred will give a star to this repo :P
 					// else will throw an error because cant find the button
-				await page.waitFor(2000);
+
+				try {
+					console.log("wait for page to load")
+					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+				} catch(err) {
+					console.log('!!!ERROR WAITING ON PAGE LOAD ')
+				}
+				console.log("assume page loaded")
 				 // await page.waitForNavigation({waitUntil: "load"});
 
 			//	await page.screenshot({ path: './star4.png' });
@@ -94,7 +103,7 @@ var parse = require('url-parse')
 			 	await page.click("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit > span > input")
 			} catch(err1) {
 				// a default zip code maybe entered - change it
-					console.log("err1 no #nav-main selector:",err1)
+					console.log("no #nav-main selector:")
 					try {
 					  console.log("click g2")
 						await page.click("#nav-global-location-slot > span > a");
@@ -105,7 +114,7 @@ var parse = require('url-parse')
 
 
 					} catch(err2) {
-							console.log("err2 no #glow-ingress-block:",err)
+							console.log("!!! no #glow-ingress-block:")
 					}
 				}
 		//  await page.waitForNavigation({waitUntil: "load"});
@@ -151,12 +160,18 @@ var parse = require('url-parse')
 			await page.waitFor(1000);
 			await page.click("#twotabsearchtextbox")
 			console.log("click10")
-			await page.waitFor(2000);
-			//await page.waitForNavigation({waitUntil: "load"});
+
+			try {
+				console.log("wait for page to load")
+				await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+			} catch(err) {
+				console.log('!!!ERROR WAITING ON PAGE LOAD ')
+			}
+			console.log("assume page loaded")
 			console.log("click11")
 			return true;
 			} catch(err) {
-				console.log("Err3:",err)
+				console.log("!!! Error setting up Amazon")
 				return false;
 			}
 		},
@@ -166,9 +181,9 @@ var parse = require('url-parse')
 			 original_price: '#price > table > tbody > tr:nth-child(1) > td.a-span12.a-color-secondary.a-size-base.a-text-strike',
 
 			 image: '#landingImage@data-old-hires', //@data-old-hires',
-			 image1: "#landingImage@src",
-			 image2: "#imgBlkFront@src",
-		 	 image3: "#ivLargeImage > img@src",
+			 image1: xDelay("#landingImage[src]"),
+			 image2: xDelay("#imgBlkFront@src"),
+		 	 image3: xDelay("#ivLargeImage > img@src"),
 			 sale_price: '#priceblock_saleprice',
 			 deal_price: "#priceblock_dealprice",
 			 price: '#priceblock_ourprice',
@@ -179,42 +194,46 @@ var parse = require('url-parse')
 			 price4: "#buyNewSection",
 			 price_fraction: "#posPromoPitchPrice > div > span:nth-child(3)",
 			 shipping: "#priceBadging_feature_div > span > span",
-			 shipping1: "#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P",
+			 shipping1: xDelay("#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P"),
 			 shipping2: "#price-shipping-message > b",
 			 shipping3: "#buyNewInner > div.a-section.a-spacing-small.a-spacing-top-micro > div > span > span > a",
 			 prime: "#priceBadging_feature_div > i.a-icon-prime",
+			 size: "#dropdown_selected_size_name > span > span > span",
+			color: "#variation_color_name > div > span",
+			condition: "#buyNewSection",
 		   //	brand: 'div#leftCol.a-section div.a-section div.a-section div.a-section a.a-link-normal',
 			 //details: x(['#feature-bullets > ul > li']),
 		   //	description: '#productDescription',
-			 dimensions: "#detail-bullets .bucket > div.content >ul > li:contains('Product Dimensions')",
+			 dimensions: xDelay("#detail-bullets .bucket > div.content >ul > li:contains('Product Dimensions')"),
 			 //dimensions1:"#detailBullets_feature_div > ul > li:nth-child(1) > span > span:contains('Product Dimensions')",
-			 dimensions1: "#detailBullets_feature_div > ul > li:contains('Product Dimensions') > span",
-			 dimensions2: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Product Dimensions')",
-			 package_dimensions: "tr:contains('Package Dimensions') > td.a-size-base",
-			 product_dimensions: "tr:contains('Product Dimensions') > td.a-size-base",
-			 item_dimensions: "tr:contains('Item Dimensions  L x W x H') td.a-size-base",
-			 weight:"#detail-bullets .bucket > div.content >ul > li:contains('Shipping Weight')",
+			 dimensions1: xDelay("#detailBullets_feature_div > ul > li:contains('Product Dimensions') > span"),
+			 dimensions2: xDelay("#productDetails_detailBullets_sections1 > tbody > tr:contains('Product Dimensions')"),
+			 package_dimensions: xDelay("tr:contains('Package Dimensions') > td.a-size-base"),
+			 product_dimensions:xDelay( "tr:contains('Product Dimensions') > td.a-size-base"),
+			 item_dimensions: xDelay("tr:contains('Item Dimensions  L x W x H') td.a-size-base"),
+			 weight:xDelay("#detail-bullets .bucket > div.content >ul > li:contains('Shipping Weight')"),
+			 item_weight: xDelay("tr:contains('Item Weight') > td.a-size-base"),
+			 item_weight1: xDelay("#productDetails_detailBullets_sections1 > tbody > tr:contains('Item Weight')"),
 
-			 shipping_weight: "tr:contains('Shipping Weight') > td.a-size-base",
-			 shipping_weight1: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight:')",
-			 shipping_weight2: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:nth-child(1) > b",
-			 shipping_weight3: "#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight') > b",
-			 item_weight: "tr:contains('Item Weight') > td.a-size-base",
-			 item_weight1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Item Weight')",
-			 shipping_weight4: '*[@id="detail-bullets"]/table/tbody/tr/td/div[2]/ul/li[1]/text()[1]',
-			 shipping_weight5: "#detailBullets_feature_div > ul > li:contains('Shipping Weight')> span",
-			  shipping_weight6: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Shipping Weight')",
-			 category: "#wayfinding-breadcrumbs_container > ul > li:last-child",
-			// rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Seller') >td a",
-			 rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Sellers Rank')",
+			 shipping_weight: xDelay(" tr:contains('Shipping Weight')"),
+			 shipping_weight1: xDelay("li:contains('Shipping Weight')"),
+			 shipping_weight2: xDelay("#detail-bullets > table > tbody > tr > td > div.content > ul > li:nth-child(1) > b"),
+			 shipping_weight3: xDelay("#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight') > b"),
+			 shipping_weight4: xDelay('*[@id="detail-bullets"]/table/tbody/tr/td/div[2]/ul/li[1]/text()[1]'),
+			 shipping_weight5: xDelay("#detailBullets_feature_div > ul > li:contains('Shipping Weight')> span"),
+			 shipping_weight6: xDelay("#productDetails_detailBullets_sections1 > tbody > tr:contains('Shipping Weight')"),
+			 category: xDelay("#wayfinding-breadcrumbs_feature_div"),
+			 category1: xDelay("#wayfinding-breadcrumbs_container > ul > li:last-child"),
+
+			// rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Sellers Rank')"),
+			 rank1: xDelay("tr:contains('Rank')"),
 			 rank2: "#SalesRank",
+			 rank3: "li:contains('Rank')",
 			 options: "#variation_size_name > div > span",
 			 options1: "#shelf-label-size_name",
 			 options2: "#productDetails_secondary_view_div > h3",
 			 options3: "#quickPromoBucketContent > div.disclaim",
-			 size: "#dropdown_selected_size_name > span > span > span",
-			 color: "#variation_color_name > div > span",
-			 condition: "#buyNewSection"
+
 
 		 },
 	 },
@@ -258,7 +277,13 @@ var parse = require('url-parse')
 					 	await page.screenshot({ path: './walmart.png' });
 					 // page.keyboard.press(String.fromCharCode(13));// press enter
 					 await page.goto(url)
-					 await page.waitFor(2000);
+					 try {
+						 console.log("wait for page to load")
+						 await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+					 } catch(err) {
+						 console.log('!!!ERROR WAITING ON PAGE LOAD ')
+					 }
+					 console.log("assume page loaded")
 					 return true;
 				 } catch (err) {
 					 console.log("walmart setup err: ",err)
@@ -310,7 +335,13 @@ var parse = require('url-parse')
 					await page.screenshot({ path: './aliexpress1.png' });
 			 		await page.click("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-btn.item.util-clearfix > button")
 			 		//await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
-						await page.waitFor(4000);
+					try {
+						console.log("wait for page to load")
+						await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+					} catch(err) {
+						console.log('!!!ERROR WAITING ON PAGE LOAD ')
+					}
+					console.log("assume page loaded")
 		 			//await page.waitFor(5000);
 	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
@@ -360,7 +391,7 @@ const x = Xray().driver(xRayChrome(	{
 
       },
       navigationOptions: {
-                timeout: 20000,
+                timeout: 30000,
       },
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 			headless:  true, 	// launch browser (false = show it)
@@ -383,6 +414,12 @@ console.log("in <scraper> ")
     console.log("result:",result)
 
     if (!result) return null;
+		// cleanup results
+		Object.keys(result).map(key => {
+				result[key] = result[key].trim()
+				result[key] = result[key].replace(/\s\s*/g, ' '); // remove whitespace and
+			})
+			console.log("=>clean result:",result)
 
       console.log("smart-product-scraper> after call from x-ray:")
 
@@ -419,8 +456,10 @@ console.log("in <scraper> ")
 						 console.log("<smart-product-scraper> got image3:",result.image3)
         console.log("<smart-product-scraper> got brand:",result.brand)
         console.log("<smart-product-scraper> got category:",result.category)
+				console.log("<smart-product-scraper> got category1:",result.category1)
         console.log("<smart-product-scraper> got rank1:",result.rank1)
         console.log("<smart-product-scraper> got rank2:",result.rank2)
+				console.log("<smart-product-scraper> got rank3:",result.rank3)
 				console.log("<smart-product-scraper> got price:",result.price)
 				console.log("<smart-product-scraper> got price1:",result.price1)
 				console.log("<smart-product-scraper> got price2:",result.price2)
@@ -529,7 +568,7 @@ console.log("in <scraper> ")
 				 result.size,
 				 result.item_number].filter(Boolean).join('; ')
       if (hasOptions) {
-				hasOptions = hasOptions.replace(/\s\s+/g, ' ');
+				hasOptions = hasOptions.replace(/\s\s*/g, ' ');
         result.options =hasOptions
       }
 
@@ -616,30 +655,44 @@ console.log("in <scraper> ")
       }
 
 			if(result.brand) result.brand = result.brand.trim();
-      console.log("obj.category:",result.category)
-      var useCategory =[result.category , result.category1, result.rank1 , result.rank2].filter(Boolean).join(' ')  ;
+      var rankCatg = '';
+			useRank = result.rank1 || result.rank2 || result.rank3
+			if (useRank) {
+				const rank_regex = /(?:in\s*)([a-z|\d| |&]*)/ig;
+				let m;
 
+					while ((m = rank_regex.exec(useRank)) !== null) {
+					    // This is necessary to avoid infinite loops with zero-width matches
+					    if (m.index === rank_regex.lastIndex) {
+					        rank_regex.lastIndex++;
+					    }
+							console.log('match:',m)
+
+					    // The result can be accessed through the `m`-variable.
+					    m.forEach((match, groupIndex) => {
+					        console.log(`Found match, group ${groupIndex}: ${match}`);
+									if ( groupIndex % 2){  // IF ODD THEN USE THE GROUP
+										rankCatg = rankCatg + " " + match;
+									}
+					    });
+					}
+			}
+
+				result.ctegory = result.category? result.category.replace(/\s\s+/g, ' '):''
+				result.ctegory1 = result.category1? result.category1.replace(/\s\s+/g, ' '):''
+
+      var useCategory =[result.category , result.category1, rankCatg].filter(Boolean).join(' ')  ;
+			console.log('useCategory:',useCategory)
       if (useCategory) {
-				var words = useCategory.split(' in ');
-
-				console.log("words:",words);
-				if (words && words.length> 1 ) {
-				  console.log(words[1]);
-
-					var words = String(words[1]).split('(');
-					console.log(words[0].trim())
-				  useCategory = words[0].trim();
-				}
 
 
          useCategory = useCategory.replace(/\/\&\.\[\]/,' ')
-         console.log("category after cleanup:", useCategory)
+         console.log("=>Final CATEGORY after cleanup:", useCategory)
          //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
-
-				 var useImage = result.image || result.image1 || result.image2 || result.image3
-				 result.image = useImage;
-         result.category = useCategory? useCategory:"general accessories"
+				  result.category = useCategory? useCategory:"general accessories"
       }
+			var useImage = result.image || result.image1 || result.image2 || result.image3
+			result.image = useImage;
 
       return result;
 
