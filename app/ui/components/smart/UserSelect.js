@@ -201,7 +201,7 @@ class UserSelect extends React.Component {
     const {usersQuery } = props
     const {getUsers} = usersQuery
     console.log('<getDerivedStateFromProps> <UserSelect> usersQuery.loading:',usersQuery.loading)
-    console.log('getusers:',getUsers)
+    console.log('getUsers:',getUsers)
     var userIdx = -1;
     var userInfo = null;
     if (getUsers && getUsers.length>0 && props.username) {
@@ -223,8 +223,14 @@ class UserSelect extends React.Component {
       returnState = {
         ...returnState,
         username: props.username,
-        userInfo:userInfo,
+
         chatMessagesSearch: { search: userInfo? userInfo.userId:props.username.value, searchField:"userId"}
+      }
+      if (userInfo) {
+        returnState = {
+          ...returnState,
+          userInfo:userInfo,
+        }
       }
 
     } else if (userInfo && state.userInfo && state.userInfo._id != userInfo._id ) {
@@ -461,7 +467,7 @@ UserSelect.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-const withUsers = graphql(usersQuery, {
+const withUsers =  graphql(usersQuery, {
   name: 'usersQuery',
   options: ({ userSearch }) => ({
     variables: {

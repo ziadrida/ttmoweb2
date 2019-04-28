@@ -1829,7 +1829,7 @@ handleCannedMessage = ({target}) => {
               control={
                 <Checkbox
                   checked={edit_deleted!=null?edit_deleted:false}
-                  value={edit_deleted!=null?edit_deleted:false}
+                  value="edit_deleted"
                   onChange={this.handleCheckbox('edit_deleted')}
                   color="primary"
                 />
