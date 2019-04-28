@@ -1841,7 +1841,7 @@ handleCannedMessage = ({target}) => {
               name="po_no"
               type="String"
               label="PO#"
-              value={po_no}
+              value={po_no!=null? po_no:''}
               onClick={(e) => {this.copyToClipboard(e, po_no)}}
               margin="dense"
               className={classes.textField}
@@ -1886,7 +1886,7 @@ handleCannedMessage = ({target}) => {
             <InputLabel htmlFor="edit_canned_message_selection">Send Quote or saved Message</InputLabel>
             <Select
               disabled={false}
-              value={edit_canned_message_selection}
+              value={edit_canned_message_selection?edit_canned_message_selection:''}
               onChange={this.handleCannedMessage}
               name="edit_canned_message_selection"
               inputProps={{
@@ -2016,7 +2016,7 @@ handleCannedMessage = ({target}) => {
               <InputLabel htmlFor="edit_condition-required">Item Condition</InputLabel>
               <Select
                 disabled={false}
-                value={edit_condition}
+                value={edit_condition?edit_condition:''}
                 onChange={this.handleChange}
                 name="edit_condition"
                 inputProps={{
