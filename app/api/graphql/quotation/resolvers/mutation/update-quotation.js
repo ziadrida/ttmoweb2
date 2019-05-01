@@ -82,10 +82,10 @@ async function updateQuotation(root, args, context) {
       console.log("existingQuote _id:",existingQuote._id)
       console.log("<updateQuotation> Found Quote#")
 
-      if (existingQuote.last_updated != args.input.last_updated) {
-          throw new Error("Quotation was modified by someone else." +
-            (existingQuote.last_updated_by? " {"+ existingQuote.last_updated_by + "}":""))
-      }
+      // if (existingQuote.last_updated != args.input.last_updated) {
+      //     throw new Error("Quotation was modified by someone else." +
+      //       (existingQuote.last_updated_by? " {"+ existingQuote.last_updated_by + "}":""))
+      // }
     try {
       updateObj = {};
       queryStr = {
