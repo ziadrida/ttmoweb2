@@ -78,19 +78,20 @@ async function updateQuotation(root, args, context) {
   if (!existingQuote) {
     throw new Error("Could not find quotation#"+ args.input.quote_no)
   } else {
-    try {
+
       console.log("existingQuote _id:",existingQuote._id)
+      console.log("<updateQuotation> Found Quote#")
+
+      if (existingQuote.last_updated != args.input.last_updated) {
+          throw new Error("Quotation was modified by someone else." +
+            (existingQuote.last_updated_by? " {"+ existingQuote.last_updated_by + "}":""))
+      }
+    try {
       updateObj = {};
       queryStr = {
         quote_no: existingQuote.quote_no
       }
-
-      //delete updateObj._id
-      //console.log("updateObj after delete _id => _id:",updateObj._id)
-    //  updateObj._id = null;
       updateObj.quote_no = args.input.quote_no;
-
-      console.log("<updateQuotation> Found Quote#")
       updateObj.last_updated_by = updated_by? updated_by:'webadmin';
       updateObj.last_updated = moment().toDate();
       //updateObj._id = existingQuote._id;

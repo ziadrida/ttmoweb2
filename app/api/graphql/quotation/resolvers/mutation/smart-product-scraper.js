@@ -612,6 +612,7 @@ console.log("in <scraper> ")
       }
       var useDimensions = result.package_dimensions || result.dimensions ||result.dimensions1
 			||result.dimensions2 || result.product_dimensions || result.item_dimensions
+			const package_dimensions = result.package_dimensions
       if (useDimensions) {
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
@@ -646,6 +647,12 @@ console.log("in <scraper> ")
 
 						}
 
+						// adjust dimensions by max of 1inch or 10%
+						if (!package_dimensions) {
+								l = Math.max(l*1.1,l+1)
+								w = Math.max(l*1.1,l+1)
+								h = Math.max(l*1.1,l+1)
+						}
           	result.dimensions =parseFloat(l).toFixed(2) + ' x ' + parseFloat(w).toFixed(2) + ' x ' + parseFloat(h).toFixed(2);
 
 					} else if (dim && dim.length>0){

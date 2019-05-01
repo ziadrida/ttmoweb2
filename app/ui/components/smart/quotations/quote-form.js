@@ -519,6 +519,7 @@ static  getDerivedStateFromProps(props, state) {
                },
           edit_category_info: item.category_info,
           edit_chargeableWeight: item.chargeableWeight!=null? item.chargeableWeight:'',
+          edit_volumeWeight: item.volumeWeight!=null? item.volumeWeight:'',
           edit_condition: item.condition? item.condition:'',
           edit_canned_message_selection: '',
           edit_send_action_options: '',
@@ -762,9 +763,9 @@ handleCannedMessage = ({target}) => {
   doCalculate = async () => {
     var quoteObj = null ;
     try {
-        console.log("<handleCostingChange> <QuoteForm> >>>> Call doCalculate:")
+        console.log("<doCalculate> <QuoteForm> >>>> Call doCalculate:")
        quoteObj = await doCalculate(this.state.formEditInfo) //.then( quoteObj=> {
-        console.log("<handleCostingChange> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
+        console.log("<doCalculate> <QuoteForm> >>>> After doCalculate then.quoteObj:",quoteObj)
       //  quote_obj.active = true; // active = should load in customer cart when final
       //  quote_obj.final = true; // final = pricing complete
 
@@ -785,7 +786,7 @@ handleCannedMessage = ({target}) => {
         allowSendQuote:true,
       })
     } catch(err)  {
-        console.log("<handleCostingChange> <QuoteForm> then.catch Error thrown by doCalculate:",err)
+        console.log("<doCalculate> <QuoteForm> then.catch Error thrown by doCalculate:",err)
         var quotation =this.state.quoteInfo? this.state.quoteInfo.quotation:null;
         quotation = {
           ...quotation,
@@ -796,7 +797,7 @@ handleCannedMessage = ({target}) => {
           prices: null,
           price_selection:null,
         }
-        console.log("<handleCostingChange> <QuoteForm> quotation:",quotation)
+        console.log("<doCalculate> <QuoteForm> quotation:",quotation)
        this.setState(
         {
           message:err && err.message? err.message:
@@ -814,14 +815,13 @@ handleCannedMessage = ({target}) => {
   }
 
   handleCostingChange = async ({ target }) => {
-    console.log('in <handleCostingChange> <QuoteForm> ',target)
+    console.log('in <handleCostingChange> <QuoteForm> target:',target)
       console.log('<handleCostingChange> props:',this.props)
 
     if (!target) return;
     const { value, name } = target;
-    console.log("<handleCostingChange> <QuoteForm> name:",name,"  value:",value)
-    // recompute chargeableWeight
-    // reject negative values
+    console.log("<handleCostingChange> <QuoteForm> name:",name,"  value:{",value,"}")
+
 
     var newState = {
       formEditInfo: {
@@ -835,7 +835,7 @@ handleCannedMessage = ({target}) => {
     }
 
 
-      var dim=[]
+    var dim=[]
     switch (name) {
 
       case 'edit_category':
@@ -862,7 +862,7 @@ handleCannedMessage = ({target}) => {
 
         break;
       case 'edit_shipping':
-
+      console.log("newState.formEditInfo.edit_shipping:",newState.formEditInfo.edit_shipping)
         break;
       case 'edit_dimensions_cm':
 
@@ -985,12 +985,13 @@ handleCannedMessage = ({target}) => {
         case 'edit_weight_kg':
         case 'edit_dimensions_cm':
         case 'edit_dimensions_inch':
+        console.log("*UPDATE edit_chargeableWeight")
+        newState.formEditInfo.edit_volumeWeight = parseFloat(((newState.formEditInfo.edit_width_cm *
+          newState.formEditInfo.edit_length_cm *
+          newState.formEditInfo.edit_height_cm) / 5000).toFixed(2));
+
         newState.formEditInfo.edit_chargeableWeight =
-            Math.max(
-              parseFloat(((newState.formEditInfo.edit_width_cm *
-                newState.formEditInfo.edit_length_cm *
-                newState.formEditInfo.edit_height_cm) / 5000).toFixed(2)),
-            parseFloat(newState.formEditInfo.edit_weight_kg))
+            Math.max(newState.formEditInfo.edit_volumeWeight,parseFloat(newState.formEditInfo.edit_weight_kg))
           newState.formEditInfo.edit_dimensions_cm =
           parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
           parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
@@ -1144,13 +1145,19 @@ handleCannedMessage = ({target}) => {
                 },
               }
               var value  = prod.dimensions?prod.dimensions:'0 x 0 x 0';
+
+
+              newState.formEditInfo.edit_weight_lb = prod.weight!=null &&!isNaN(prod.weight)? prod.weight:-1;
+              newState.formEditInfo.edit_weight_kg = prod.weight!= null && !isNaN(prod.weight)?
+              (parseFloat(prod.weight)/2.2).toFixed(2):-1;
+
               var dim = [];
               if ( new RegExp(dimRegEx).test(value)) {
 
                  dim = value.split('x');
                   console.log('<QuoteForm> <after scraper> dims:',dim)
 
-                if (dim && dim.length>0) {
+                if (dim && dim.length>=3) {
                   newState.formEditInfo.edit_dimensions_inch = value;
                   newState.formEditInfo.edit_length_inch =  parseFloat(dim[0].trim())
                   newState.formEditInfo.edit_width_inch =  parseFloat(dim[1].trim())
@@ -1161,15 +1168,16 @@ handleCannedMessage = ({target}) => {
                   newState.formEditInfo.edit_height_cm =parseFloat((newState.formEditInfo.edit_height_inch*2.54).toFixed(2))
 
                   newState.formEditInfo.edit_dimensions_cm =
-                  parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
-                  parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
-                  parseFloat(newState.formEditInfo.edit_height_cm).toFixed(2) ;
+                    parseFloat(newState.formEditInfo.edit_length_cm).toFixed(2) + ' x ' +
+                    parseFloat(newState.formEditInfo.edit_width_cm).toFixed(2) + ' x ' +
+                    parseFloat(newState.formEditInfo.edit_height_cm).toFixed(2) ;
 
-                  newState.formEditInfo.edit_chargeableWeight =
-                      Math.max(
+                  newState.formEditInfo.edit_volumeWeight =
                         parseFloat(((newState.formEditInfo.edit_width_cm *
-                          newState.formEditInfo.edit_length_cm *
-                          newState.formEditInfo.edit_height_cm) / 5000).toFixed(2)),
+                            newState.formEditInfo.edit_length_cm *
+                            newState.formEditInfo.edit_height_cm) / 5000).toFixed(2));
+                  newState.formEditInfo.edit_chargeableWeight =
+                    Math.max(newState.formEditInfo.edit_volumeWeight,
                       parseFloat(newState.formEditInfo.edit_weight_kg))
                 }
               }
@@ -1271,10 +1279,7 @@ handleCannedMessage = ({target}) => {
                     edit_title: prod.title?prod.title:'',
                     edit_price: prod.price!= null && prod.price > 0 ?prod.price:-1,
                     edit_shipping: prod.shipping!=null ? prod.shipping:-1,
-                    edit_thumbnailImage: prod.thumbnailImage?prod.thumbnailImage:'',
-                    edit_weight_lb: prod.weight!=null &&!isNaN(prod.weight)? prod.weight:-1,
-                    edit_weight_kg: prod.weight!= null && !isNaN(prod.weight)? (parseFloat(prod.weight)/2.2).toFixed(2):-1,
-                  //  edit_dimensions_inch: prod.dimensions?prod.dimensions:'0 x 0 x 0',
+                    edit_thumbnailImage: prod.thumbnailImage?prod.thumbnailImage:'',          //  edit_dimensions_inch: prod.dimensions?prod.dimensions:'0 x 0 x 0',
                     edit_category:useCategory,
                     edit_condition: prod.condition? prod.condition:'',
                     edit_options: prod.options? prod.options:'',
@@ -1507,6 +1512,7 @@ handleCannedMessage = ({target}) => {
 
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
+            last_updated: quoteObj.last_updated,
             senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
             sales_person: quoteObj.sales_person,
             userInfo: {
@@ -1568,6 +1574,7 @@ handleCannedMessage = ({target}) => {
                 language: null,
                 username: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.name:null,
                 chargeableWeight: parseFloat(this.state.formEditInfo.edit_chargeableWeight),
+                volumeWeight: parseFloat(this.state.formEditInfo.edit_volumeWeight),
                 final: this.state.formEditInfo.edit_final,
                 requestor: null,
               //  quote_no: this.state.formEditInfo.quote_no,
@@ -1686,7 +1693,7 @@ handleCannedMessage = ({target}) => {
     const {getCategories} = categoriesQuery
 
 
-    const { created_by, date_created, quotation,quote_no,sales_person, senderId, _id} =  this.state.quoteInfo;
+    const { created_by, date_created,last_updated, quotation,quote_no,sales_person, senderId, _id} =  this.state.quoteInfo;
     // const {title,url,quotation, active, category, chargeableWeight, final, height, item, length, message, notes,
     //   ownderId, po_no, price, price_selection, prices, qty, quote_date, reason, requestor, sales_person, shipping,
     //   source, thumbnailImage, username, weight, width, senderId } = quotation;
@@ -1706,7 +1713,7 @@ handleCannedMessage = ({target}) => {
         edit_weight_kg, edit_height_cm, edit_length_cm, edit_width_cm,edit_dimensions_cm,
         edit_weight_lb, edit_height_inch, edit_length_inch, edit_width_inch,edit_dimensions_inch,
            edit_category,
-        edit_price,edit_shipping, edit_chargeableWeight,edit_qty, edit_source,edit_condition,edit_canned_message_selection,
+        edit_price,edit_shipping, edit_chargeableWeight,edit_volumeWeight,edit_qty, edit_source,edit_condition,edit_canned_message_selection,
          edit_canned_message, edit_notes,
       edit_destination, edit_priceType, edit_options,edit_price_selection} = this.state.formEditInfo
   console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
@@ -2160,12 +2167,12 @@ handleCannedMessage = ({target}) => {
                       <TextField
                         disabled={bulkUpdate}
                         required
-                        error={isNaN(edit_shipping) || parseFloat(edit_shipping) < 0}
+                        error={ parseFloat(edit_shipping) < 0}
+                        helperText={edit_shipping ==='' || parseFloat(edit_shipping) < 0 && "Required - must be > 0"}
                         name="edit_shipping"
                         type="Number"
                         label="Shipping"
-
-                        value={edit_shipping && !isNaN(edit_shipping)? parseFloat(edit_shipping):0}
+                        value={edit_shipping}
                         onChange={this.handleCostingChange}
                         margin="dense"
                         variant="outlined"
@@ -2202,7 +2209,7 @@ handleCannedMessage = ({target}) => {
                             required={false}
                             error={isNaN(edit_weight_lb) || parseFloat(edit_weight_lb) < 0}
                             type="Number"
-                            label="Weigh"
+                            label="Actual Weight"
                             onChange={this.handleCostingChange}
                             value={edit_weight_lb}
                             variant="outlined"
@@ -2274,7 +2281,7 @@ handleCannedMessage = ({target}) => {
                                         startAdornment: <InputAdornment position="start">L x W x H (inch)</InputAdornment>,
                                       }}
                                       style={{
-                                        width: '300px'
+                                        width: '280px'
                                       }}
                                     value={edit_dimensions_inch}
                                     margin="dense"
@@ -2290,7 +2297,7 @@ handleCannedMessage = ({target}) => {
                                   error={isNaN(edit_weight_kg) || parseFloat(edit_weight_kg) < 0}
                                   name="edit_weight_kg"
                                   type="Number"
-                                  label="Weigh"
+                                  label="Actual Weight"
                                   variant="outlined"
                                   InputProps={{
                                       startAdornment: <InputAdornment position="start">Kg</InputAdornment>,
@@ -2362,13 +2369,36 @@ handleCannedMessage = ({target}) => {
                                               startAdornment: <InputAdornment position="start">L x W x H (cm)</InputAdornment>,
                                             }}
                                           style={{
-                                            width: '300px'
+                                            width: '280px'
                                           }}
                                           value={edit_dimensions_cm}
                                           onChange={this.handleCostingChange}
                                           margin="dense"
                                           className={classes.textField}
                                           />
+
+                                          <TextField
+                                            disabled={bulkUpdate}
+                                            required
+                                            name="edit_volumeWeight"
+                                            type="Number"
+                                            label="Volume Weight"
+                                            value={edit_volumeWeight}
+                                            variant="outlined"
+                                          InputProps={{
+
+                                              startAdornment: <InputAdornment position="start">Kg</InputAdornment>,
+                                              readOnly: true,
+                                            }}
+                                            style={{
+                                              backgroundColor: 'lightblue',
+                                              'fontSize': '12px' ,
+                                              'font': 'bold',
+                                              width: '140px'
+                                            }}
+                                            margin="dense"
+                                            className={classes.textField}
+                                            />
                                           <TextField
                                             disabled={bulkUpdate}
                                             required
@@ -2382,15 +2412,13 @@ handleCannedMessage = ({target}) => {
 
                                               startAdornment: <InputAdornment position="start">Kg</InputAdornment>,
                                               readOnly: true,
-
                                             }}
                                             style={{
                                               backgroundColor: 'lightblue',
                                               'fontSize': '12px' ,
                                               'font': 'bold',
-                                              width: '200px'
+                                              width: '140px'
                                             }}
-                                              onChange={this.handleChange}
                                             margin="dense"
                                             className={classes.textField}
                                             />

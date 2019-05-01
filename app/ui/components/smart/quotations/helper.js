@@ -82,7 +82,7 @@ validateItem = async function(editItem) {
 
       throw new Error("Shipping cost at country of origin is required. (but it can be 0)")
   }
-  item.shipping = editItem.edit_shipping ==null || isNaN(editItem.edit_shipping) ? 0:parseFloat(editItem.edit_shipping);
+  item.shipping = parseFloat(editItem.edit_shipping);
 
   console.log('<validateItem > editItem.edit_weight:[', editItem.edit_weight_kg,']')
   console.log('<validateItem > editItem.edit_length_inch:[', editItem.edit_length_inch,']')

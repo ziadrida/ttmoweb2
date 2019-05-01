@@ -14,6 +14,7 @@ const types = gql`
 
     quotation: QuotationInstance
     date_created: String
+    last_updated: String
     created_by: String
   }
 
@@ -46,6 +47,7 @@ const types = gql`
     width: Float
     username: String
     chargeableWeight: Float
+    volumeWeight: Float
     final: Boolean
     requestor: String
     item: Item
@@ -75,6 +77,7 @@ const types = gql`
       language: String
       username: String
       chargeableWeight: Float
+      volumeWeight: Float
       final: Boolean
       requestor: String
       quote_no: Int
@@ -127,6 +130,7 @@ const types = gql`
       width: Float
       username: String
       chargeableWeight: Float
+      volumeWeight: Float
       final: Boolean
       requestor: String
       item: ItemInput
@@ -155,6 +159,7 @@ const types = gql`
         language: String
         username: String
         chargeableWeight: Float
+        volumeWeight: Float
         final: Boolean
         requestor: String
         quote_no: Int
@@ -186,7 +191,7 @@ const types = gql`
       quote_no: Int
       userInfo: UserInput
       senderId: String
-
+      last_updated: String
       sales_person: String
       quotation: QuotationInput,
     }

@@ -13,6 +13,7 @@ fragment quotationFragment on Quotation {
 
   sales_person
   date_created
+  last_updated
   created_by
 
   quotation {
@@ -33,6 +34,7 @@ fragment quotationFragment on Quotation {
     width
     username
     chargeableWeight
+    volumeWeight
     final
     requestor
 
@@ -69,6 +71,7 @@ fragment quotationFragment on Quotation {
       language
       username
       chargeableWeight
+      volumeWeight
       final
       requestor
       category_info {
