@@ -49,7 +49,9 @@ async function updateQuotation(root, args, context) {
       throw new Error("Internal error: Missing quotation information")
   } else if (args.input.quotation.item == null) {
       throw new Error("Internal error: Missing item information")
-  } else if (args.input.quotation.prices  == null  ) {
+  } else if (isNaN(args.input.last_updated)) {
+      throw new Error("Internal error: Missing valid last_updated date. last_updated:",args.input.last_updated)
+  }  else if (args.input.quotation.prices  == null  ) {
       console.log("no prices object")
     //  throw new Error("Internal error: Missing prices object")
   } else if (args.input.quotation.price_selection  == null ||args.input.quotation.price_selection =='' ) {
@@ -81,11 +83,14 @@ async function updateQuotation(root, args, context) {
 
       console.log("existingQuote _id:",existingQuote._id)
       console.log("<updateQuotation> Found Quote#")
-
-      // if (existingQuote.last_updated != args.input.last_updated) {
-      //     throw new Error("Quotation was modified by someone else." +
-      //       (existingQuote.last_updated_by? " {"+ existingQuote.last_updated_by + "}":""))
-      // }
+      console.log("existingQuote.last_updated:",moment(existingQuote.last_updated))
+        console.log("moment(parseInt(args.input.last_updated)):",moment(parseInt(args.input.last_updated)))
+      if (existingQuote.last_updated !=null && !moment(existingQuote.last_updated).isSame(moment(parseInt(args.input.last_updated)), 'second'))  {
+          throw new Error("Quotation was modified by someone else." +
+            (existingQuote.last_updated_by? " {"+ existingQuote.last_updated_by + "}":""))
+      } else {
+        console.log('Last updated is the same. No one changed it')
+      }
     try {
       updateObj = {};
       queryStr = {

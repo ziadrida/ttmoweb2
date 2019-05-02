@@ -84,10 +84,10 @@ console.log('<render> <ChatView> loading:',loading)
       style: { 'whiteSpace': 'unset',
         'fontSize': '12px',
         'overflowY':'scroll',
-        width:540,
+        width:600,
         'height':'4em'
        },
-       width:300,
+
 
     },
 
@@ -99,7 +99,7 @@ console.log('<render> <ChatView> loading:',loading)
 
 
   return (
-        <div>
+        <div className="flex flex-grow mx-auto p1">
           { loading?
             <Loading />:null
           }
@@ -114,9 +114,9 @@ console.log('<render> <ChatView> loading:',loading)
             columns={columns}
             defaultPageSize={100}
             style={{
-              height: "300px", // This will force the table body to overflow and scroll, since there is not enough room
-              width: "650px", // This will force the table body to overflow and scroll, since there is not enough room
-              'fontSize': '10px',
+              height: "500px", // This will force the table body to overflow and scroll, since there is not enough room
+              width: "600px", // This will force the table body to overflow and scroll, since there is not enough room
+              'fontSize': '12px',
               'overflowY':'scroll',
               'overflowX':'scroll',
               'overflow':'scroll',

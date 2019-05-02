@@ -634,24 +634,27 @@ console.log("in <scraper> ")
 							 	w= parseFloat(w) / 2.54;
 								h = parseFloat(h) / 2.54;
 								break;
+							case 'in':
 							case 'inch':
 							case 'inches':
 							case '\"':
 							break;
+
 							case '\'':
 							l = parseFloat(l) *12
 							w = parseFloat(w)  * 12
 							h = parseFloat(h) * 12
 							break;
 							default:
+								break;
 
 						}
 
 						// adjust dimensions by max of 1inch or 10%
 						if (!package_dimensions) {
-								l = Math.max(l*1.1,l+1)
-								w = Math.max(l*1.1,l+1)
-								h = Math.max(l*1.1,l+1)
+								l = Math.max(parseFloat(l)*1.1, parseFloat(l)+1)
+								w = Math.max(parseFloat(w)*1.1, parseFloat(w)+1)
+								h = Math.max(parseFloat(h)*1.1, parseFloat(h)+1)
 						}
           	result.dimensions =parseFloat(l).toFixed(2) + ' x ' + parseFloat(w).toFixed(2) + ' x ' + parseFloat(h).toFixed(2);
 

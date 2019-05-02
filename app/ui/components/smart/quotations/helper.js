@@ -588,7 +588,7 @@ doCalculate =  async function(editItem) {
       //quote_obj.valid = true;
       quote_obj.active = true; // active = should load in customer cart when final
       quote_obj.final = true; // final = pricing complete
-      quote_obj.message = "Sales prices calculation completed."
+      quote_obj.message = "Sales prices calculation completed. You must save before sending the price."
       if (debugOn) console.log("<doCalculate> return quote_obj:", JSON.stringify(quote_obj))
       return quote_obj;
 

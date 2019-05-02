@@ -105,7 +105,7 @@ const styles = theme => ({
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 350,
+    minWidth: 200,
   },
   selectEmpty: {
     marginTop: theme.spacing.unit * 2,
@@ -292,7 +292,7 @@ class QuoteForm extends React.Component {
   this.state = {
     allowSendQuote: false,
     allowScraping: true,
-    allowSendMessage: false,
+    allowSendMessage: true,
     pricingNow:null,
 
     categorySearch: {},
@@ -647,11 +647,11 @@ handleCannedMessage = ({target}) => {
         break;
       case 'textQuote':
         options= 'quote'
-        if (quotation && quotation.prices) {
+        if (this.state.allowSendQuote && quotation && quotation.prices) {
           text =
           this.state.formEditInfo.edit_title + "\n" + "Price is "+ quotation.prices[edit_price_selection].price +" JD"+
         ( edit_price_selection == 'aq_std'? '':"\nPrice in Aqaba "+ quotation.prices['aq_std'].price + " JD")
-        } else text = 'Pricing not ready yet!'
+      } else text = 'Pricing not ready or not saved yet!'
         break;
 
       case 'buy':
@@ -666,7 +666,14 @@ handleCannedMessage = ({target}) => {
         options ='message'
         text = "(Y)"
         break;
-
+      case 'notAllowed':
+      options ='message'
+      text = "Sorry: This item is not allowed by Customs. غير مسموح به من فبل الجمارك"
+      break;
+      case 'sendLink':
+      options ='message'
+      text = "ارسل الرابط للمنتح please send link to the item"
+      break;
       default:
     }
     this.setState(
@@ -718,7 +725,7 @@ handleCannedMessage = ({target}) => {
             [name]: value
          },
       //  allowSave: true,
-        allowSendQuote: true,
+        allowSendQuote: false,
         allowSendMessage:true,
         allowScraping: scrape,
       });
@@ -754,7 +761,7 @@ handleCannedMessage = ({target}) => {
           },
         //  allowSave: true,
           allowSendMessage:true,
-          allowSendQuote:true,
+          allowSendQuote:false,
 
         });
 
@@ -783,7 +790,7 @@ handleCannedMessage = ({target}) => {
 
         //allowSave: quoteObj!=null,
         allowSendMessage:true,
-        allowSendQuote:true,
+        allowSendQuote:false,
       })
     } catch(err)  {
         console.log("<doCalculate> <QuoteForm> then.catch Error thrown by doCalculate:",err)
@@ -804,6 +811,7 @@ handleCannedMessage = ({target}) => {
                   err? err:'Error calculating price. Check input fields',
 
           allowSave: false,
+          allowSendQuote: false,
 
          // invalidate pricing
          quoteInfo: {
@@ -1368,7 +1376,7 @@ handleCannedMessage = ({target}) => {
     const { closePopup } = this.props;
     await this.setStateAsync({
         allowSendMessage: true,
-        allowSendQuote: true,
+        allowSendQuote: false,
         message:"Saving quotation ...",
        allowSave: false,
 
@@ -1401,6 +1409,7 @@ handleCannedMessage = ({target}) => {
      } else {
         try {
            var resp = await this.mutateAction(this.state.quoteInfo); // .then(resp => {
+             // after saving quotation
             console.log("=======>  After single mutateAction resp:",resp)
             if (resp) {
               this.setState(
@@ -1426,7 +1435,7 @@ handleCannedMessage = ({target}) => {
                 refresh: false,
                 allowSave: false,
                 allowSendMessage: true,
-                allowSendQuote: true,
+                allowSendQuote: false,
               })
           }
          }
@@ -1437,7 +1446,7 @@ handleCannedMessage = ({target}) => {
                 refresh: false,
                 allowSave: false,
                 allowSendMessage: true,
-                allowSendQuote: true,
+                allowSendQuote: false,
               })
           }
      }
@@ -1512,7 +1521,7 @@ handleCannedMessage = ({target}) => {
 
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
-            last_updated: quoteObj.last_updated,
+            last_updated: quoteObj.last_updated? quoteObj.last_updated:moment().format('x'),
             senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
             sales_person: quoteObj.sales_person,
             userInfo: {
@@ -1790,9 +1799,9 @@ handleCannedMessage = ({target}) => {
       <div className="popup_inner">
 
         <div className=" flex flex-wrap  p1 m1 border">
-        <form  className="ml2" onSubmit={this.handleAction} autoComplete="off">
-          <div className="flex flex-column  ml2">
-            <div className="flex flex-row  ml2">
+        <form  className="mx-auto" onSubmit={this.handleAction} autoComplete="off">
+          <div className="flex flex-column  mx-auto ">
+            <div className="flex flex-row  mx-auto">
             <TextField
               disabled={bulkUpdate}
               name="quote_no"
@@ -1881,70 +1890,16 @@ handleCannedMessage = ({target}) => {
               margin="dense"
               className={classes.textField}
               />
+              <Button
+                size="small"
+                variant="contained"
+                onClick={this.props.closePopup}>
+                Close
+              </Button>
             </div>
-            <UserSelect
-                username={edit_username}
-                userSearch={this.state.userSearch}
-                onChange={this.handleUserSelection}
-                onInputChange={this.handleUserInputChange}
-            />
-            <div className="flex flex-row border">
-            <FormControl  className={classes.formControl}>
-            <InputLabel htmlFor="edit_canned_message_selection">Send Quote or saved Message</InputLabel>
-            <Select
-              disabled={false}
-              value={edit_canned_message_selection?edit_canned_message_selection:''}
-              onChange={this.handleCannedMessage}
-              name="edit_canned_message_selection"
-              inputProps={{
-                id: 'edit_canned_message_selection',
-              }}
-              className={classes.selectEmpty}
-            >
-              <MenuItem value={""}>Not Selected</MenuItem>
-              <MenuItem value={"pricingNow"}>Pricing Now</MenuItem>
-              <MenuItem value={"pleaseWait"}>Please Wait</MenuItem>
-              <MenuItem value={"textQuote"}>Send Text Quote</MenuItem>
 
-              <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
-              <MenuItem value={"thanks"}>Thank You</MenuItem>
-              <MenuItem value={"thumbsup"}>Thumbs Up!</MenuItem>
-            </Select>
-            <FormHelperText>Send quote or saved message to User</FormHelperText>
-          </FormControl>
-          <TextField
-            disabled={bulkUpdate}
-            name="edit_canned_message"
-            multiline
-            type="String"
-            label="Enter user message"
-            value={edit_canned_message}
-            onChange={this.handleChange}
-            rowsMax="3"
-            margin="dense"
-            className={classes.textField}
-            style={{
-              //backgroundColor:'pink',
-              'whiteSpace': 'unset',
-               'fontSize': '10px' ,
-               'width' : '30em',
-            }}
-          />
 
-            <Button size="medium"  variant="contained"
-              disabled={!this.state.allowSendMessage}
-              color="secondary"
-              margin="dense" onClick={this.handleSendMessage}>
-              Send Message
-            </Button>
-            <Button size="medium"  variant="contained"
-              disabled={!this.state.allowSendQuote}
-              color="primary"
-              margin="dense" onClick={this.handleSendQuotation}>
-              Send Quote
-            </Button>
-            </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row mx-auto border">
 
             <TextField
               disabled={bulkUpdate}
@@ -1958,7 +1913,7 @@ handleCannedMessage = ({target}) => {
               margin="normal"
               className={classes.textField}
               style={{
-                 'width' : '34em',
+                 'width' : '28em',
               }}
             />
             <div className="flex py2">
@@ -1987,20 +1942,21 @@ handleCannedMessage = ({target}) => {
               margin="normal"
               className={classes.textField}
               style={{
-                 'width' : '34em',
+                 'width' : '28em',
               }}
             />
-            <div className="flex">
-            <Button size="medium"  variant="contained"
+            <div className="flex flex-column">
+            { message == "Getting product information"? <Loading /> : null}
+            <Button size="small"  variant="contained"
               disabled={!this.state.allowScraping}
               color="secondary"
-              margin="dense" onClick={this.handleScrapeAction}>
-              Get Prod Info
+              onClick={this.handleScrapeAction}>
+              Import
             </Button>
-            { message == "Getting product information"? <Loading /> : null}
+
             </div>
             </div>
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap mx-auto">
             <TextField
               disabled={bulkUpdate}
               name="edit_options"
@@ -2062,7 +2018,7 @@ handleCannedMessage = ({target}) => {
 
 
                 {categoriesQuery.loading? <Loading />:categoriesQuery!=null?
-                <div className="flex flex-wrap">
+                <div className="flex flex-wrap ">
                 <NoSsr>
                   <ReactSelect
                     classes={classes}
@@ -2202,7 +2158,7 @@ handleCannedMessage = ({target}) => {
                           className={classes.textField}
                           />
 
-                          <div className="flex flex-wrap">
+                          <div className="flex flex-wrap mx-auto">
                           <TextField
                             disabled={bulkUpdate}
                             name="edit_weight_lb"
@@ -2290,7 +2246,7 @@ handleCannedMessage = ({target}) => {
 
 
                                 </div>
-                                <div className="flex flex-wrap">
+                                <div className="flex flex-wrap mx-auto">
                                 <TextField
                                   disabled={bulkUpdate}
                                   required={false}
@@ -2462,7 +2418,7 @@ handleCannedMessage = ({target}) => {
                                 </FormControl>
 */}
                                 { prices != null  && edit_price_selection != null && edit_price_selection != ''?
-                                <div className="flex flex-wrap">
+                                <div className="flex flex-wrap mx-auto">
                                 <FormControl  className={classes.formControl}>
                                 <InputLabel htmlFor="price_selection-required">Sale Price Options</InputLabel>
                                 <Select
@@ -2505,59 +2461,125 @@ handleCannedMessage = ({target}) => {
                               {this.state.pricingNow != null && this.state.pricingNow?
                               <Loading />:null }
 
-            <Button
-              disabled={po_no!=null? true:
-                this.state.allowSave ||
-                (edit_price_selection &&
-                  prices && prices[edit_price_selection] && prices[edit_price_selection].price) ? false:true}
-              size="medium"
-              type="submit"
-              variant="contained"
-              color="primary"
-              margin="dense"
-              className="col-1 ml2"
-            >   Save
-            </Button>
+                              <div className="flex flex-row mx-auto justify-around align-middle ">
+                                      <TextField
+                                        name="message"
+                                        error
+                                        label="message"
+                                        value={bulkUpdate && !validBulkUpdate? "No updates allowed when selected statuses are not the same":
+                                          message? message:''}
+                                        multiline
+                                        rowsMax="2"
+                                        variant="outlined"
+                                        InputProps={{
+                                         readOnly: true,
+                                       }}
+                                        style={{
+                                          //backgroundColor:'pink',
+                                           //'whiteSpace': 'unset',
+                                            'fontSize': '12px' ,
+                                            'font': 'bold',
+                                            'width' : '80%',
+                                        }}
+                                        margin="dense"
+                                />
+                                <Button
+                                  disabled={po_no!=null? true:
+                                    this.state.allowSave ||
+                                    (edit_price_selection &&
+                                      prices && prices[edit_price_selection] && prices[edit_price_selection].price) ? false:true}
+                                  size="small"
+                                  type="submit"
+                                  variant="contained"
+                                  color="primary"
+                                >   Save
+                                </Button>
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  onClick={this.props.closePopup}>
+                                  Close
+                                </Button>
 
+                            </div> {/* close div which includes Fabs, form and message */}
+
+          <div className="flex flex-row m-auto justify-around align-middle">
+          <FormControl  className={classes.formControl}>
+          <InputLabel htmlFor="edit_canned_message_selection">Send to FB</InputLabel>
+          <Select
+            disabled={false}
+            value={edit_canned_message_selection?edit_canned_message_selection:''}
+            onChange={this.handleCannedMessage}
+            name="edit_canned_message_selection"
+            inputProps={{
+              id: 'edit_canned_message_selection',
+            }}
+            className={classes.selectEmpty}
+          >
+            <MenuItem value={""}>Not Selected</MenuItem>
+            <MenuItem value={"pricingNow"}>Pricing Now</MenuItem>
+            <MenuItem value={"pleaseWait"}>Please Wait</MenuItem>
+            <MenuItem value={"textQuote"}>Send Text Quote</MenuItem>
+            <MenuItem value={"sendLink"}>Send Link</MenuItem>
+            <MenuItem value={"notAllowed"}>Not Allowed</MenuItem>
+            <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
+            <MenuItem value={"thanks"}>Thank You</MenuItem>
+            <MenuItem value={"thumbsup"}>Thumbs Up!</MenuItem>
+          </Select>
+
+        </FormControl>
+        <TextField
+          disabled={bulkUpdate}
+          name="edit_canned_message"
+          multiline
+          type="String"
+          label={!edit_canned_message && "Enter user message"}
+          value={edit_canned_message}
+          onChange={this.handleChange}
+          rowsMax="3"
+          margin="dense"
+          className={classes.textField}
+          style={{
+            //backgroundColor:'pink',
+            'whiteSpace': 'unset',
+             'fontSize': '10px' ,
+             'width' : '50%',
+             'padding': '1'
+          }}
+        />
+
+          <Button
+            size="small"
+            variant="contained"
+            disabled={!this.state.allowSendMessage}
+            color="secondary"
+            onClick={this.handleSendMessage}>
+            Send Message
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            disabled={!this.state.allowSendQuote}
+            color="primary"
+            onClick={this.handleSendQuotation}>
+            Send Quote
+          </Button>
+
+          </div>
           </form>
+          <UserSelect
+              username={edit_username}
+              userSearch={this.state.userSearch}
+              onChange={this.handleUserSelection}
+              onInputChange={this.handleUserInputChange}
+          />
+
           </div> {/* end of form div*/}
 
-          <div className="flex flex-wrap col3 ml2">
-                  <TextField
-                    name="message"
-                    error
-                    label="message"
-                    value={bulkUpdate && !validBulkUpdate? "No updates allowed when selected statuses are not the same":
-                      message? message:''}
-                    multiline
-                    rowsMax="2"
-                    variant="outlined"
-                    InputProps={{
-                     readOnly: true,
-                   }}
-                    style={{
-                      //backgroundColor:'pink',
-                       //'whiteSpace': 'unset',
-                        'fontSize': '12px' ,
-                        'font': 'bold',
-                      'width' : 800,
-                    }}
 
-                    margin="dense"
-
-            />
-            <Button size="medium"  variant="contained"
-              color="primary"
-              margin="dense" onClick={this.props.closePopup}>
-              Close
-            </Button>
-
-        </div> {/* close div which includes Fabs, form and message */}
       </div>  {/* popup_inner */}
 
     </div>  // close div popup
-
-
 
     );
   }

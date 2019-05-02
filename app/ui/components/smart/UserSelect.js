@@ -371,7 +371,7 @@ class UserSelect extends React.Component {
       input: base => ({
         ...base,
         padding: '1em',
-        width:500,
+        width:400,
         color: theme.palette.text.primary,
         '& input': {
           font: 'inherit',
@@ -380,8 +380,8 @@ class UserSelect extends React.Component {
     };
 
     return (
-      <div className="flex flex-row">
-      <div className="flex flex-column">
+      <div className="flex flex-row mx-auto  border p2">
+      <div className="flex flex-column mx-auto p1">
           <NoSsr>
             <ReactSelect
               classes={classes}
@@ -411,7 +411,7 @@ class UserSelect extends React.Component {
         style={{
           //backgroundColor:'pink'
 
-          'width' : '15em',
+
         }}
       />
       <TextField
@@ -426,7 +426,7 @@ class UserSelect extends React.Component {
         style={{
           //backgroundColor:'pink'
 
-          'width' : '15em',
+        //  'width' : '15em',
         }}
       />
 
@@ -447,7 +447,7 @@ class UserSelect extends React.Component {
               'fontSize': '12px',
               'overflowY':'scroll',
               'overflow':'scroll',
-              'width':'600px',
+            //  'width':'520px',
               'height':'5em',
           }}
           />
