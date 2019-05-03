@@ -98,7 +98,8 @@ async function updateQuotation(root, args, context) {
       }
       updateObj.quote_no = args.input.quote_no;
       updateObj.last_updated_by = updated_by? updated_by:'webadmin';
-      updateObj.last_updated = moment().toDate();
+      updateObj.last_updated = args.input.last_updated != null && moment(parseInt(args.input.last_updated)).isValid?
+        moment(parseInt(args.input.last_updated)): moment().toDate();
       //updateObj._id = existingQuote._id;
       updateObj.senderId = args.input.senderId;
 

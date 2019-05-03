@@ -181,7 +181,7 @@ var parse = require('url-parse')
 			 original_price: '#price > table > tbody > tr:nth-child(1) > td.a-span12.a-color-secondary.a-size-base.a-text-strike',
 
 			 image: '#landingImage@data-old-hires', //@data-old-hires',
-			 image1: xDelay("#landingImage[src]"),
+			 image1: xDelay("#landingImage@src"),
 			 image2: xDelay("#imgBlkFront@src"),
 		 	 image3: xDelay("#ivLargeImage > img@src"),
 			 sale_price: '#priceblock_saleprice',
@@ -616,7 +616,7 @@ console.log("in <scraper> ")
       if (useDimensions) {
          var dim ;
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
-				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|inches|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(in|inch|cm|'|")?(?:\s)*/i);
+				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*/i);
 				 // match number with comma (optional) and fraction \b[0-9]{1,3}(,?[0-9]{3})*(\.[0-9]+)?\b|\.[0-9]+\b
 				  console.log("match dimensions:",dim)
 

@@ -291,6 +291,7 @@ class QuoteForm extends React.Component {
   super(props);
   this.state = {
     allowSendQuote: false,
+    quoteReady: false,
     allowScraping: true,
     allowSendMessage: true,
     pricingNow:null,
@@ -478,6 +479,8 @@ static  getDerivedStateFromProps(props, state) {
         },
         message:props.quoteInfo.quote_no?'Loaded Quote#'+props.quoteInfo.quote_no:'',
         quoteInfo: props.quoteInfo ,
+        quoteReady: props.quoteInfo? true:false,
+        allowSendQuote: props.quoteInfo? true:false,
         categorySearch: {
           category_name: item.category && item.category.length>0? item.category[0]:'',
 
@@ -645,9 +648,14 @@ handleCannedMessage = ({target}) => {
         options= 'message'
         text = "Pricing now  يتم التسعير الأن"
         break;
+      case 'doesNotShip':
+          options= 'message'
+          text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+            "Seller does not ship to USA or Jordan البائع لا يشحن لامريكا او الأردن"
+          break;
       case 'textQuote':
         options= 'quote'
-        if (this.state.allowSendQuote && quotation && quotation.prices) {
+        if (this.state.quoteReady && quotation && quotation.prices) {
           text =
           this.state.formEditInfo.edit_title + "\n" + "Price is "+ quotation.prices[edit_price_selection].price +" JD"+
         ( edit_price_selection == 'aq_std'? '':"\nPrice in Aqaba "+ quotation.prices['aq_std'].price + " JD")
@@ -668,7 +676,8 @@ handleCannedMessage = ({target}) => {
         break;
       case 'notAllowed':
       options ='message'
-      text = "Sorry: This item is not allowed by Customs. غير مسموح به من فبل الجمارك"
+      text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+        "Sorry: This item is not allowed by Customs. غير مسموح به من فبل الجمارك"
       break;
       case 'sendLink':
       options ='message'
@@ -724,7 +733,9 @@ handleCannedMessage = ({target}) => {
           ...this.state.formEditInfo,
             [name]: value
          },
-      //  allowSave: true,
+      //  allowSave: true
+      // change made
+        quoteReady: false,
         allowSendQuote: false,
         allowSendMessage:true,
         allowScraping: scrape,
@@ -760,8 +771,10 @@ handleCannedMessage = ({target}) => {
 
           },
         //  allowSave: true,
+        // change made
           allowSendMessage:true,
           allowSendQuote:false,
+          quoteReady: false,
 
         });
 
@@ -789,8 +802,10 @@ handleCannedMessage = ({target}) => {
         message:quoteObj.message,
 
         //allowSave: quoteObj!=null,
+        // price calculated but not saved yet
         allowSendMessage:true,
         allowSendQuote:false,
+        quoteReady: false,
       })
     } catch(err)  {
         console.log("<doCalculate> <QuoteForm> then.catch Error thrown by doCalculate:",err)
@@ -812,6 +827,7 @@ handleCannedMessage = ({target}) => {
 
           allowSave: false,
           allowSendQuote: false,
+          quoteReady: false,
 
          // invalidate pricing
          quoteInfo: {
@@ -1356,13 +1372,15 @@ handleCannedMessage = ({target}) => {
           } else {
             console.log("<handleSendQuotation> <QuoteForm> Got null response:")
             await this.setStateAsync({
-                message:"Could not send message to user"
+                message:"Could not send message to user",
+                allowSendQuote:true,
             })
           }
         } catch(err) {
           console.log("<handleSendQuotation> <QuoteForm> Error from sendFBQuoteAction err:",err)
           await this.setStateAsync({
-              message:"Could not send message. "+err
+              message:"Could not send message. "+err,
+              allowSendQuote:true,
           })
         }
       }
@@ -1377,6 +1395,7 @@ handleCannedMessage = ({target}) => {
     await this.setStateAsync({
         allowSendMessage: true,
         allowSendQuote: false,
+        quoteReady: false,
         message:"Saving quotation ...",
        allowSave: false,
 
@@ -1426,6 +1445,7 @@ handleCannedMessage = ({target}) => {
               quoteChanged: false,
               allowSendMessage: true,
               allowSendQuote: true,
+              quoteReady: true,
               }
             );
           } else {
@@ -1436,6 +1456,7 @@ handleCannedMessage = ({target}) => {
                 allowSave: false,
                 allowSendMessage: true,
                 allowSendQuote: false,
+                quoteReady: false,
               })
           }
          }
@@ -1447,6 +1468,7 @@ handleCannedMessage = ({target}) => {
                 allowSave: false,
                 allowSendMessage: true,
                 allowSendQuote: false,
+                quoteReady: false,
               })
           }
      }
@@ -1516,12 +1538,13 @@ handleCannedMessage = ({target}) => {
           })
         }
         console.log("prices:",prices)
+        quoteObj.last_updated = quoteObj.last_updated? quoteObj.last_updated:moment().format('x');
       const response = await updateQuotation({
          variables: {
 
            "quoteInput": {
             quote_no: this.state.formEditInfo.quote_no,
-            last_updated: quoteObj.last_updated? quoteObj.last_updated:moment().format('x'),
+            last_updated: quoteObj.last_updated,
             senderId: this.state.formEditInfo.userInfo? this.state.formEditInfo.userInfo.userId:null, // should be quotation owner
             sales_person: quoteObj.sales_person,
             userInfo: {
@@ -2018,7 +2041,7 @@ handleCannedMessage = ({target}) => {
 
 
                 {categoriesQuery.loading? <Loading />:categoriesQuery!=null?
-                <div className="flex flex-wrap ">
+                <div className="flex flex-wrap justify-center">
                 <NoSsr>
                   <ReactSelect
                     classes={classes}
@@ -2042,9 +2065,8 @@ handleCannedMessage = ({target}) => {
                     value={tax_amm !=null ?tax_amm.toFixed(2):''}
                     style={{
                        backgroundColor: 'lightblue',
-
-                      //backgroundColor:'pink',
-                       //'whiteSpace': 'unset',
+                       startAdornment: <InputAdornment position="end">%</InputAdornment>,
+                       readOnly: true,
                         fontSize: '12px' ,
                         font: 'bold',
                     }}
@@ -2063,6 +2085,8 @@ handleCannedMessage = ({target}) => {
                            backgroundColor: 'lightblue',
                             fontSize: '12px' ,
                             font: 'bold',
+                            startAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            readOnly: true,
                         }}
                         margin="dense"
                         className={classes.textField}
@@ -2078,6 +2102,8 @@ handleCannedMessage = ({target}) => {
                            backgroundColor: 'lightblue',
                             fontSize: '12px' ,
                             font: 'bold',
+                            startAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            readOnly: true,
                         }}
                         margin="dense"
                         className={classes.textField}
@@ -2090,11 +2116,11 @@ handleCannedMessage = ({target}) => {
                         value={tax_aqaba!=null ? tax_aqaba.toFixed(1):''}
                         margin="dense"
                         style={{
-
                             backgroundColor: 'lightblue',
-
                             fontSize: '12px' ,
                             font: 'bold',
+                            startAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            readOnly: true,
                         }}
                         className={classes.textField}
                       />
@@ -2520,6 +2546,7 @@ handleCannedMessage = ({target}) => {
             <MenuItem value={"pricingNow"}>Pricing Now</MenuItem>
             <MenuItem value={"pleaseWait"}>Please Wait</MenuItem>
             <MenuItem value={"textQuote"}>Send Text Quote</MenuItem>
+            <MenuItem value={"doesNotShip"}>Does not Ship to USA/JO</MenuItem>
             <MenuItem value={"sendLink"}>Send Link</MenuItem>
             <MenuItem value={"notAllowed"}>Not Allowed</MenuItem>
             <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
