@@ -179,11 +179,12 @@ var parse = require('url-parse')
 		 selectors: {
 				title: '#productTitle',
 			 original_price: '#price > table > tbody > tr:nth-child(1) > td.a-span12.a-color-secondary.a-size-base.a-text-strike',
-
-			 image: '#landingImage@data-old-hires', //@data-old-hires',
-			 image1: xDelay("#landingImage@src"),
-			 image2: xDelay("#imgBlkFront@src"),
-		 	 image3: xDelay("#ivLargeImage > img@src"),
+			 image: xDelay("#main-image[src]"), // src is an attribute of main-image
+			 image1: xDelay("#altImages > ul > li:nth-child(3) > span > span > span > span> img@src"),
+			 image2: "#landingImage@data-old-hires", //@data-old-hires',
+			 image3: xDelay("#landingImage@src"),
+			 image4: xDelay("#imgBlkFront@src"),
+		 	 image5: xDelay("#ivLargeImage > img@src"),
 			 sale_price: '#priceblock_saleprice',
 			 deal_price: "#priceblock_dealprice",
 			 price: '#priceblock_ourprice',
@@ -197,7 +198,9 @@ var parse = require('url-parse')
 			 shipping1: xDelay("#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P"),
 			 shipping2: "#price-shipping-message > b",
 			 shipping3: "#buyNewInner > div.a-section.a-spacing-small.a-spacing-top-micro > div > span > span > a",
+			 shipping4: "#priceBadging_feature_div",
 			 prime: "#priceBadging_feature_div > i.a-icon-prime",
+			 prime1: "#priceBadging_feature_div > i",
 			 size: "#dropdown_selected_size_name > span > span > span",
 			color: "#variation_color_name > div > span",
 			condition: "#buyNewSection",
@@ -215,8 +218,9 @@ var parse = require('url-parse')
 			 item_weight: xDelay("tr:contains('Item Weight') > td.a-size-base"),
 			 item_weight1: xDelay("#productDetails_detailBullets_sections1 > tbody > tr:contains('Item Weight')"),
 
-			 shipping_weight: xDelay(" tr:contains('Shipping Weight')"),
-			 shipping_weight1: xDelay("li:contains('Shipping Weight')"),
+
+			 shipping_weight: xDelay("li:contains('Shipping Weight')"),
+			  shipping_weight1: xDelay("tr:contains('Shipping Weight')"),
 			 shipping_weight2: xDelay("#detail-bullets > table > tbody > tr > td > div.content > ul > li:nth-child(1) > b"),
 			 shipping_weight3: xDelay("#detail-bullets > table > tbody > tr > td > div.content > ul > li:contains('Shipping Weight') > b"),
 			 shipping_weight4: xDelay('*[@id="detail-bullets"]/table/tbody/tr/td/div[2]/ul/li[1]/text()[1]'),
@@ -226,9 +230,10 @@ var parse = require('url-parse')
 			 category1: xDelay("#wayfinding-breadcrumbs_container > ul > li:last-child"),
 
 			// rank1: "#productDetails_detailBullets_sections1 > tbody > tr:contains('Best Sellers Rank')"),
-			 rank1: xDelay("tr:contains('Rank')"),
-			 rank2: "#SalesRank",
-			 rank3: "li:contains('Rank')",
+			 rank1: "li:contains('Rank')",
+			 rank2: xDelay("tr:contains('Rank')"),
+			 rank3: "#SalesRank",
+
 			 options: "#variation_size_name > div > span",
 			 options1: "#shelf-label-size_name",
 			 options2: "#productDetails_secondary_view_div > h3",
@@ -470,7 +475,14 @@ console.log("in <scraper> ")
   		  console.log("<smart-product-scraper> got deal_price:",result.deal_price)
 	   		console.log("<smart-product-scraper> got sale_price:",result.sale_price)
   			console.log("<smart-product-scraper> got price_fraction:",result.price_fraction)
+				console.log("<smart-product-scraper> got shipping:",result.shipping)
+				console.log("<smart-product-scraper> got shipping1:",result.shipping1)
+				console.log("<smart-product-scraper> got shipping2:",result.shipping2)
+				console.log("<smart-product-scraper> got shipping3:",result.shipping3)
+				console.log("<smart-product-scraper> got shipping4:",result.shipping4)
 
+				console.log("<smart-product-scraper> got prime:",result.prime)
+				console.log("<smart-product-scraper> got prime1:",result.prime1)
        var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
@@ -511,8 +523,13 @@ console.log("in <scraper> ")
       } else {
 				result.price = -1;
 			}
-			if (result.prime) result.prime="FREE";
-			var useShipping = result.shipping || result.shipping1 || result.shipping2 || result.shipping3 || result.prime;
+
+		  const usePrime = 	result.prime || result.prime1? "FREE":null;
+			console.log('usePime:',usePrime)
+			var useShipping = result.shipping ||
+			 	result.shipping1 || result.shipping2 ||
+				result.shipping3 || result.shipping4
+				|| usePrime;
 			console.log("useShipping:",useShipping)
       if(useShipping) {
 				// look for FREE Shipping
@@ -554,7 +571,7 @@ console.log("in <scraper> ")
 			var useTitle = result.title || result.title1 || result.title2
 			console.log("useTitle:",useTitle)
 			if(useTitle) {
-        if (result.site == 'ebay')    result.title = useTitle.replace('Details about','')
+        result.title = useTitle.replace(/Details about/i,'')
 
 				result.title = useTitle.trim();
 
@@ -581,7 +598,7 @@ console.log("in <scraper> ")
       if (useWeight) {
 
         var weight = 0;
-					var m0 = String(useWeight).match	(/((?:\d{1,3})(?:,\d{1,3})*(?:\.\d{1,})?)(?:[\(|\s|\(])*(kg|lb|pound|ounce)?/i)
+					var m0 = String(useWeight).match	(/((?:\d{1,3})(?:,\d{1,3})*(?:\.\d{1,})?)(?:[\(|\s|\(])*(kg|lb|pound|ounces|ounce)?/i)
 				//var m0 = String(useWeight).match(/((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s|\(])*(kg|lb|pound|ounce)?/);
 				// var m0 = String(useWeight).match(/^(?:\s)*(((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s|\(])*(kg|lb|pound|ounce))?(?:\s|\))*(?:.)*/i);
 	        //  var m0  = String(useWeight).match(/^(?:\s)*((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s])*(kg|lb|pound|ounce)?(?:\s|\))*(?:$)/i)
@@ -601,6 +618,7 @@ console.log("in <scraper> ")
 						 // no change
 						 console.log("already in pounds")
 						break;
+						case 'ounces':
 						case 'ounce':
 							weight = parseFloat(weight) / 16.0
 						break;
@@ -652,9 +670,9 @@ console.log("in <scraper> ")
 
 						// adjust dimensions by max of 1inch or 10%
 						if (!package_dimensions) {
-								l = Math.max(parseFloat(l)*1.1, parseFloat(l)+1)
-								w = Math.max(parseFloat(w)*1.1, parseFloat(w)+1)
-								h = Math.max(parseFloat(h)*1.1, parseFloat(h)+1)
+								l = Math.max(parseFloat(l)*1.1, parseFloat(l)+1.5)
+								w = Math.max(parseFloat(w)*1.1, parseFloat(w)+1.5)
+								h = Math.max(parseFloat(h)*1.15, parseFloat(h)+2)
 						}
           	result.dimensions =parseFloat(l).toFixed(2) + ' x ' + parseFloat(w).toFixed(2) + ' x ' + parseFloat(h).toFixed(2);
 
@@ -703,7 +721,7 @@ console.log("in <scraper> ")
          //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
 				  result.category = useCategory? useCategory:"general accessories"
       }
-			var useImage = result.image || result.image1 || result.image2 || result.image3
+			var useImage = result.image || result.image1 || result.image2 || result.image3|| result.image4 || result.image5
 			result.image = useImage;
 
 			if (result.condition) {

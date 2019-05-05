@@ -653,6 +653,11 @@ handleCannedMessage = ({target}) => {
           text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
             "Seller does not ship to USA or Jordan البائع لا يشحن لامريكا او الأردن"
           break;
+      case 'notRelible':
+              options= 'message'
+              text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+                "Seller is not reliable. الباثع غير موثوق"
+              break;
       case 'textQuote':
         options= 'quote'
         if (this.state.quoteReady && quotation && quotation.prices) {
@@ -674,10 +679,19 @@ handleCannedMessage = ({target}) => {
         options ='message'
         text = "(Y)"
         break;
+      case 'phoneAddress':
+          options ='message'
+          text = "(Y)"
+          break;
       case 'notAllowed':
       options ='message'
       text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
         "Sorry: This item is not allowed by Customs. غير مسموح به من فبل الجمارك"
+      break;
+      case 'needsApproval':
+      options ='message'
+      text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+        "Needs approval before ordering. هذا المنتج يحتاج الى موافقة قبل الطلب من الجهة المختصة"
       break;
       case 'sendLink':
       options ='message'
@@ -2546,12 +2560,16 @@ handleCannedMessage = ({target}) => {
             <MenuItem value={"pricingNow"}>Pricing Now</MenuItem>
             <MenuItem value={"pleaseWait"}>Please Wait</MenuItem>
             <MenuItem value={"textQuote"}>Send Text Quote</MenuItem>
-            <MenuItem value={"doesNotShip"}>Does not Ship to USA/JO</MenuItem>
-            <MenuItem value={"sendLink"}>Send Link</MenuItem>
-            <MenuItem value={"notAllowed"}>Not Allowed</MenuItem>
             <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
             <MenuItem value={"thanks"}>Thank You</MenuItem>
+            <MenuItem value={"phoneAddress"}>Send Hours, Phone and Address</MenuItem>
             <MenuItem value={"thumbsup"}>Thumbs Up!</MenuItem>
+            <MenuItem value={"doesNotShip"}>Does not Ship to USA/JO</MenuItem>
+              <MenuItem value={"notRelible"}>Seller not reliable</MenuItem>
+            <MenuItem value={"sendLink"}>Send Link</MenuItem>
+            <MenuItem value={"notAllowed"}>Not Allowed</MenuItem>
+              <MenuItem value={"needsApproval"}>Needs Approval</MenuItem>
+
           </Select>
 
         </FormControl>
