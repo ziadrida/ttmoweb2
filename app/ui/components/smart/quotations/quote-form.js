@@ -1232,7 +1232,7 @@ handleCannedMessage = ({target}) => {
                   includeScore: true,
                   threshold: 0.1,
                   location: 0,
-                  distance: 100,
+                  distance: 10,
                   maxPatternLength: 100,
                   minMatchCharLength: 5,
                   tokenSeparator: /[\|\,|\/|;|\&|]/,
@@ -1274,14 +1274,15 @@ handleCannedMessage = ({target}) => {
                score: 1
              } ;
 
-             searchPattern.map(sp => {
+             await searchPattern.map(sp => {
                if (sp.length<3) { console.log("skip search patters:", sp) ; return;}
                cats = fuse.search(sp);
                console.log("<handleScrapeAction>  Search results for ",sp , " =>:" , cats)
 
-               cats.map(cat => {
+                cats.map(cat => {
                  console.log("<handleScrapeAction>  matched category:",cat.item ,' with score:',cat.score)
-                  matchCat[cat.item.category_name] = matchCat[cat.item.category_name]? matchCat[cat.item.category_name] * cat.score: cat.score
+                  matchCat[cat.item.category_name] = matchCat[cat.item.category_name]?
+                    matchCat[cat.item.category_name] * cat.score: cat.score
                    console.log('<handleScrapeAction>  new matchCat:', JSON.stringify(matchCat))
                   if (matchCat[cat.item.category_name] < bestMatch.score) {
                     bestMatch.item = cat.item;
