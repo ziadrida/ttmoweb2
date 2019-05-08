@@ -55,7 +55,7 @@ var parse = require('url-parse')
 					console.log("wait for page to load")
 					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 				} catch(err) {
-					console.log('!!!ERROR WAITING ON PAGE LOAD ')
+					console.log('Timeout WAITING ON PAGE LOAD ')
 				}
 				console.log("assume page loaded")
 				 // await page.waitForNavigation({waitUntil: "load"});
@@ -85,106 +85,102 @@ var parse = require('url-parse')
 		 initialized: false,
 		 initAttempts: 0,
 		 setup: async(page) => {
-			 console.log("setup amazon")
 			 try {
-				 	await page.screenshot({ path: './amazon1.png' });
-			 }
-			 catch(err) {
-				 console.log("error taking screenshot");
-			 }
-			try {
-
-				console.log("click1")
-				// let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-				// console.log("bodyHTML:",bodyHTML)
+				 console.log("setup amazon")
 				try {
-					await page.waitFor(2000);
-					//	await page.waitForSelector("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit")
-			 	await page.click("#nav-main > div.nav-left > div.a-section.glow-toaster.glow-toaster-theme-default.glow-toaster-slot-default.nav-coreFlyout.nav-flyout > div > div.glow-toaster-footer > span.a-button.a-spacing-top-base.a-button-primary.glow-toaster-button.glow-toaster-button-submit > span > input")
-			} catch(err1) {
-				// a default zip code maybe entered - change it
-					console.log("no #nav-main selector:")
-					try {
-					  console.log("click g2")
-						await page.click("#nav-global-location-slot > span > a");
-
-						await page.waitFor(2000);
-				    console.log("click g3")
-			     	await page.click("#GLUXChangePostalCodeLink");
-
-
-					} catch(err2) {
-							console.log("!!! no #glow-ingress-block:")
-					}
+						await page.waitForSelector("#nav-main");
+						 console.log("#nav-main found")
+				} catch(err) {
+					 console.log("#nav-main not found")
 				}
-		//  await page.waitForNavigation({waitUntil: "load"});
-					console.log("click2")
-			// await page.click("a-button-input")
-			// await page.waitForNavigation({waitUntil: "load"});
-			  console.log("click3")
-				await page.waitFor(2000);
 
-		//	await page.waitForSelector('#a-popover-header-6')
 
-			await page.focus('#GLUXZipUpdateInput')
-			await page.waitFor(1000);
-			await page.click('#GLUXZipUpdateInput')
-			await page.keyboard.down('Control');
-			await page.keyboard.press('KeyA');
-			await page.keyboard.up('Control');
-			await page.keyboard.press('Backspace');
-			await page.waitFor(1000);
+				try {
+					console.log("open change location")
 
-			await page.keyboard.type('97230')
+						await page.evaluate(() => {
 
-			console.log("click4")
-			await page.waitFor(1000);
-		//	await page.waitForSelector("#GLUXZipUpdate");
-			console.log("click5")
-			await page.focus("#GLUXZipUpdate");
-			await page.waitFor(1000);
+							document.querySelector("#nav-global-location-slot > span").click();
+						});
+					console.log("clicked #nav-global-location-slot > span")
+					console.log("change location popover openned")
+				}	catch(err) {
+						try {
+								console.log("problem openning popup - try again with icon")
+								await page.evaluate(() => {
+									document.querySelector('#nav-packard-glow-loc-icon').click();
+								});
+								console.log("clicked #nav-global-location-slot > span")
+								console.log("change location popover openned")
+						} catch(err) {
+								console.log("problem openning popup using icon")
+						}
+				}
 
-			await page.click("#GLUXZipUpdate");
-				await page.screenshot({ path: './amazon2.png' });
-			await page.waitFor(2000);
-			console.log("click6")
-		//	await page.waitForNavigation({waitUntil: "networkidle2"});
-		//  await page.waitForSelector("#a-popover-6 > div > div.a-popover-footer > span")
-		//	console.log("click7")
-			await page.click('body')
-					console.log("click8")
-			//await page.waitForSelector("#twotabsearchtextbox")
-			await page.waitFor(2000);
-			await page.focus("#twotabsearchtextbox");
-			console.log("click9")
-			await page.waitFor(1000);
-			await page.click("#twotabsearchtextbox")
-			console.log("click10")
+				try {
+					console.log('wait for GLUXZipUpdateInput')
+					await page.waitForSelector("#GLUXZipUpdateInput")
+					console.log("found selector GLUXZipUpdateInput")
+				} catch( err3) {
+					console.log("waited and Could not find selector GLUXZipUpdateInput")
+				}
 
-			try {
-				console.log("wait for page to load")
-				await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
-			} catch(err) {
-				console.log('!!!ERROR WAITING ON PAGE LOAD ')
-			}
-			console.log("assume page loaded")
-			console.log("click11")
+				try {
+					console.log("evaluate GLUXZipUpdateInput click inside zipcode, enter zipcode, and apply")
+					await page.waitFor(1000);
+					let zipInputSelector = '#GLUXZipUpdateInput';
+					let zip='97230'
+					let applyZipSelector = '#GLUXZipUpdate';
+
+					await page.evaluate((zip) => {
+						document.querySelector('#GLUXZipUpdateInput').value = zip;
+						document.querySelector('#GLUXZipUpdate > span > input').click();
+						document.querySelector("div.a-popover-footer > span > span > span > button").click();
+					}, zip);
+					console.log("done enterring, applying  zipcode ")
+					console.log("wait after setting zipcode")
+					await page.waitFor(2000);
+			 } catch(err) {
+					console.log("error enterring, applying  zipcode ")
+			 }
+
+			 try {
+	 		  console.log("click search box to exit zipcode popup window  ")
+	 		  await page.evaluate(() => {
+	 		    document.querySelector("body").focus();
+	 		    document.querySelector("body").click();
+	 		    document.querySelector("#twotabsearchtextbox").focus();
+	 		    document.querySelector("#twotabsearchtextbox").click();
+	 		  });
+	 		  console.log("done exiting popup window")
+	 		} catch (err) {
+	 		  console.log("error exiting popup window")
+	 		}
+
+				try {
+					console.log("wait for page to load")
+					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle0"})
+				} catch(err) {
+					console.log('page not seem to load on time - no problem continue ... ')
+				}
+				console.log("DONE Setting location")
 			return true;
-			} catch(err) {
+		} catch(err) {
 				console.log("!!! Error setting up Amazon")
 				return false;
-			}
-		},
+		}
+	  },
 		// amazon selectors
 		 selectors: {
 				title: '#productTitle',
 			 original_price: '#price > table > tbody > tr:nth-child(1) > td.a-span12.a-color-secondary.a-size-base.a-text-strike',
-			 image: xDelay("#main-image[src]"), // src is an attribute of main-image
-			 image1: xDelay("#altImages > ul > li:nth-child(3) > span > span > span > span> img@src"),
-			 image2: "#landingImage@data-old-hires", //@data-old-hires',
-			 image3: xDelay("#landingImage@src"),
-			 image4: xDelay("#imgBlkFront@src"),
-		 	 image5: xDelay("#ivLargeImage > img@src"),
+
+			 image: "#landingImage@data-old-hires", //@data-old-hires',
+			 image1: xDelay("#landingImage@src"),
+			 image2: xDelay("#imgBlkFront@src"),
+		 	 image3: xDelay("#ivLargeImage > img@src"),
+			 image4: xDelay("#main-image[src]"), // src is an attribute of main-image
+			 image5: xDelay("#altImages > ul > li:nth-child(3) > span > span > span > span> img@src"),
 			 sale_price: '#priceblock_saleprice',
 			 deal_price: "#priceblock_dealprice",
 			 price: '#priceblock_ourprice',
@@ -286,7 +282,7 @@ var parse = require('url-parse')
 						 console.log("wait for page to load")
 						 await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 					 } catch(err) {
-						 console.log('!!!ERROR WAITING ON PAGE LOAD ')
+						 console.log('Timeout WAITING ON PAGE LOAD ')
 					 }
 					 console.log("assume page loaded")
 					 return true;
@@ -344,7 +340,7 @@ var parse = require('url-parse')
 						console.log("wait for page to load")
 						await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 					} catch(err) {
-						console.log('!!!ERROR WAITING ON PAGE LOAD ')
+						console.log("WAITING ON PAGE LOAD")
 					}
 					console.log("assume page loaded")
 		 			//await page.waitFor(5000);

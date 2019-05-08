@@ -69,8 +69,18 @@ exports.xRayChrome = (options) => {
           await page.setViewport(viewPort);
         }
 
+
+
         try {
+          try {
+              await page.goto(ctx.url, navigationOptions);
+          } catch(err) {
+            console.log("browser closed? err:", err)
+            browser = await Puppeteer.launch(launchOptions);
+            page = await browser.newPage();
             await page.goto(ctx.url, navigationOptions);
+          }
+
 
             if (typeof cl === 'function' && !setup) {
               console.log("call cl function")
