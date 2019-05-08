@@ -87,19 +87,48 @@ var parse = require('url-parse')
 		 setup: async(page) => {
 			 try {
 				 console.log("setup amazon")
+
 				try {
+						await page.waitFor(2000);
+						console.log("after wait look for #nav-main")
 						await page.waitForSelector("#nav-main");
 						 console.log("#nav-main found")
 				} catch(err) {
-					 console.log("#nav-main not found")
+					 console.log("#nav-main not found - try again")
+					 await page.waitFor(3000);
+					 console.log("after wait look for #nav-main")
+					 try {
+					 await page.waitForSelector("#nav-main");
+						console.log("#nav-main found")
+					} catch(err) {
+						console.log("#nav-main not found ")
+						console.log("Error setting up Amazon")
+						return false;
+					}
 				}
 
+				try {
+					console.log("wait for #nav-global-location-slot > span")
+
+					await page.waitForSelector("#nav-global-location-slot > span");
+					 console.log("#nav-global-location-slot > span found")
+				}
+				catch (err) {
+					console.log("wait AGAIN for #nav-global-location-slot > span")
+					await page.waitFor(2000);
+					try {
+					await page.waitForSelector("#nav-global-location-slot > span");
+					 console.log("#nav-global-location-slot > span found")
+				 } catch(err) {
+					 	console.log("could not find #nav-global-location-slot > span")
+					 console.log("Error setting up Amazon")
+	 				 return false;
+				 }
+				}
 
 				try {
 					console.log("open change location")
-
-						await page.evaluate(() => {
-
+					await page.evaluate(() => {
 							document.querySelector("#nav-global-location-slot > span").click();
 						});
 					console.log("clicked #nav-global-location-slot > span")
@@ -114,6 +143,9 @@ var parse = require('url-parse')
 								console.log("change location popover openned")
 						} catch(err) {
 								console.log("problem openning popup using icon")
+
+							 console.log("Error setting up Amazon")
+							 return false;
 						}
 				}
 
@@ -142,6 +174,8 @@ var parse = require('url-parse')
 					await page.waitFor(2000);
 			 } catch(err) {
 					console.log("error enterring, applying  zipcode ")
+					console.log("Error setting up Amazon")
+					return false;
 			 }
 
 			 try {
@@ -195,6 +229,7 @@ var parse = require('url-parse')
 			 shipping2: "#price-shipping-message > b",
 			 shipping3: "#buyNewInner > div.a-section.a-spacing-small.a-spacing-top-micro > div > span > span > a",
 			 shipping4: "#priceBadging_feature_div",
+			 shipping5: "#ourprice_shippingmessage",
 			 prime: "#priceBadging_feature_div > i.a-icon-prime",
 			 prime1: "#priceBadging_feature_div > i",
 			 size: "#dropdown_selected_size_name > span > span > span",
@@ -476,6 +511,7 @@ console.log("in <scraper> ")
 				console.log("<smart-product-scraper> got shipping2:",result.shipping2)
 				console.log("<smart-product-scraper> got shipping3:",result.shipping3)
 				console.log("<smart-product-scraper> got shipping4:",result.shipping4)
+				console.log("<smart-product-scraper> got shipping5:",result.shipping5)
 
 				console.log("<smart-product-scraper> got prime:",result.prime)
 				console.log("<smart-product-scraper> got prime1:",result.prime1)
@@ -524,7 +560,7 @@ console.log("in <scraper> ")
 			console.log('usePime:',usePrime)
 			var useShipping = result.shipping ||
 			 	result.shipping1 || result.shipping2 ||
-				result.shipping3 || result.shipping4
+				result.shipping3 || result.shipping4 || result.shipping5
 				|| usePrime;
 			console.log("useShipping:",useShipping)
       if(useShipping) {
