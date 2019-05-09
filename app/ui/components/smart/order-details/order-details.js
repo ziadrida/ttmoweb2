@@ -499,7 +499,8 @@ const SelectTable=selectTableHOC(ReactTable)
                 getProps:  (state, rowInfo) => ({
                  style: {
                      backgroundColor: (rowInfo && rowInfo.row &&
-                        parseFloat(rowInfo.row.final_payment) == 0 ? 'orange' : null),
+                        parseFloat(rowInfo.row.final_payment)+parseFloat(rowInfo.row.first_payment)-
+                        parseFloat(rowInfo.row.total_amount) > 0 ? 'orange' : null),
 
                           textAlign: 'right'
 

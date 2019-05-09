@@ -65,40 +65,45 @@ exports.xRayChrome = (options) => {
         done(err,null)
       }
         if (!page && browser) {
+          console.log('browser.newPage')
           page = await browser.newPage();
           await page.setViewport(viewPort);
         }
 
 
-
         try {
           try {
+              console.log('goto:',ctx.url, 'navigationOption:',navigationOptions)
               await page.goto(ctx.url, navigationOptions);
           } catch(err) {
-            console.log("browser closed? err:", err)
-            browser = await Puppeteer.launch(launchOptions);
-            page = await browser.newPage();
-            await page.goto(ctx.url, navigationOptions);
+            console.log("error during page.goto. browser closed? relaunch browser and repeat newPage")
+
+              browser = await Puppeteer.launch(launchOptions);
+              if (!page && browser) {
+                page = await browser.newPage();
+                await page.goto(ctx.url, navigationOptions);
+              }
+
           }
 
-
-            if (typeof cl === 'function' && !setup) {
+          if (typeof cl === 'function' && !setup) {
               console.log("call cl function")
               await cl(page, ctx);
-            }
+          }
             //console.log("after call to cl function call done?",setup)
 
-            if (!ctx.body) {
+          if (!ctx.body) {
                 ctx.body = await page.content();
-            }
-            try {
+          }
+          try {
               console.log("wait for page to load")
-              await page.waitForNavigation({timeout: 2*1000,waitUntil: "networkidle2"})
-            } catch(err) {
-              console.log('!!!ERROR WAITING ON PAGE LOAD ')
-            }
-            console.log("assume page loaded")
-            done(null, ctx);
+              await page.waitForNavigation({timeout: 4*1000,waitUntil: "networkidle2"})
+              console.log("PAGE LOADED SUCCESFULLY")
+          } catch(err) {
+              console.log('TIMEOUT WAITTING FOR PAGE LOAD ')
+          }
+          console.log("assume page loaded")
+          done(null, ctx);
         } catch (err) {
            done(err, null);
         }

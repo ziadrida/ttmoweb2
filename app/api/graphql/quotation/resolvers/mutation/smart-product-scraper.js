@@ -86,40 +86,41 @@ var parse = require('url-parse')
 		 initAttempts: 0,
 		 setup: async(page) => {
 			 try {
+				 var url = page.url();
+				 console.log("setup amazon - url:",url)
+					//await page.goto(url)
 				 console.log("setup amazon")
 
 				try {
-
-						await page.waitFor(1000);
-						console.log("after wait look for #nav-main")
-						await page.waitForSelector("#nav-main");
+						console.log("wait for #nav-main")
+						await page.waitForSelector("#nav-main", { timeout: 2000 });
 						 console.log("#nav-main found")
 				} catch(err) {
 					 console.log("#nav-main not found - try again")
-					 await page.waitFor(1000);
-					 console.log("after wait look for #nav-main")
+					 console.log("wait again look for #nav-main")
 					 try {
-					 await page.waitForSelector("#nav-main");
+					 await page.waitForSelector("#nav-main", { timeout: 2000 });
 						console.log("#nav-main found")
 					} catch(err) {
 						console.log("#nav-main not found ")
 						console.log("Error setting up Amazon")
 						let bodyHTML = await page.evaluate(() => document.body.innerHTML);
 						console.log("bodyHTML start:\n",bodyHTML)
+						return false;
 					}
 				}
 
 				try {
 					console.log("wait for #nav-global-location-slot > span")
 
-					await page.waitForSelector("#nav-global-location-slot > span");
+					await page.waitForSelector("#nav-global-location-slot > span", { timeout: 2000 });
 					 console.log("#nav-global-location-slot > span found")
 				}
 				catch (err) {
 					console.log("wait AGAIN for #nav-global-location-slot > span")
-					await page.waitFor(2000);
+
 					try {
-					await page.waitForSelector("#nav-global-location-slot > span");
+					await page.waitForSelector("#nav-global-location-slot > span", { timeout: 2000 });
 					 console.log("#nav-global-location-slot > span found")
 				 } catch(err) {
 					 	console.log("could not find #nav-global-location-slot > span")
@@ -153,7 +154,7 @@ var parse = require('url-parse')
 
 				try {
 					console.log('wait for GLUXZipUpdateInput')
-					await page.waitForSelector("#GLUXZipUpdateInput")
+					await page.waitForSelector("#GLUXZipUpdateInput", { timeout: 2000 })
 					console.log("found selector GLUXZipUpdateInput")
 				} catch( err3) {
 					console.log("waited and Could not find selector GLUXZipUpdateInput")
@@ -285,7 +286,6 @@ var parse = require('url-parse')
 				 try {
 					 var url = page.url();
 					 await page.waitFor(2000);
-
 					 await page.waitForSelector("#header-bubble-links > div:nth-child(4) > a > span > span > span.e_a.y_c.y_f.e_g.e_b.e_p.v_a.v_h.v_j");
 					 await page.waitFor(2000);
 					 await page.click("#header-bubble-links > div:nth-child(4) > a > span > span > span.e_a.y_c.y_f.e_g.e_b.e_p.v_a.v_h.v_j")
@@ -314,6 +314,7 @@ var parse = require('url-parse')
 					 await page.waitForSelector("#cart-root-container-content-skip > div > div > div.text-left.Grid > div.Grid-col.u-size-1.u-size-3-12-m.u-size-3-12-l > div > div > div:nth-child(1) > div > div.order-summary-tax.order-summary-line > div > span > div > span > button > span")
 					 	await page.screenshot({ path: './walmart.png' });
 					 // page.keyboard.press(String.fromCharCode(13));// press enter
+
 					 await page.goto(url)
 					 try {
 						 console.log("wait for page to load")
@@ -414,6 +415,7 @@ const x = Xray().driver(xRayChrome(	{
 
     cl: async (page, ctx) => {
 				console.log('in cl function:')
+				console.log("url:",ctx.url)
 				var urlinfo = parse(ctx.url, true);
 				//	console.log('url:',url)
 				var host= urlinfo ? urlinfo.host:null
