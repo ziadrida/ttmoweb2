@@ -89,13 +89,14 @@ var parse = require('url-parse')
 				 console.log("setup amazon")
 
 				try {
-						await page.waitFor(2000);
+
+						await page.waitFor(1000);
 						console.log("after wait look for #nav-main")
 						await page.waitForSelector("#nav-main");
 						 console.log("#nav-main found")
 				} catch(err) {
 					 console.log("#nav-main not found - try again")
-					 await page.waitFor(3000);
+					 await page.waitFor(1000);
 					 console.log("after wait look for #nav-main")
 					 try {
 					 await page.waitForSelector("#nav-main");
@@ -103,7 +104,8 @@ var parse = require('url-parse')
 					} catch(err) {
 						console.log("#nav-main not found ")
 						console.log("Error setting up Amazon")
-						return false;
+						let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+						console.log("bodyHTML start:\n",bodyHTML)
 					}
 				}
 
