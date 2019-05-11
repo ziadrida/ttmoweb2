@@ -21,7 +21,11 @@ var parse = require('url-parse')
 		 initialized: false,
 		 initAttempts: 0,
 		 setup:async (page) => {
-			 console.log("setup ebay")
+			 var url = page.url();
+			 console.log("setup ebay - url:",url)
+			 await page.waitFor(1000);
+				await page.goto('www.ebay.com')
+
 				try {
 				//await page.screenshot({ path: './star1.png' });
 				console.log("step0")
@@ -33,6 +37,7 @@ var parse = require('url-parse')
 				} catch(err) { console.log('#viTabs not found')}
 					console.log("step1")
 				await page.click("#viTabs_1[href='#']");
+				console.log("step2")
 				await page.waitFor(2000);
 				// await page.screenshot({ path: './star2.png' });
 				await page.select('#shCountry', "1");
@@ -64,12 +69,16 @@ var parse = require('url-parse')
 				return true;
 			} catch (err) {
 					console.log('Error setting ebay');
+
+					let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+					console.log("bodyHTML start:\n",bodyHTML)
 					return false
 			}
 		 },
 		 // ebay selectors
 		 selectors: {
 			 	 title: '#itemTitle',
+				 title1: "#mainContent > div.product-buy-container.product-buy-container-new-ui > div.product > div > div > h1",
 				 price: '#prcIsum',
 				 shipping: '#fshippingCost > span',
 				 shipping1: "#shSummary",
@@ -88,6 +97,7 @@ var parse = require('url-parse')
 			 try {
 				 var url = page.url();
 				 console.log("setup amazon - url:",url)
+				 await page.waitFor(1000);
 					//await page.goto(url)
 				 console.log("setup amazon")
 
@@ -131,6 +141,7 @@ var parse = require('url-parse')
 
 				try {
 					console.log("open change location")
+					await page.waitFor(1000);
 					await page.evaluate(() => {
 							document.querySelector("#nav-global-location-slot > span").click();
 						});
@@ -139,6 +150,7 @@ var parse = require('url-parse')
 				}	catch(err) {
 						try {
 								console.log("problem openning popup - try again with icon")
+								await page.waitFor(1000);
 								await page.evaluate(() => {
 									document.querySelector('#nav-packard-glow-loc-icon').click();
 								});
@@ -162,16 +174,21 @@ var parse = require('url-parse')
 
 				try {
 					console.log("evaluate GLUXZipUpdateInput click inside zipcode, enter zipcode, and apply")
-					await page.waitFor(1000);
+
 					let zipInputSelector = '#GLUXZipUpdateInput';
 					let zip='97230'
 					let applyZipSelector = '#GLUXZipUpdate';
-
+					await page.waitFor(1000);
 					await page.evaluate((zip) => {
 						document.querySelector('#GLUXZipUpdateInput').value = zip;
 						document.querySelector('#GLUXZipUpdate > span > input').click();
-						document.querySelector("div.a-popover-footer > span > span > span > button").click();
+
 					}, zip);
+					await page.waitFor(1000);
+					await page.evaluate(() => {
+
+						document.querySelector("div.a-popover-footer > span > span > span > button").click();
+					});
 					console.log("done enterring, applying  zipcode ")
 					console.log("wait after setting zipcode")
 					await page.waitFor(2000);
@@ -183,12 +200,18 @@ var parse = require('url-parse')
 
 			 try {
 	 		  console.log("click search box to exit zipcode popup window  ")
+				await page.waitFor(1000);
 	 		  await page.evaluate(() => {
 	 		    document.querySelector("body").focus();
 	 		    document.querySelector("body").click();
-	 		    document.querySelector("#twotabsearchtextbox").focus();
-	 		    document.querySelector("#twotabsearchtextbox").click();
+
 	 		  });
+					await page.waitFor(1000);
+				await page.evaluate(() => {
+
+				 document.querySelector("#twotabsearchtextbox").focus();
+				 document.querySelector("#twotabsearchtextbox").click();
+			 });
 	 		  console.log("done exiting popup window")
 	 		} catch (err) {
 	 		  console.log("error exiting popup window")
@@ -204,6 +227,8 @@ var parse = require('url-parse')
 			return true;
 		} catch(err) {
 				console.log("!!! Error setting up Amazon")
+				let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+				console.log("bodyHTML start:\n",bodyHTML)
 				return false;
 		}
 	  },
@@ -325,7 +350,9 @@ var parse = require('url-parse')
 					 console.log("assume page loaded")
 					 return true;
 				 } catch (err) {
-					 console.log("walmart setup err: ",err)
+					 console.log("Error setting up walmart")
+					 let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+ 					console.log("bodyHTML start:\n",bodyHTML)
 					 return false;
 				 }
 		 },
@@ -385,7 +412,9 @@ var parse = require('url-parse')
 	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
 		 } catch(err) {
-			 console.log("err:",err)
+			 console.log("Error setting up aliexpress")
+			 let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+			 console.log("bodyHTML start:\n",bodyHTML)
 			 return false;
 		 }
 	   },
@@ -424,7 +453,7 @@ const x = Xray().driver(xRayChrome(	{
 				console.log("site map:",site_map[host])
 				console.log('initialized:',sites[site_map[host]].initialized)
 			  console.log('initAttempts:',sites[site_map[host]].initAttempts)
-				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<2 ) {
+				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<3 ) {
 					//	console.log("setup ",sites[site_map[host]])
 						sites[site_map[host]].initialized = await sites[site_map[host]].setup(page);
 						sites[site_map[host]].initAttempts++
