@@ -24,7 +24,7 @@ var parse = require('url-parse')
 			 var url = page.url();
 			 console.log("setup ebay - url:",url)
 			 await page.waitFor(1000);
-				await page.goto('www.ebay.com')
+
 
 				try {
 				//await page.screenshot({ path: './star1.png' });
@@ -638,7 +638,7 @@ console.log("in <scraper> ")
 			if(useTitle) {
         result.title = useTitle.replace(/Details about/i,'')
 
-				result.title = useTitle.trim();
+				result.title = result.title.trim();
 
       } else {
 				result.title = "No Title!"
