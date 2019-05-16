@@ -47,6 +47,7 @@ async function productScraper(root, args, context) {
       if (res.image) {
         result.thumbnailImage = res.image;
       }
+      result.ship_to_address = res.ship_to_address;
       // var price=-1;
       // var sale_price=-1;
       //

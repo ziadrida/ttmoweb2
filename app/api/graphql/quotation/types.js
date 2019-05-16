@@ -222,7 +222,6 @@ const types = gql`
   }
 
   type ProductResponse {
-
     title: String
     url: String
     price: Float
@@ -240,6 +239,7 @@ const types = gql`
     options: String
     condition: String
     message: String
+    ship_to_address: String
   }
 
   type Mutation {

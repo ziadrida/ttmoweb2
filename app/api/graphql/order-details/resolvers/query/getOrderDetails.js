@@ -125,7 +125,7 @@ const getOrderDetails = async (root, args, context) => {
                     }
                   },
                   {
-                    "url": {
+                    "link": {
                       "$regex": searchTrim,
                       "$options": "i"
                     }

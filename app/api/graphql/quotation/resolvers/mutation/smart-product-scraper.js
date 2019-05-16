@@ -10,6 +10,7 @@ var parse = require('url-parse')
 
 	const site_map = {
 		'www.ebay.com': 'ebay',
+		'www.ebay.co.uk': 'ebay',
 		'www.aliexpress.com': 'aliexpress',
 		'ar.aliexpress.com': 'aliexpress',
 		'www.amazon.com': 'amazon',
@@ -33,8 +34,12 @@ var parse = require('url-parse')
 				// console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
 				try {
+					// find shipping tab
 					await page.waitForSelector("#viTabs_1[href='#']")
-				} catch(err) { console.log('#viTabs not found')}
+				} catch(err) {
+					 console.log('#viTabs not found')
+
+				 }
 					console.log("step1")
 				await page.click("#viTabs_1[href='#']");
 				console.log("step2")
@@ -80,6 +85,7 @@ var parse = require('url-parse')
 			 	 title: '#itemTitle',
 				 title1: "#mainContent > div.product-buy-container.product-buy-container-new-ui > div.product > div > div > h1",
 				 price: '#prcIsum',
+				 price1: '#mm-saleDscPrc',
 				 shipping: '#fshippingCost > span',
 				 shipping1: "#shSummary",
 				 image: '#icImg@src',
@@ -87,6 +93,7 @@ var parse = require('url-parse')
 				 category1: "li.bc-w:last-child span",
 				 condition: '#vi-itm-cond',
 				 item_number: '#descItemNumber',
+				 ship_to_address: '#shippingSection > table > tbody > tr > td:nth-child(3) > div',
 		 }
 
 	 },
@@ -236,7 +243,7 @@ var parse = require('url-parse')
 		 selectors: {
 				title: '#productTitle',
 			 original_price: '#price > table > tbody > tr:nth-child(1) > td.a-span12.a-color-secondary.a-size-base.a-text-strike',
-
+			 ship_to_address: "#nav-global-location-slot > span > a",
 			 image: "#landingImage@data-old-hires", //@data-old-hires',
 			 image1: xDelay("#landingImage@src"),
 			 image2: xDelay("#imgBlkFront@src"),
@@ -257,9 +264,11 @@ var parse = require('url-parse')
 			 shipping2: "#price-shipping-message > b",
 			 shipping3: "#buyNewInner > div.a-section.a-spacing-small.a-spacing-top-micro > div > span > span > a",
 			 shipping4: "#priceBadging_feature_div",
-			 shipping5: "#ourprice_shippingmessage",
+			 shipping5: "#ourprice_shippingmessage > i",
+			 shipping6: "#ourprice_shippingmessage",
 			 prime: "#priceBadging_feature_div > i.a-icon-prime",
 			 prime1: "#priceBadging_feature_div > i",
+			 primt2: 'i[class^="a-icon a-icon-prime"]',
 			 size: "#dropdown_selected_size_name > span > span > span",
 			color: "#variation_color_name > div > span",
 			condition: "#buyNewSection",
@@ -418,6 +427,7 @@ var parse = require('url-parse')
 			 return false;
 		 }
 	   },
+		 // aliexpress selectors
 	   selectors: {
 	     title: '#j-product-detail-bd > div.detail-main > div > h1',
 	     title1: "#j-product-detail-bd  h1.product-name",
@@ -435,6 +445,7 @@ var parse = require('url-parse')
 	     weight1: "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('وزن الحمولة:') > span.packaging-des",
 	     options: "li.item-sku-image.active  > a@title",
 	     options1: "div.product-desc li.packaging-item:contains('Unit Type') span.packaging-des",
+			 ship_to_address: "#j-shipping-country",
 	   }
 	 }
  }
@@ -511,6 +522,7 @@ console.log("in <scraper> ")
 
 
         console.log("<smart-product-scraper> got site:",result.site)
+				console.log("<smart-product-scraper> got ship_to_address:",result.ship_to_address);
         console.log("<smart-product-scraper> got title:",result.title)
         console.log("<smart-product-scraper> got shipping:",result.shipping)
 				console.log("<smart-product-scraper> got shipping1:",result.shipping1)
@@ -545,16 +557,20 @@ console.log("in <scraper> ")
 				console.log("<smart-product-scraper> got shipping3:",result.shipping3)
 				console.log("<smart-product-scraper> got shipping4:",result.shipping4)
 				console.log("<smart-product-scraper> got shipping5:",result.shipping5)
+				console.log("<smart-product-scraper> got shipping6:",result.shipping6)
+				console.log("<smart-product-scraper> got prime:[",result.prime,"]")
+				console.log("<smart-product-scraper> got prime1:[",result.prime1,"]")
+					console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
 
-				console.log("<smart-product-scraper> got prime:",result.prime)
-				console.log("<smart-product-scraper> got prime1:",result.prime1)
+
+
        var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
 
 
       if(usePrice) {
-        var mp = String(usePrice).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
+        var mp = String(usePrice).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s|/])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
         console.log("match price:",mp)
 				var priceUnit = mp && mp.length>1? mp[1]? mp[1]:'':'';
 				console.log("price Unit:",priceUnit)
@@ -589,12 +605,12 @@ console.log("in <scraper> ")
 				result.price = -1;
 			}
 
-		  const usePrime = 	result.prime || result.prime1? "FREE":null;
+		  const usePrime = 	result.prime == ''|| result.prime1 == '' || result.prim2 == '' ? "FREE":null;
+			result.shipping5 = result.shipping5 != null? 'FREE':null;
 			console.log('usePime:',usePrime)
 			var useShipping = result.shipping ||
 			 	result.shipping1 || result.shipping2 ||
-				result.shipping3 || result.shipping4 || result.shipping5
-				|| usePrime;
+				result.shipping3 || result.shipping4 || result.shipping5	||result.shipping6		|| usePrime;
 			console.log("useShipping:",useShipping)
       if(useShipping) {
 				// look for FREE Shipping
@@ -799,6 +815,7 @@ console.log("in <scraper> ")
 				console.log("final condition:",result.condition)
 					console.log("final options:",result.options)
 			}
+			console.log("return result:",result)
       return result;
 
     }

@@ -298,6 +298,7 @@ class QuoteForm extends React.Component {
 
     categorySearch: {},
     copySuccess: '',
+    ship_to_address: '',
     bulkUpdate: false,
     validBulkUpdate: false,
     refresh: false,
@@ -459,6 +460,7 @@ static  getDerivedStateFromProps(props, state) {
           console.log("<getDerivedStateFromProps> parse:",parse.host)
           switch(parse && parse.host?parse.host: '') {
             case 'www.ebay.com':
+            case 'www.ebay.co.uk':
 
             case 'www.aliexpress.com':
             case 'ar.aliexpress.com':
@@ -727,6 +729,7 @@ handleCannedMessage = ({target}) => {
       console.log("<handleChange> parse:",parse.host)
       switch(parse && parse.host?parse.host: '') {
         case 'www.ebay.com':
+        case 'www.ebay.co.uk':
 
         case 'www.aliexpress.com':
         case 's.click.aliexpress.com':
@@ -1230,7 +1233,7 @@ handleCannedMessage = ({target}) => {
                   tokenize: true,
                   matchAllTokens: true,
                   includeScore: true,
-                  threshold: 0.1,
+                  threshold: 0.19,
                   location: 0,
                   distance: 10,
                   maxPatternLength: 100,
@@ -1238,10 +1241,10 @@ handleCannedMessage = ({target}) => {
                   tokenSeparator: /[\|\,|\/|;|\&|]/,
                     keys: [{
                       name: 'category_name',
-                      weight: 0.2
+                      weight: 0.1
                     }, {
                       name: 'keywords',
-                      weight: 0.8
+                      weight: 0.9
                     }],
               }
               if ((prod.category || prod.title) && !categoriesQuery.loading ) {
@@ -1259,38 +1262,39 @@ handleCannedMessage = ({target}) => {
               searchStr = searchStr.replace(/\/|\&|\.|\[|\]|,/gi,' ')
               console.log("searchStr:",searchStr)
              var searchPattern = searchStr.split(' ')
-             var matchCat = {}; // keep match cats keys and score
+
              var cats; // result from fuse
              // search for the whole cat then whole title and by token
-             if (prod.title && prod.title != '') searchPattern.push(prod.title);
-             if (prod.catgory && prod.catgory != '') searchPattern.push(prod.category)
+             // if (prod.title && prod.title != '') searchPattern.push(prod.title);
+             // if (prod.catgory && prod.catgory != '') searchPattern.push(prod.category)
 
+            var matchCat = {}; // keep match cats keys and score
              var bestMatch = {
                item: {
                  category_name: 'Accessories (General)',
                  category_name_ar:'Accessories (General)'
-
                },
-               score: 1
+               score: 1.0
              } ;
-
-             await searchPattern.map(sp => {
+             var checkNo=0;
+              await searchPattern.map(sp => {
                if (sp.length<3) { console.log("skip search patters:", sp) ; return;}
                cats = fuse.search(sp);
-               console.log("<handleScrapeAction>  Search results for ",sp , " =>:" , cats)
+               console.log("<handleScrapeAction>  Result for Seaech for ",sp , " =>:" , cats)
 
                 cats.map(cat => {
+                  console.log('check#',++checkNo)
                  console.log("<handleScrapeAction>  matched category:",cat.item ,' with score:',cat.score)
-                  matchCat[cat.item.category_name] = matchCat[cat.item.category_name]?
+                 console.log(" matchCat[cat.item.category_name]", matchCat[cat.item.category_name])
+                  matchCat[cat.item.category_name] = matchCat[cat.item.category_name]!=null?
                     matchCat[cat.item.category_name] * cat.score: cat.score
                    console.log('<handleScrapeAction>  new matchCat:', JSON.stringify(matchCat))
+                   console.log("bestMatch before:",bestMatch)
                   if (matchCat[cat.item.category_name] < bestMatch.score) {
-                    bestMatch.item = cat.item;
+                    Object.assign(bestMatch.item, cat.item)
                     bestMatch.score = matchCat[cat.item.category_name]
                     console.log("<handleScrapeAction> best matched catgory so far:",bestMatch)
                   }
-
-
               })
              })
                 // var catList  = fuse.search(prod.category?prod.category:prod.title)
@@ -1312,6 +1316,7 @@ handleCannedMessage = ({target}) => {
               await this.setStateAsync({
                   message:"Got product information",
                   allowScraping: false,
+                  ship_to_address: prod.ship_to_address? prod.ship_to_address:'not set',
                   formEditInfo: {
                     ...newState.formEditInfo,
                     edit_source: prod.domain? prod.domain:'',
@@ -1766,7 +1771,7 @@ handleCannedMessage = ({target}) => {
   console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
       console.log('<render> <QuoteForm> edit_destination:',edit_destination)
         console.log('<render> <QuoteForm> edit_priceType:',edit_priceType)
-      const {message, bulkUpdate,validBulkUpdate,selectedQuoteList} = this.state
+      const {ship_to_address,message, bulkUpdate,validBulkUpdate,selectedQuoteList} = this.state
      console.log("<render> <QuoteForm>  render  message:",message)
      const selectStyles = {
        input: base => ({
@@ -1991,7 +1996,25 @@ handleCannedMessage = ({target}) => {
               onClick={this.handleScrapeAction}>
               Import
             </Button>
+            <TextField
+                disabled={bulkUpdate}
+                name="ship_to_address"
+                type="text"
+                label="Ship to"
+                value={ship_to_address? ship_to_address:'Not Set'}
+                multiline
+                rowsMax="3"
+                style={{
+                   backgroundColor: 'lightblue',
 
+                   readOnly: true,
+                    fontSize: '10px' ,
+                    font: 'bold',
+                }}
+
+                margin="dense"
+                className={classes.textField}
+                />
             </div>
             </div>
             <div className="flex flex-wrap mx-auto">
@@ -2700,6 +2723,7 @@ mutation productScraper($url: String!) {
     options
     condition
     message
+    ship_to_address
   }
 }
 `;

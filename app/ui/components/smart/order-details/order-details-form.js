@@ -181,7 +181,7 @@ clearFilter = (evt) => {
           <MenuItem value={"sales_person"}>Sales Person</MenuItem>
             <MenuItem value={"source"}>Source</MenuItem>
           <MenuItem value={"title"}>Title</MenuItem>
-          <MenuItem value={"url"}>Url</MenuItem>
+          <MenuItem value={"link"}>Url/Link</MenuItem>
             <MenuItem value={"category"}>Category</MenuItem>
           <MenuItem value={"seller"}>Seller</MenuItem>
           <MenuItem value={"shipment_ref"}>Shipment Ref</MenuItem>
