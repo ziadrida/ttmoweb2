@@ -694,6 +694,7 @@ handleCannedMessage = ({target}) => {
         options: 'message';
         text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
          "Volume is too big so price is too high.   الحجم كبير السعر قد لا يكون مجدي"
+         break;
       case 'needsApproval':
       options ='message'
       text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
