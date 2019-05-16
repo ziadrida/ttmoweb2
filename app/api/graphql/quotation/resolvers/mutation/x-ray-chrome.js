@@ -103,7 +103,7 @@ exports.xRayChrome = (options) => {
           }
           try {
               console.log("wait for page to load")
-              await page.waitForNavigation({timeout: 4*1000,waitUntil: "networkidle2"})
+              await page.waitForNavigation({timeout: 15*1000,waitUntil: "networkidle2"})
               console.log("PAGE LOADED SUCCESFULLY")
           } catch(err) {
               console.log('TIMEOUT WAITTING FOR PAGE LOAD ')

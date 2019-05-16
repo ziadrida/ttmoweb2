@@ -420,12 +420,12 @@ var parse = require('url-parse')
 		 			//await page.waitFor(5000);
 	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
-		 } catch(err) {
-			 console.log("Error setting up aliexpress")
-			 let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-			 console.log("bodyHTML start:\n",bodyHTML)
-			 return false;
-		 }
+		  }catch(err) {
+			   console.log("Error setting up aliexpress")
+			   let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+			   console.log("bodyHTML start:\n",bodyHTML)
+			   return false;
+		   }
 	   },
 		 // aliexpress selectors
 	   selectors: {
@@ -476,7 +476,7 @@ const x = Xray().driver(xRayChrome(	{
                 timeout: 30000,
       },
 			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-			headless:  true, 	// launch browser (false = show it)
+			headless:  false, 	// launch browser (false = show it)
 
 		}
 ));
