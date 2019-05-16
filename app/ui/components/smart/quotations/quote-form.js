@@ -690,6 +690,10 @@ handleCannedMessage = ({target}) => {
       text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
         "Sorry: This item is not allowed by Customs. غير مسموح به من فبل الجمارك"
       break;
+      case 'tooBig':
+        options: 'message';
+        text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+         "Volume is too big so price is too high.   الحجم كبير السعر قد لا يكون مجدي"
       case 'needsApproval':
       options ='message'
       text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
@@ -2593,6 +2597,8 @@ handleCannedMessage = ({target}) => {
             <MenuItem value={"sendLink"}>Send Link</MenuItem>
             <MenuItem value={"notAllowed"}>Not Allowed</MenuItem>
               <MenuItem value={"needsApproval"}>Needs Approval</MenuItem>
+              <MenuItem value={"tooBig"}>TooBig/Not Worth it غير مجدي</MenuItem>
+
 
           </Select>
 
