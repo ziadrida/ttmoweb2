@@ -459,6 +459,8 @@ static  getDerivedStateFromProps(props, state) {
           var parse = new URL(useUrl);
           console.log("<getDerivedStateFromProps> parse:",parse.host)
           switch(parse && parse.host?parse.host: '') {
+            // need to move these to DB or config file
+            // [TBD]
             case 'www.ebay.com':
             case 'www.ebay.co.uk':
 
@@ -466,6 +468,7 @@ static  getDerivedStateFromProps(props, state) {
             case 'ar.aliexpress.com':
             case 's.click.aliexpress.com':
             case 'www.amazon.com':
+            case 'www.amazon.co.uk':
             case 'www.walmart.com':
             scrape = true;
             break;
@@ -733,6 +736,7 @@ handleCannedMessage = ({target}) => {
       var parse = new URL(value);
       console.log("<handleChange> parse:",parse.host)
       switch(parse && parse.host?parse.host: '') {
+        // need to move these to or config file
         case 'www.ebay.com':
         case 'www.ebay.co.uk':
 
@@ -740,6 +744,7 @@ handleCannedMessage = ({target}) => {
         case 's.click.aliexpress.com':
         case 'ar.aliexpress.com':
         case 'www.amazon.com':
+        case 'www.amazon.co.uk':
         case 'www.walmart.com':
         scrape = true;
         break;

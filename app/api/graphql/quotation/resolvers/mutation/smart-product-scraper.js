@@ -14,6 +14,7 @@ var parse = require('url-parse')
 		'www.aliexpress.com': 'aliexpress',
 		'ar.aliexpress.com': 'aliexpress',
 		'www.amazon.com': 'amazon',
+		'www.amazon.co.uk': 'amazon',
 		'www.walmart.com': 'walmart',
 	}
 
@@ -388,27 +389,68 @@ var parse = require('url-parse')
 	   setup: async(page) => {
 			 try {
 			     //await page.screenshot({ path: './star1.png' });
-					 await page.waitFor(2000);
+					 console.log('wait for 3000')
+					 await page.waitFor(3000);
 					//console.log("click1")
-				  await page.waitForSelector("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a")
-				  await page.click("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a")
-				  await page.waitFor(1000);
-				  await page.click("#switcher-info > span.ship-to");
-			    await page.waitFor(1000);
 
-			 		await page.click("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)")
-			 		await page.waitFor(1000);
- 		  		await page.focus("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input");
-			 		await page.waitFor(1000);
+					 try {
+						 // close ad popup
+						  console.log('wait for popup window (new-user)')
+					  await page.waitForSelector("body > div.next-overlay-wrapper.opened > div.next-overlay-inner.next-dialog-container > div > a",{timeout:2000})
+						await page.waitFor(1000);
+						await page.evaluate(() => {
+							document.querySelector("body > div.next-overlay-wrapper.opened > div.next-overlay-inner.next-dialog-container > div > a").click();
+						});
+
+						await page.waitFor(2000);
+					} catch(err) {
+						console.log("could not find popup (new user) - try another way")
+						try {
+							await page.waitForSelector("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a",{timeout:2000})
+							await page.click("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a")
+
+						} catch(err) {
+							console.log("could not find popup (new user)")
+						}
+				 }
+
+					try {
+							console.log('click  on change country')
+						await page.evaluate(() => {
+							document.querySelector("#switcher-info > span.ship-to").click();
+						});
+						console.log('click  on change country DONE')
+					} catch(err) {
+						console.log('Couuld not click on change country')
+					}
+			    await page.waitFor(2000);
+					try {
+						console.log('click div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)')
+				 		await page.click("div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)")
+				 		await page.waitFor(2000);
+					} catch(err) {
+						console.log('error clicking on country. Try another way')
+						try {
+						await page.click("div > a.address-select-trigger.address-select-trigger-active[href='#']")
+						console.log('after click on country')
+					} catch(err) {
+						console.log('could not click on country')
+					}
+					}
+					console.log('focus div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input')
+ 		  		await page.focus("div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input");
+			 		await page.waitFor(2000);
 			 		//console.log("click2")
 			 		await page.keyboard.type("united states")
 			 		await page.waitFor(1000);
-					await page.click("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > ul > li:nth-child(224) > span > span")
+					console.log('click div.switcher-shipto.item.util-clearfix > div > div:nth-child(4)')
+					await page.click("div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > ul > li:nth-child(224) > span > span")
  					await page.waitFor(1000);
 					//	await page.screenshot({ path: './star3.png' });
 					// console.log("click3")
-					await page.screenshot({ path: './aliexpress1.png' });
-			 		await page.click("#nav-global > div.ng-item.ng-switcher.active > div > div > div.switcher-btn.item.util-clearfix > button")
+				//	await page.screenshot({ path: './aliexpress1.png' });
+					console.log('click #nav-global > div.ng-item.ng-switcher')
+			 		await page.click("div.switcher-btn.item.util-clearfix > button")
 			 		//await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
 					try {
 						console.log("wait for page to load")
@@ -422,8 +464,8 @@ var parse = require('url-parse')
 			 		return true;
 		  }catch(err) {
 			   console.log("Error setting up aliexpress")
-			   let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-			   console.log("bodyHTML start:\n",bodyHTML)
+			 //  let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+			  // console.log("bodyHTML start:\n",bodyHTML)
 			   return false;
 		   }
 	   },
@@ -432,11 +474,16 @@ var parse = require('url-parse')
 	     title: '#j-product-detail-bd > div.detail-main > div > h1',
 	     title1: "#j-product-detail-bd  h1.product-name",
 	     title2: "h1.product-name",
+			 title3: "div.product-title",
 	     price: '#j-sku-price',
+			 price1: "div.product-price",
 	     high_price: '#j-sku-discount-price > span:nth-child(2)',
 	     sale_price: "#j-sku-discount-price",
 	     image: xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src'),
+			 image1: xDelay("div.image-view-magnifier-wrap > img@src"),
+			 image2: "#j-image-thumb-list > li > span > img@src",
 	     shipping: "#j-product-shipping span.logistics-cost",
+			 shipping1: "div.product-shipping",
 	     category: "body > div.ui-breadcrumb > div > h2 > a",
 	     category1: 'body > div.ui-breadcrumb > div > a:nth-child(7)',
 	     dimensions: "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des",
@@ -649,7 +696,7 @@ console.log("in <scraper> ")
       } else {
 				  result.shipping = -1;
 			}
-			var useTitle = result.title || result.title1 || result.title2
+			var useTitle = result.title || result.title1 || result.title2 || result.title3
 			console.log("useTitle:",useTitle)
 			if(useTitle) {
         result.title = useTitle.replace(/Details about/i,'')
