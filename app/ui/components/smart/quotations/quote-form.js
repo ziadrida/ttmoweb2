@@ -1644,6 +1644,8 @@ handleCannedMessage = ({target}) => {
                   _id:   this.state.formEditInfo.edit_category_info._id,
                   category_name: this.state.formEditInfo.edit_category_info.category_name,
                   category_name_ar: this.state.formEditInfo.edit_category_info.category_name_ar,
+                  personal_allowed: this.state.formEditInfo.edit_category_info.personal_allowed!=null?
+                    this.state.formEditInfo.edit_category_info.personal_allowed: true,
                   customs: this.state.formEditInfo.edit_category_info.customs,
                   tax_aqaba: this.state.formEditInfo.edit_category_info.tax_aqaba,
                   tax_amm: this.state.formEditInfo.edit_category_info.tax_amm,
@@ -1819,7 +1821,8 @@ handleCannedMessage = ({target}) => {
     const tax_aqaba =  catIdx >=0? getCategories[catIdx].tax_aqaba*100:null
     const special_tax =  catIdx >=0? getCategories[catIdx].special_tax*100:null
     const customs =  catIdx >=0? getCategories[catIdx].customs*100:null
-
+    const personal_allowed =  catIdx >=0? (getCategories[catIdx].personal_allowed!=null?
+        getCategories[catIdx].personal_allowed:true): false;
 // console.log("usersQuery.loading:",usersQuery.loading)
 //
 //     const listOfUsers = !usersQuery.loading? getUsers && getUsers.map(selection => ({
@@ -2506,7 +2509,8 @@ handleCannedMessage = ({target}) => {
                                   className={classes.selectEmpty}
                                 >
                                 { Object.keys(prices).map(priceSelection => {
-                                  return  prices[priceSelection].price!= null?
+                                  return  prices[priceSelection].price!= null &&
+                                  (prices[priceSelection].type != 'personal' || personal_allowed )?
                                   <MenuItem key={priceSelection} value={priceSelection}>
                                     {prices[priceSelection].destination + " "+
                                           prices[priceSelection].type + " " +

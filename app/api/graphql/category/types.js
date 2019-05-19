@@ -9,6 +9,7 @@ const types = gql`
     _id: ID
     category_name: String
     category_name_ar: String
+    personal_allowed: Boolean
     customs: Float
     tax_aqaba: Float
     tax_amm: Float
@@ -28,11 +29,13 @@ const types = gql`
     _id: ID
     category_name: String
     category_name_ar: String
+    personal_allowed: Boolean
     customs: Float
     tax_aqaba: Float
     tax_amm: Float
     margin_amm: Float
     margin_aqaba: Float
+
     special_tax: Float
     us_tax: Float
     cap_aqaba: Float

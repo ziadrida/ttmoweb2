@@ -78,6 +78,7 @@ fragment quotationFragment on Quotation {
         _id
         category_name
         category_name_ar
+        personal_allowed
         customs
         tax_aqaba
         tax_amm

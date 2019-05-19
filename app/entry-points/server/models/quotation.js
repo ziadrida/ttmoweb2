@@ -111,6 +111,7 @@ const schema = mongoose.Schema({
               _id: String,
               category_name: String,
               category_name_ar: String,
+              personal_allowed: Boolean,
               customs: Number,
               tax_aqaba: Number,
               tax_amm: Number,
