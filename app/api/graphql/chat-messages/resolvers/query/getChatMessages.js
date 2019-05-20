@@ -64,16 +64,14 @@ const getChatMessages = async (root, args, context) => {
             }
           },
             {
-              "userId": {
-              "$regex": searchTrim,
-              "$options": "i"
+              "userId": searchTrim
             }
-          }
+
 
         ]
       })
     }
-    if (args.userId)   matchArray.push (  {userId: { $regex: args.userId, $options: 'i' }  })
+    if (args.userId)   matchArray.push (  {userId: args.userId })
     if (args.username)   matchArray.push (  {name: { $regex: args.username, $options: 'i' }  })
       // start of duplicate code with all get query
     var dateTo = null;

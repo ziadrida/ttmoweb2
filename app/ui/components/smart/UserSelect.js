@@ -154,7 +154,7 @@ function Menu(props) {
 
 const components = {
   Control,
-  Menu,
+    Menu,
   NoOptionsMessage,
   Option,
   Placeholder,
@@ -183,8 +183,8 @@ class UserSelect extends React.Component {
 
 
   copyToClipboard = (e,val) => {
-    console.log(e);
-      console.log('val:',val)
+    console.log('copyToClipboard:',e);
+    console.log('val:',val)
     var textField = document.createElement('textarea')
     textField.innerText = val
     document.body.appendChild(textField)
@@ -296,14 +296,20 @@ class UserSelect extends React.Component {
  }
 
  handleInputChange = (userInput) => {
-   console.log("========**** UserSelect handleInputChange userInput",userInput)
-   var newState = { userInput: userInput   }
-  this.setState(newState);
-  console.log(`handleInputChange new State::`, this.state);
+   console.log("<handleInputChange> <UserSelect> userInput:",userInput)
+  if (userInput!="") {
+    var newState = { userInput: userInput   }
+    this.setState(newState);
+  } else {
+    console.log('user just clicked on the username')
+    this.copyToClipboard(null,this.state.username.label)
+  }
+  console.log("<handleInputChange> <UserSelect> state:", this.state);
 
-  console.log("handleInputChange props:",this.props)
+  console.log("<handleInputChange> <UserSelect> props:",this.props)
   const {onInputChange} = this.props
   if (onInputChange && userInput!= null && userInput!='' && userInput.length>=3) {
+
     console.log("<><> handleInputChange Call QuoteForm onInputChange with userInput:",userInput)
     onInputChange(userInput);
   } else {
@@ -404,15 +410,10 @@ class UserSelect extends React.Component {
         type="String"
         label="User ID"
         value={userId}
-
         margin="dense"
         className={classes.textField}
-          onClick={(e) => {this.copyToClipboard(e, userId)}}
-        style={{
-          //backgroundColor:'pink'
+        onClick={(e) => {this.copyToClipboard(e, userId)}}
 
-
-        }}
       />
       <TextField
         disabled={false}

@@ -684,9 +684,32 @@ handleCannedMessage = ({target}) => {
         options ='message'
         text = "(Y)"
         break;
+      case 'priceDrop':
+        options: 'message'
+        text= (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
+        "Price dropped نزل السعر "
+        break;
       case 'phoneAddress':
           options ='message'
-          text = "(Y)"
+          text = `
+          فرع عمان
+السبت - الخميس ( 9:00 صباحا الى 7:00 مساءا )
+
+ شارع الجاردنز بجانب مسجد الطباع عمارة رقم 86
+Amman
+Sat - Thu ( 9:00 am to 7:00 pm )
+
+Al-Gardens st. beside Al-Tabbaa mosque / building no. 86
+078-50000-10
+
+https://www.google.com/maps/place/TechTown+Mail+Order/@31.9863965,35.877137,17z/data=!3m1!4b1!4m5!3m4!1s0x151ca03171ba02b3:0xbf83d02343ef4210!8m2!3d31.986392!4d35.879331
+            فرع العقبة  (دريم مول - الطابق الرابع) دوار الاميره هيا - بجانب مبنى الملكية الأردنية
+( السبت - الخميس من الساعة 12:00م للساعة 9:00 م )
+ 0787749858
+_________________________________________________________________
+https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/data=!4m8!1m2!2m1!1stechtown+aqaba!3m4!1s0x1500703a6cc309df:0xf5f2f35cb94fc8cf!8m2!3d29.5332038!4d35.006684?hl=en
+
+`
           break;
       case 'notAllowed':
       options ='message'
@@ -1780,7 +1803,7 @@ handleCannedMessage = ({target}) => {
         edit_price,edit_shipping, edit_chargeableWeight,edit_volumeWeight,edit_qty, edit_source,edit_condition,edit_canned_message_selection,
          edit_canned_message, edit_notes,
       edit_destination, edit_priceType, edit_options,edit_price_selection} = this.state.formEditInfo
-  console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
+      console.log("<render> <QuoteForm> edit_price_selection:",edit_price_selection)
       console.log('<render> <QuoteForm> edit_destination:',edit_destination)
         console.log('<render> <QuoteForm> edit_priceType:',edit_priceType)
       const {ship_to_address,message, bulkUpdate,validBulkUpdate,selectedQuoteList} = this.state
@@ -1817,12 +1840,19 @@ handleCannedMessage = ({target}) => {
       }
     }
 
+    var category_info = item.category_info
+    console.log("item category_info:",category_info)
+    var personal_allowed = category_info.personal_allowed;
+    console.log("personal_allowed:",personal_allowed)
+
     const tax_amm = catIdx >=0? getCategories[catIdx].tax_amm*100:  null
     const tax_aqaba =  catIdx >=0? getCategories[catIdx].tax_aqaba*100:null
     const special_tax =  catIdx >=0? getCategories[catIdx].special_tax*100:null
     const customs =  catIdx >=0? getCategories[catIdx].customs*100:null
-    const personal_allowed =  catIdx >=0? (getCategories[catIdx].personal_allowed!=null?
+    if (!personal_allowed)  {
+     personal_allowed =  catIdx >=0? (getCategories[catIdx].personal_allowed!=null?
         getCategories[catIdx].personal_allowed:true): false;
+      }
 // console.log("usersQuery.loading:",usersQuery.loading)
 //
 //     const listOfUsers = !usersQuery.loading? getUsers && getUsers.map(selection => ({
@@ -1931,7 +1961,7 @@ handleCannedMessage = ({target}) => {
               name="quote_date"
               type="String"
               label="Date"
-                value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
+                value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY HH:mm:ss'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
 
               margin="dense"
               className={classes.textField}
@@ -2601,6 +2631,7 @@ handleCannedMessage = ({target}) => {
             <MenuItem value={"buy"}>Would you like to buy?</MenuItem>
             <MenuItem value={"thanks"}>Thank You</MenuItem>
             <MenuItem value={"phoneAddress"}>Send Hours, Phone and Address</MenuItem>
+              <MenuItem value={"priceDrop"}>Price Drop</MenuItem>
             <MenuItem value={"thumbsup"}>Thumbs Up!</MenuItem>
             <MenuItem value={"doesNotShip"}>Does not Ship to USA/JO</MenuItem>
               <MenuItem value={"notRelible"}>Seller not reliable</MenuItem>
