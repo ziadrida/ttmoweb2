@@ -331,13 +331,16 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
       Header: "URL",
       accessor: d => < a href = {d.quotation.item && d.quotation.item.url? d.quotation.item.url: d.quotation.url}
       target = "_blank" > {d.quotation.item && d.quotation.item.url? d.quotation.item.url: d.quotation.url} < /a>,
-      filterMethod: (filter, rows) => {
-                //  console.log('rows:',rows)
-                  //console.log('filter:',filter)
+      filterMethod: (filter, row) => {
+                  console.log('row:',row)
+                  console.log('filter:',filter)
+                  return    row[filter.id] && row[filter.id] != '' && row[filter.id].props.href &&
 
-                  return matchSorter(rows, filter.value, { keys: ["url.props.href"] })
+                    row[filter.id].props.href.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
+
+                //  return matchSorter(rows, filter.value, { keys: ["url.props.href"] })
                 },
-      filterAll: true,
+      filterAll: false,
       style: { 'whiteSpace': 'unset',
         'fontSize': '12px',
         'overflowY':'scroll',
@@ -525,7 +528,7 @@ const withData = graphql(quotationsQuery, {
       search: (quotationSearch && quotationSearch.search),
       searchField: (quotationSearch && quotationSearch.searchField),
     },
-    pollInterval: 1000*60*5
+    pollInterval: 1000*60*1
   }),
 });
 //export default withData(withStyles(styles)(Quotations));

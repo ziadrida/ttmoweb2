@@ -93,8 +93,6 @@ class QuotationForm extends React.Component {
       <form  onSubmit={this.handleSubmit} autoComplete="off">
         {/* Material-UI example usage */}
 
-
-
             <TextField
               name="search"
               type="text"

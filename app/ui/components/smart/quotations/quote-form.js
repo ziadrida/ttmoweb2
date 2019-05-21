@@ -1961,8 +1961,10 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
               name="quote_date"
               type="String"
               label="Date"
-                value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY HH:mm:ss'):moment(parseInt(date_created)).format('DD-MMM-YYYY')}
-
+                value={quote_date? moment(parseInt(quote_date)).format('DD-MMM-YYYY HH:mm:ss'):moment(parseInt(date_created)).format('DD-MMM-YYYY  HH:mm:ss')}
+                style={{
+                   'width' : '200px',
+                }}
               margin="dense"
               className={classes.textField}
               />
@@ -2539,8 +2541,8 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
                                   className={classes.selectEmpty}
                                 >
                                 { Object.keys(prices).map(priceSelection => {
-                                  return  prices[priceSelection].price!= null &&
-                                  (prices[priceSelection].type != 'personal' || personal_allowed )?
+                                  return  prices[priceSelection].price!= null?
+                                   // && (prices[priceSelection].type != 'personal' || personal_allowed )
                                   <MenuItem key={priceSelection} value={priceSelection}>
                                     {prices[priceSelection].destination + " "+
                                           prices[priceSelection].type + " " +
