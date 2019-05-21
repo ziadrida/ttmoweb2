@@ -33,6 +33,8 @@ BrowserPolicy.content.allowImageOrigin('https://assets.reebok.com');
 
 BrowserPolicy.content.allowImageOrigin('https://i5');
 BrowserPolicy.content.allowImageOrigin('https://i5.wal.co');
+BrowserPolicy.content.allowImageOrigin('https://c1.neweggimages.com');
+BrowserPolicy.content.allowImageOrigin('https://c2.neweggimages.com');
 // Allow Meteor DDP Connections
 const rootUrl = __meteor_runtime_config__.ROOT_URL;
 console.log(`ROOT_URL: ${rootUrl}`);

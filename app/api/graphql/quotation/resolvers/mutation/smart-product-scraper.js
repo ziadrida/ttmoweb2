@@ -16,9 +16,117 @@ var parse = require('url-parse')
 		'www.amazon.com': 'amazon',
 		'www.amazon.co.uk': 'amazon',
 		'www.walmart.com': 'walmart',
+			'www.newegg.com': 'newegg',
 	}
 
  const sites = {
+	 newegg: {
+		 initialized: false,
+		 initAttempts: 0,
+		 setup:async (page) => {
+			 var url = page.url();
+			 console.log("setup ebay - url:",url)
+			 await page.waitFor(1000);
+
+
+				try {
+				//await page.screenshot({ path: './star1.png' });
+				console.log("step0")
+				// let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
+				// console.log("bodyHTML:",bodyHTML1)
+				await page.waitFor(1000);
+				try {
+					// find shipping tab
+					await page.waitForSelector("div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(1) > div > ul > li:contains('North America')")
+
+					console.log("found country popup")
+				} catch(err) {
+					 console.log('could not find country popup')
+
+				 }
+				 try {
+					 await page.click("div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(1) > div > ul > li:contains('North America')");
+					 console.log("clicked on North America")
+				 } catch(err) {
+					 console.log("could not click on North America")
+				 }
+
+				 try {
+					 await page.waitFor(1000);
+					 await page.click(" div > div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(2) > div > ul > li[data-countrycode='USA'] > div");
+					  console.log("clicked on USA")
+				 } catch(err) {
+					 console.log("could not click on USA")
+				 }
+					console.log("step1")
+
+					try {
+						console.log("click on save preferences");
+						await page.click("div > div.top-country-wrap > div.top-country-bottom > button.btn.btn-primary.nonchangecounrtypopup");
+						console.log("clicked on save preferences");
+
+					} catch(err) {
+						console.log("could not click on save preferences")
+						try {
+							await page.click("#Change_Country_Content > div.top-country-wrap > div.top-country-bottom > button:nth-child(1)")
+
+								console.log("clicked on stay at US")
+						} catch(err) {
+								console.log("could not find stay at united states")
+								try {
+							await page.click("div.centerPopup.is-current > div > div.top-country-wrap > div.top-country-bottom > button:nth-child(1)",{timeout: 1000})
+							console.log("OK -> clicked on stay on same country")
+						} catch(err) {
+								console.log("err -> could not click on -> stay on same country")
+						}
+						}
+
+					}
+
+				await page.waitFor(1000);
+
+				try {
+					console.log("wait for page to load")
+					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+				} catch(err) {
+					console.log('Timeout WAITING ON PAGE LOAD ')
+				}
+				console.log("assume page loaded")
+
+				return true;
+			} catch (err) {
+					console.log('Error setting newegg');
+
+					let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+					console.log("bodyHTML start:\n",bodyHTML)
+					return false
+			}
+		 },
+		 // newegg selectors
+		 selectors: {
+				 title: '#grpDescrip_h',
+				// title1: "#mainContent > div.product-buy-container.product-buy-container-new-ui > div.product > div > div > h1",
+				 price: '#landingpage-price  li.price-current',
+				 price1: '#mm-saleDscPrc',
+				 shipping: '#landingpage-price > div > div > div.premier-info > a',
+				// shipping1: "#shSummary",
+				 image: 'div.objImages > a > span > img@src',
+				 category: "#baBreadcrumbTop",
+				// category1: "li.bc-w:last-child span",
+				// condition: '#vi-itm-cond',
+				// item_number: '#descItemNumber',
+				dimensions: "#Specs > fieldset:nth-child(2) > dl:contains('Dimensions') > dd",
+				shipping_weight: "#Specs > fieldset:nth-child(2) > dl:contains('Weight') > dd",
+				 ship_to_address: '#Change_Country > ins > span',
+				 options: "#landingpage-property > div > div:nth-child(1) > div:nth-child(1) > span.value",
+				 option1: "#landingpage-property > div > div:nth-child(2) > div:nth-child(1) > span.value",
+				 options2:"#landingpage-property > div > div:nth-child(3) > div:nth-child(1) > span.value",
+				 options3:"#landingpage-property > div > div:nth-child(4) > div:nth-child(1) > span.value",
+				  options4:"#landingpage-property > div > div:nth-child(5) > div:nth-child(1) > span.value",
+					 options5:"#landingpage-property > div > div:nth-child(6) > div:nth-child(1) > span.value"
+		 }
+
+	 },
 	 ebay: {
 		 initialized: false,
 		 initAttempts: 0,
@@ -711,6 +819,8 @@ console.log("in <scraper> ")
 				result.options1,
 				result.options2,
 				result.options3,
+				result.options4,
+				result.options5,
 				result.color,
 				 result.size,
 				 result.item_number].filter(Boolean).join('; ')

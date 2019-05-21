@@ -461,6 +461,7 @@ static  getDerivedStateFromProps(props, state) {
           switch(parse && parse.host?parse.host: '') {
             // need to move these to DB or config file
             // [TBD]
+            case 'www.newegg.com':
             case 'www.ebay.com':
             case 'www.ebay.co.uk':
 
@@ -760,6 +761,7 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
       console.log("<handleChange> parse:",parse.host)
       switch(parse && parse.host?parse.host: '') {
         // need to move these to or config file
+        case 'www.newegg.com':
         case 'www.ebay.com':
         case 'www.ebay.co.uk':
 
