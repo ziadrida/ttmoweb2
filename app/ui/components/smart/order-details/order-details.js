@@ -1512,7 +1512,7 @@ render() {
 
     if (getOrderDetails) getOrderDetails.map(o => {
     //  console.log('sale_price:',o.sale_price, "totalSales:",totalSales )
-      totalSales +=  (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price));
+      totalSales +=  (!o.sale_price || isNaN(o.sale_price)? 0:parseFloat(o.sale_price)*parseFloat(o.po_qty));
 
       // totalPayments +=   (!o.first_payment || isNaN(o.first_payment)? 0:parseFloat(o.first_payment)) +
       //   (!o.final_payment || isNaN(o.final_payment)? 0:parseFloat(o.final_payment))

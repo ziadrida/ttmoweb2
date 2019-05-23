@@ -297,13 +297,13 @@ class UserSelect extends React.Component {
 
  handleInputChange = (userInput) => {
    console.log("<handleInputChange> <UserSelect> userInput:",userInput)
-  if (userInput!="") {
+  // if (userInput!="") {
     var newState = { userInput: userInput   }
     this.setState(newState);
-  } else {
-    console.log('user just clicked on the username')
-    this.copyToClipboard(null,this.state.username.label)
-  }
+  // } else {
+  //   console.log('user just clicked on the username')
+  //   this.copyToClipboard(null,this.state.username.label)
+  // }
   console.log("<handleInputChange> <UserSelect> state:", this.state);
 
   console.log("<handleInputChange> <UserSelect> props:",this.props)

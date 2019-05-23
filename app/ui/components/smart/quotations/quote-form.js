@@ -1827,6 +1827,7 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
      const listOfCategories = !categoriesQuery.loading? getCategories && getCategories.map(selection => ({
        label: selection.category_name+"/"+selection.category_name_ar ,
        value: selection.category_name,
+       keywords: selection.keywords,
      })):
      null;
      console.log('<render> <QuoteForm> listOfCategories:',listOfCategories)
