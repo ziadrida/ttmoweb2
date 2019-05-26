@@ -90,32 +90,30 @@ exports.xRayChrome = (options) => {
       }
 
 
-
-
-     // pick a page to use
-      inUsePageIdx = pageIdx++ % maxPages;
-      console.log("inUsePageIdx:",inUsePageIdx)
-      page = inUsePageIdx > pages.length-1 ? null: pages[inUsePageIdx]
-      try {
-        if (!page && browser) {
-          console.log('browser.newPage')
-            page = await browser.newPage();
-            pages.push(page)
-            await page.setViewport(viewPort);
-
-          //await page.setExtraHTTPHeaders({'Cookie': 'language=en'});
-          //  await page.setExtraHTTPHeaders({'x-update': '1'});
-          console.log('set browser headers')
-          //  await page.setUserAgent('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)');
-          //  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36');
-        } else {
-          console.log('use existing page inUsePageIdx:',inUsePageIdx)
+      setupPage = async (inUsePageIdx,ctx) => {
+          console.log('************ in <setupPage>  inUsePageIdx:',inUsePageIdx)
+          // pick a page to use
+          inUsePageIdx = pageIdx++ % maxPages;
+          console.log("inUsePageIdx:",inUsePageIdx)
+          var page = inUsePageIdx > pages.length-1 ? null: pages[inUsePageIdx]
+          try {
+            if (!page && browser) {
+              console.log('browser.newPage')
+              page = await browser.newPage();
+              pages.push(page)
+              await page.setViewport(viewPort);
+            //await page.setExtraHTTPHeaders({'Cookie': 'language=en'});
+            //  await page.setExtraHTTPHeaders({'x-update': '1'});
+            console.log('set browser headers')
+            //  await page.setUserAgent('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)');
+            //  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36');
+          } else {
+            console.log('use existing page inUsePageIdx:',inUsePageIdx)
+          }
+        } catch(err) {
+          console.log("failed to create newPage");
+          throw new Error(err)
         }
-      } catch(err) {
-        console.log("failed to create newPage");
-        await resetBrowser();
-        return done(err,null)
-      }
 
         try {
           try {
@@ -124,11 +122,8 @@ exports.xRayChrome = (options) => {
               console.log('after goto:',ctx.url)
           } catch(err) {
             console.log("error during page.goto. browser closed? relaunch browser and repeat newPage")
-
             // browser = await Puppeteer.launch(launchOptions);consol
-             await resetBrowser();
-             return done(err, null);
-
+            throw new Error(err)
           }
 
           try {
@@ -157,15 +152,26 @@ exports.xRayChrome = (options) => {
               console.log('TIMEOUT WAITTING FOR PAGE LOAD ')
           }
           console.log("assume page loaded2")
-          return done(null, ctx);
+          return;
         } catch (err) {
           console.log("catch error:",err)
-          if (typeof reset === 'function') {
-              console.log("call reset function")
-              await reset();
-          }
-           return done(err, null);
+          throw new Error(err)
         }
+      }
+
+      try {
+        console.log('---->call setupPage')
+        await setupPage(inUsePageIdx,ctx);
+        console.log('============ after setupPage')
+        return done(null,ctx)
+      } catch(err) {
+        await resetBrowser();
+        if (typeof reset === 'function') {
+            console.log("call reset function")
+            await reset();
+        }
+        return done(err,null)
+      }
         // need to close browser! will do that later but now keep open
         //await browser.close();
     };
