@@ -90,15 +90,15 @@ exports.xRayChrome = (options) => {
       }
 
 
-      setupPage = async (inUsePageIdx,ctx) => {
-          console.log('************ in <setupPage>  inUsePageIdx:',inUsePageIdx)
+      setupPage = async (ctx) => {
+          console.log("************************* in <setupPage>")
           // pick a page to use
           inUsePageIdx = pageIdx++ % maxPages;
           console.log("inUsePageIdx:",inUsePageIdx)
           var page = inUsePageIdx > pages.length-1 ? null: pages[inUsePageIdx]
           try {
             if (!page && browser) {
-              console.log('browser.newPage')
+              console.log("browser.newPage inUsePageIdx:",inUsePageIdx)
               page = await browser.newPage();
               pages.push(page)
               await page.setViewport(viewPort);
@@ -127,7 +127,7 @@ exports.xRayChrome = (options) => {
           }
 
           try {
-              console.log("wait for page to load1")
+              console.log("wait for page to load1 inUsePageIdx:",inUsePageIdx)
               if (typeof cl === 'function') {
 
                   console.log("call cl function inUsePageIdx:",inUsePageIdx)
@@ -135,9 +135,9 @@ exports.xRayChrome = (options) => {
                   console.log("after cl function call  inUsePageIdx:",inUsePageIdx)
               }
               await page.waitForNavigation({timeout: 1*1000,waitUntil: "networkidle2"})
-              console.log("PAGE LOADED SUCCESFULLY1")
+              console.log("PAGE2 LOADED SUCCESFULLY1 inUsePageIdx:",inUsePageIdx)
           } catch(err) {
-              console.log('TIMEOUT WAITTING FOR PAGE LOAD ')
+                console.log("TIMEOUT1 WAITTING FOR PAGE LOAD inUsePageIdx:",inUsePageIdx)
                 console.log("assume page loaded1")
           }
           if (!ctx.body) {
@@ -145,13 +145,13 @@ exports.xRayChrome = (options) => {
                 console.log("after page.content call  inUsePageIdx:",inUsePageIdx)
           }
           try {
-              console.log("wait for page to load2")
+              console.log("wait for page to load2 inUsePageIdx:",inUsePageIdx)
               await page.waitForNavigation({timeout: 1*1000,waitUntil: "loaded"})
-              console.log("PAGE LOADED SUCCESFULLY2")
+              console.log("PAGE1 LOADED SUCCESFULLY2 inUsePageIdx:",inUsePageIdx)
           } catch(err) {
-              console.log('TIMEOUT WAITTING FOR PAGE LOAD ')
+              console.log("TIMEOUT2 WAITTING FOR PAGE LOAD inUsePageIdx:",inUsePageIdx)
           }
-          console.log("assume page loaded2")
+          console.log("assume page loaded2 inUsePageIdx:",inUsePageIdx)
           return;
         } catch (err) {
           console.log("catch error:",err)
@@ -160,9 +160,9 @@ exports.xRayChrome = (options) => {
       }
 
       try {
-        console.log('---->call setupPage')
-        await setupPage(inUsePageIdx,ctx);
-        console.log('============ after setupPage')
+        console.log("---->call setupPage ")
+        await setupPage(ctx);
+        console.log("============================   after setupPage ")
         return done(null,ctx)
       } catch(err) {
         await resetBrowser();

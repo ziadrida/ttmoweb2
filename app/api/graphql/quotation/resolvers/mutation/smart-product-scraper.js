@@ -500,9 +500,8 @@ var parse = require('url-parse')
 		 // walmart selectors
 		 selectors: {
 				 title:'h1.prod-ProductTitle div',
-
 				 price: 'span.hide-content span.price-characteristic',
-				 price1: "#price > div > span.hide-content",
+				 price1: "#price > div > span.hide-content.display-inline-block-m",
 				 price_fraction: 'span.hide-content span.price-mantissa',
 				 currency: '#price span.price-currency',
 				 brand: 'div.hide-content.display-inline-block-m.valign-middle.secondary-info-margin-right.copy-mini > a > span',
@@ -754,21 +753,27 @@ exports.scraper = async function(url) {
 				//console.log("<smart-product-scraper> got prime1:[",result.prime1,"]")
 				//console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
 
-       var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
+       var usePrice = result.high_price || result.deal_price || result.sale_price ||
+			 		result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
-      //console.log("<smart-product-scraper> got usePrice:",usePrice)
+      console.log("<smart-product-scraper> got usePrice:",usePrice)
 
 
       if(usePrice) {
-        var mp = String(usePrice).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s|/])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
-        //console.log("match price:",mp)
+        var mp = String(usePrice).match(/(?:^|\s)*(\$|USD|€|EUR|£)*(?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(\$|USD|€|EUR|£)*(?:\s|[a-z]|\/|;|-|\.)*(?!\S)/i)
+
+				//	(?:^|\s)*(\$|USD|€|EUR|£)*(?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(\$|USD|€|EUR|£)*(?:[\(|\s|/])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
+
+					// (?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s|/])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
+        console.log("match price:",mp)
 				var priceUnit = mp && mp.length>1? mp[1]? mp[1]:'':'';
+				if (!priceUnit) priceUnit = mp && mp.length>3? mp[3]? mp[3]:'':'';
 				//console.log("price Unit:",priceUnit)
 
         var price = mp && mp.length>2? mp[2]:'0';
 				price = price.replace(/,/g, ''); // assume , is 1000 separator (later use Intl.NumberFormat)
 				price = price && !isNaN(price)? parseFloat(price).toFixed(2):0;
-				//console.log("Extracted price:",price)
+				console.log("Extracted price:",price)
 				switch(priceUnit) {
 					case '':
 					case '$':
@@ -795,7 +800,7 @@ exports.scraper = async function(url) {
 				result.price = -1;
 			}
 
-		  const usePrime = 	result.prime == ''|| result.prime1 == '' || result.prim2 == '' ? "FREE":null;
+		  const usePrime = 	result.prime == ''|| result.prime1 == '' || result.prime2 == '' ? "FREE":null;
 			result.shipping5 = result.shipping5 != null? 'FREE':null;
 			//console.log('usePime:',usePrime)
 			var useShipping = result.shipping ||
