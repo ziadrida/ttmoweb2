@@ -24,60 +24,64 @@ var parse = require('url-parse')
 		 initialized: false,
 		 initAttempts: 0,
 		 setup:async (page) => {
+			 if (!page) {
+				 console.log("page is not defined!")
+				 return false;
+			 }
 			 var url = page.url();
-			 console.log("setup ebay - url:",url)
+			 //console.log("setup ebay - url:",url)
 			 await page.waitFor(1000);
 
 
 				try {
 				//await page.screenshot({ path: './star1.png' });
-				console.log("step0")
+				//console.log("step0")
 				// let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
-				// console.log("bodyHTML:",bodyHTML1)
+				// //console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
 				try {
 					// find shipping tab
 					await page.waitForSelector("div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(1) > div > ul > li:contains('North America')")
 
-					console.log("found country popup")
+					//console.log("found country popup")
 				} catch(err) {
-					 console.log('could not find country popup')
+					 //console.log('could not find country popup')
 
 				 }
 				 try {
 					 await page.click("div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(1) > div > ul > li:contains('North America')");
-					 console.log("clicked on North America")
+					 //console.log("clicked on North America")
 				 } catch(err) {
-					 console.log("could not click on North America")
+					 //console.log("could not click on North America")
 				 }
 
 				 try {
 					 await page.waitFor(1000);
 					 await page.click(" div > div.top-country-wrap > div.top-country-wrap-inner > div:nth-child(2) > div > ul > li[data-countrycode='USA'] > div");
-					  console.log("clicked on USA")
+					  //console.log("clicked on USA")
 				 } catch(err) {
-					 console.log("could not click on USA")
+					 //console.log("could not click on USA")
 				 }
-					console.log("step1")
+					//console.log("step1")
 
 					try {
-						console.log("click on save preferences");
+						//console.log("click on save preferences");
 						await page.click("div > div.top-country-wrap > div.top-country-bottom > button.btn.btn-primary.nonchangecounrtypopup");
-						console.log("clicked on save preferences");
+						//console.log("clicked on save preferences");
 
 					} catch(err) {
-						console.log("could not click on save preferences")
+						//console.log("could not click on save preferences")
 						try {
 							await page.click("#Change_Country_Content > div.top-country-wrap > div.top-country-bottom > button:nth-child(1)")
 
-								console.log("clicked on stay at US")
+								//console.log("clicked on stay at US")
 						} catch(err) {
-								console.log("could not find stay at united states")
+								//console.log("could not find stay at united states")
 								try {
 							await page.click("div.centerPopup.is-current > div > div.top-country-wrap > div.top-country-bottom > button:nth-child(1)",{timeout: 1000})
-							console.log("OK -> clicked on stay on same country")
+							//console.log("OK -> clicked on stay on same country")
 						} catch(err) {
-								console.log("err -> could not click on -> stay on same country")
+								//console.log("err -> could not click on -> stay on same country")
 						}
 						}
 
@@ -86,19 +90,19 @@ var parse = require('url-parse')
 				await page.waitFor(1000);
 
 				try {
-					console.log("wait for page to load")
+					//console.log("wait for page to load")
 					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 				} catch(err) {
-					console.log('Timeout WAITING ON PAGE LOAD ')
+					//console.log('Timeout WAITING ON PAGE LOAD ')
 				}
-				console.log("assume page loaded")
+				//console.log("assume page loaded")
 
 				return true;
 			} catch (err) {
-					console.log('Error setting newegg');
+					//console.log('Error setting newegg');
 
 					let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-					console.log("bodyHTML start:\n",bodyHTML)
+					//console.log("bodyHTML start:\n",bodyHTML)
 					return false
 			}
 		 },
@@ -131,76 +135,85 @@ var parse = require('url-parse')
 		 initialized: false,
 		 initAttempts: 0,
 		 setup:async (page) => {
+			 if (!page) {
+				 console.log("page is not defined!")
+				 return false;
+			 }
 			 var url = page.url();
-			 console.log("setup ebay - url:",url)
+			 //console.log("setup ebay - url:",url)
 			 await page.waitFor(1000);
 
 
 				try {
 				//await page.screenshot({ path: './star1.png' });
-				console.log("step0")
+				//console.log("step0")
 				// let bodyHTML1 = await page.evaluate(() => document.body.innerHTML);
-				// console.log("bodyHTML:",bodyHTML1)
+				// //console.log("bodyHTML:",bodyHTML1)
 				await page.waitFor(1000);
 				try {
 					// find shipping tab
 					await page.waitForSelector("#viTabs_1[href='#']")
 				} catch(err) {
-					 console.log('#viTabs not found')
+					 //console.log('#viTabs not found')
 
 				 }
-					console.log("step1")
+					//console.log("step1")
 				await page.click("#viTabs_1[href='#']");
-				console.log("step2")
+				//console.log("step2")
 				await page.waitFor(2000);
 				// await page.screenshot({ path: './star2.png' });
 				await page.select('#shCountry', "1");
-				console.log("step3")
+				//console.log("step3")
 				await page.waitFor(1000);
 				await page.focus('#shZipCode')
 				await page.waitFor(1000);
 				await page.keyboard.type('97230')
-					console.log("step5")
+					//console.log("step5")
 				await page.waitFor(1000);
-				await page.click("#shGetRates");
-				await page.screenshot({ path: './ebay.png' });
+				await page.click("#shGetRates","{timeout:2*1000}");
+			//	await page.screenshot({ path: './ebay.png' });
 			//await page.screenshot({ path: './star3.png' });
-			//	console.log('set zip code');
+			//	//console.log('set zip code');
 
 					// if not already starred will give a star to this repo :P
 					// else will throw an error because cant find the button
 
 				try {
-					console.log("wait for page to load")
-					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+					//console.log("wait for page to load")
+					await page.waitForNavigation({timeout: 7*1000,waitUntil: "networkidle2"})
 				} catch(err) {
-					console.log('Timeout WAITING ON PAGE LOAD ')
+					console.log('ebay Timeout WAITING ON PAGE LOAD ')
 				}
-				console.log("assume page loaded")
+				//console.log("assume page loaded")
 				 // await page.waitForNavigation({waitUntil: "load"});
 
 			//	await page.screenshot({ path: './star4.png' });
 				return true;
 			} catch (err) {
-					console.log('Error setting ebay');
+					//console.log('Error setting ebay');
 
 					let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-					console.log("bodyHTML start:\n",bodyHTML)
+					//console.log("bodyHTML start:\n",bodyHTML)
 					return false
 			}
 		 },
 		 // ebay selectors
 		 selectors: {
 			 	 title: '#itemTitle',
-				 title1: "#mainContent > div.product-buy-container.product-buy-container-new-ui > div.product > div > div > h1",
+				 title1: "div.product > div > div > h1",
 				 price: '#prcIsum',
 				 price1: '#mm-saleDscPrc',
+				 price2: 'span.item-price',
 				 shipping: '#fshippingCost > span',
 				 shipping1: "#shSummary",
+				 shipping2: 'span.logistics-cost',
 				 image: '#icImg@src',
+				 image1: '#w5-w1 > div > ul > li:nth-child(1) > a > img@src',
 				 category: "li.bc-w:first-child span",
 				 category1: "li.bc-w:last-child span",
+				 category2: 'div.breadcrumb.clearfix > ol > li:last-child > a > span',
 				 condition: '#vi-itm-cond',
+				 condition1: 'div.item-desc > div.item-content-wrapper > div.item-highlights-wrapper > ul:nth-child(2) > li:nth-child(1)',
 				 item_number: '#descItemNumber',
 				 ship_to_address: '#shippingSection > table > tbody > tr > td:nth-child(3) > div',
 		 }
@@ -211,85 +224,89 @@ var parse = require('url-parse')
 		 initAttempts: 0,
 		 setup: async(page) => {
 			 try {
+				 if (!page) {
+					 console.log("page is not defined!")
+					 return false;
+				 }
 				 var url = page.url();
-				 console.log("setup amazon - url:",url)
+				 //console.log("setup amazon - url:",url)
 				 await page.waitFor(1000);
 					//await page.goto(url)
-				 console.log("setup amazon")
+				 //console.log("setup amazon")
 
 				try {
-						console.log("wait for #nav-main")
+						//console.log("wait for #nav-main")
 						await page.waitForSelector("#nav-main", { timeout: 2000 });
-						 console.log("#nav-main found")
+						 //console.log("#nav-main found")
 				} catch(err) {
-					 console.log("#nav-main not found - try again")
-					 console.log("wait again look for #nav-main")
+					 //console.log("#nav-main not found - try again")
+					 //console.log("wait again look for #nav-main")
 					 try {
 					 await page.waitForSelector("#nav-main", { timeout: 2000 });
-						console.log("#nav-main found")
+						//console.log("#nav-main found")
 					} catch(err) {
-						console.log("#nav-main not found ")
-						console.log("Error setting up Amazon")
+						//console.log("#nav-main not found ")
+						//console.log("Error setting up Amazon")
 						let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-						console.log("bodyHTML start:\n",bodyHTML)
+						//console.log("bodyHTML start:\n",bodyHTML)
 						return false;
 					}
 				}
 
 				try {
-					console.log("wait for #nav-global-location-slot > span")
+					//console.log("wait for #nav-global-location-slot > span")
 
 					await page.waitForSelector("#nav-global-location-slot > span", { timeout: 2000 });
-					 console.log("#nav-global-location-slot > span found")
+					 //console.log("#nav-global-location-slot > span found")
 				}
 				catch (err) {
-					console.log("wait AGAIN for #nav-global-location-slot > span")
+					//console.log("wait AGAIN for #nav-global-location-slot > span")
 
 					try {
 					await page.waitForSelector("#nav-global-location-slot > span", { timeout: 2000 });
-					 console.log("#nav-global-location-slot > span found")
+					 //console.log("#nav-global-location-slot > span found")
 				 } catch(err) {
-					 	console.log("could not find #nav-global-location-slot > span")
-					 console.log("Error setting up Amazon")
+					 	//console.log("could not find #nav-global-location-slot > span")
+					 //console.log("Error setting up Amazon")
 	 				 return false;
 				 }
 				}
 
 				try {
-					console.log("open change location")
+					//console.log("open change location")
 					await page.waitFor(1000);
 					await page.evaluate(() => {
 							document.querySelector("#nav-global-location-slot > span").click();
 						});
-					console.log("clicked #nav-global-location-slot > span")
-					console.log("change location popover openned")
+					//console.log("clicked #nav-global-location-slot > span")
+					//console.log("change location popover openned")
 				}	catch(err) {
 						try {
-								console.log("problem openning popup - try again with icon")
+								//console.log("problem openning popup - try again with icon")
 								await page.waitFor(1000);
 								await page.evaluate(() => {
 									document.querySelector('#nav-packard-glow-loc-icon').click();
 								});
-								console.log("clicked #nav-global-location-slot > span")
-								console.log("change location popover openned")
+								//console.log("clicked #nav-global-location-slot > span")
+								//console.log("change location popover openned")
 						} catch(err) {
-								console.log("problem openning popup using icon")
+								//console.log("problem openning popup using icon")
 
-							 console.log("Error setting up Amazon")
+							 //console.log("Error setting up Amazon")
 							 return false;
 						}
 				}
 
 				try {
-					console.log('wait for GLUXZipUpdateInput')
+					//console.log('wait for GLUXZipUpdateInput')
 					await page.waitForSelector("#GLUXZipUpdateInput", { timeout: 2000 })
-					console.log("found selector GLUXZipUpdateInput")
+					//console.log("found selector GLUXZipUpdateInput")
 				} catch( err3) {
-					console.log("waited and Could not find selector GLUXZipUpdateInput")
+					//console.log("waited and Could not find selector GLUXZipUpdateInput")
 				}
 
 				try {
-					console.log("evaluate GLUXZipUpdateInput click inside zipcode, enter zipcode, and apply")
+					//console.log("evaluate GLUXZipUpdateInput click inside zipcode, enter zipcode, and apply")
 
 					let zipInputSelector = '#GLUXZipUpdateInput';
 					let zip='97230'
@@ -301,21 +318,22 @@ var parse = require('url-parse')
 
 					}, zip);
 					await page.waitFor(1000);
+					console.log("click on Continue")
 					await page.evaluate(() => {
-
 						document.querySelector("div.a-popover-footer > span > span > span > button").click();
 					});
-					console.log("done enterring, applying  zipcode ")
-					console.log("wait after setting zipcode")
+
+					//console.log("done enterring, applying  zipcode ")
+					//console.log("wait after setting zipcode")
 					await page.waitFor(2000);
 			 } catch(err) {
-					console.log("error enterring, applying  zipcode ")
-					console.log("Error setting up Amazon")
+					//console.log("error enterring, applying  zipcode ")
+					//console.log("Error setting up Amazon")
 					return false;
 			 }
 
 			 try {
-	 		  console.log("click search box to exit zipcode popup window  ")
+	 		  //console.log("click search box to exit zipcode popup window  ")
 				await page.waitFor(1000);
 	 		  await page.evaluate(() => {
 	 		    document.querySelector("body").focus();
@@ -328,23 +346,24 @@ var parse = require('url-parse')
 				 document.querySelector("#twotabsearchtextbox").focus();
 				 document.querySelector("#twotabsearchtextbox").click();
 			 });
-	 		  console.log("done exiting popup window")
+	 		  //console.log("done exiting popup window")
 	 		} catch (err) {
-	 		  console.log("error exiting popup window")
+	 		  //console.log("error exiting popup window")
 	 		}
 
 				try {
-					console.log("wait for page to load")
+					//console.log("wait for page to load")
 					await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle0"})
 				} catch(err) {
-					console.log('page not seem to load on time - no problem continue ... ')
+					//console.log('page not seem to load on time - no problem continue ... ')
 				}
-				console.log("DONE Setting location")
+				//console.log("DONE Setting location")
 			return true;
 		} catch(err) {
-				console.log("!!! Error setting up Amazon")
+				//console.log("!!! Error setting up Amazon")
+
 				let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-				console.log("bodyHTML start:\n",bodyHTML)
+				//console.log("bodyHTML start:\n",bodyHTML)
 				return false;
 		}
 	  },
@@ -423,10 +442,14 @@ var parse = require('url-parse')
 		 initialized: false,
 		 initAttempts: 0,
 		 setup: async(page) => {
-			 console.log("setup walmart ")
+			 //console.log("setup walmart ")
 
-				 //	console.log("click1")
+				 //	//console.log("click1")
 				 try {
+					 if (!page) {
+						 console.log("page is not defined!")
+						 return false;
+					 }
 					 var url = page.url();
 					 await page.waitFor(2000);
 					 await page.waitForSelector("#header-bubble-links > div:nth-child(4) > a > span > span > span.e_a.y_c.y_f.e_g.e_b.e_p.v_a.v_h.v_j");
@@ -460,17 +483,17 @@ var parse = require('url-parse')
 
 					 await page.goto(url)
 					 try {
-						 console.log("wait for page to load")
+						 //console.log("wait for page to load")
 						 await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 					 } catch(err) {
-						 console.log('Timeout WAITING ON PAGE LOAD ')
+						 //console.log('Timeout WAITING ON PAGE LOAD ')
 					 }
-					 console.log("assume page loaded")
+					 //console.log("assume page loaded")
 					 return true;
 				 } catch (err) {
-					 console.log("Error setting up walmart")
+					 //console.log("Error setting up walmart")
 					 let bodyHTML = await page.evaluate(() => document.body.innerHTML);
- 					console.log("bodyHTML start:\n",bodyHTML)
+ 					//console.log("bodyHTML start:\n",bodyHTML)
 					 return false;
 				 }
 		 },
@@ -496,14 +519,18 @@ var parse = require('url-parse')
 		 initAttempts: 0,
 	   setup: async(page) => {
 			 try {
+				 if (!page) {
+					 console.log("page is not defined!")
+					 return false;
+				 }
 			     //await page.screenshot({ path: './star1.png' });
-					 console.log('wait for 3000')
+					 //console.log('wait for 3000')
 					 await page.waitFor(3000);
-					//console.log("click1")
+					////console.log("click1")
 
 					 try {
 						 // close ad popup
-						  console.log('wait for popup window (new-user)')
+						  //console.log('wait for popup window (new-user)')
 					  await page.waitForSelector("body > div.next-overlay-wrapper.opened > div.next-overlay-inner.next-dialog-container > div > a",{timeout:2000})
 						await page.waitFor(1000);
 						await page.evaluate(() => {
@@ -512,68 +539,68 @@ var parse = require('url-parse')
 
 						await page.waitFor(2000);
 					} catch(err) {
-						console.log("could not find popup (new user) - try another way")
+						//console.log("could not find popup (new user) - try another way")
 						try {
 							await page.waitForSelector("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a",{timeout:2000})
 							await page.click("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a")
 
 						} catch(err) {
-							console.log("could not find popup (new user)")
+							//console.log("could not find popup (new user)")
 						}
 				 }
 
 					try {
-							console.log('click  on change country')
+							//console.log('click  on change country')
 						await page.evaluate(() => {
 							document.querySelector("#switcher-info > span.ship-to").click();
 						});
-						console.log('click  on change country DONE')
+						//console.log('click  on change country DONE')
 					} catch(err) {
-						console.log('Couuld not click on change country')
+						//console.log('Couuld not click on change country')
 					}
 			    await page.waitFor(2000);
 					try {
-						console.log('click div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)')
+						//console.log('click div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)')
 				 		await page.click("div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)")
 				 		await page.waitFor(2000);
 					} catch(err) {
-						console.log('error clicking on country. Try another way')
+						//console.log('error clicking on country. Try another way')
 						try {
 						await page.click("div > a.address-select-trigger.address-select-trigger-active[href='#']")
-						console.log('after click on country')
+						//console.log('after click on country')
 					} catch(err) {
-						console.log('could not click on country')
+						//console.log('could not click on country')
 					}
 					}
-					console.log('focus div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input')
+					//console.log('focus div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input')
  		  		await page.focus("div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input");
 			 		await page.waitFor(2000);
-			 		//console.log("click2")
+			 		////console.log("click2")
 			 		await page.keyboard.type("united states")
 			 		await page.waitFor(1000);
-					console.log('click div.switcher-shipto.item.util-clearfix > div > div:nth-child(4)')
+					//console.log('click div.switcher-shipto.item.util-clearfix > div > div:nth-child(4)')
 					await page.click("div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > ul > li:nth-child(224) > span > span")
  					await page.waitFor(1000);
 					//	await page.screenshot({ path: './star3.png' });
-					// console.log("click3")
+					// //console.log("click3")
 				//	await page.screenshot({ path: './aliexpress1.png' });
-					console.log('click #nav-global > div.ng-item.ng-switcher')
+					//console.log('click #nav-global > div.ng-item.ng-switcher')
 			 		await page.click("div.switcher-btn.item.util-clearfix > button")
 			 		//await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
 					try {
-						console.log("wait for page to load")
+						//console.log("wait for page to load")
 						await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 					} catch(err) {
-						console.log("WAITING ON PAGE LOAD")
+						//console.log("WAITING ON PAGE LOAD")
 					}
-					console.log("assume page loaded")
+					//console.log("assume page loaded")
 		 			//await page.waitFor(5000);
 	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
 		  }catch(err) {
-			   console.log("Error setting up aliexpress")
+			   //console.log("Error setting up aliexpress")
 			 //  let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-			  // console.log("bodyHTML start:\n",bodyHTML)
+			  // //console.log("bodyHTML start:\n",bodyHTML)
 			   return false;
 		   }
 	   },
@@ -607,23 +634,33 @@ var parse = require('url-parse')
 
 const x = Xray().driver(xRayChrome(	{
 	viewPort:{ width:1280, height:800 },
-
+		reset: async () => {
+			console.log('in <x.reset>')
+			try {
+			Object.keys(sites).map(site => {
+					sites[site].initialized = false;
+					sites[site].initAttempts = 0;
+				})
+			} catch(err) {
+				console.log("error during reset:",err)
+			}
+		},
     cl: async (page, ctx) => {
-				console.log('in cl function:')
-				console.log("url:",ctx.url)
+				console.log('in <x.cl> function:')
+				console.log("<cl> ctx.url:",ctx.url)
 				var urlinfo = parse(ctx.url, true);
-				//	console.log('url:',url)
+				//	//console.log('url:',url)
 				var host= urlinfo ? urlinfo.host:null
-				console.log('host:',host)
+				//console.log('host:',host)
 				// the following code can be replaced by a more concide loop (later!)
-				console.log("site map:",site_map[host])
-				console.log('initialized:',sites[site_map[host]].initialized)
-			  console.log('initAttempts:',sites[site_map[host]].initAttempts)
+				//console.log("site map:",site_map[host])
+				//console.log('initialized:',sites[site_map[host]].initialized)
+			  //console.log('initAttempts:',sites[site_map[host]].initAttempts)
 				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<3 ) {
-					//	console.log("setup ",sites[site_map[host]])
+					//	//console.log("setup ",sites[site_map[host]])
 						sites[site_map[host]].initialized = await sites[site_map[host]].setup(page);
 						sites[site_map[host]].initAttempts++
-						console.log("after setup  initialized:",sites[site_map[host]].initialized)
+						//console.log("after setup  initialized:",sites[site_map[host]].initialized)
 				}
 
       },
@@ -637,18 +674,18 @@ const x = Xray().driver(xRayChrome(	{
 ));
 
 exports.scraper = async function(url) {
-console.log("in <scraper> ")
-
+  console.log("in <scraper> ")
   var urlinfo = parse(url, true);
-  //	console.log('url:',url)
+  console.log('<scraper> url:',url)
   var host= urlinfo ? urlinfo.host:null
   var site = site_map[host]? sites[site_map[host]]:null;
 
-  //console.log("sites:",site);
+  ////console.log("sites:",site);
   if (!site) return null;
 	if(site) {
+		console.log("call xRay for url:",url)
 		var result = await x(url,  site.selectors)
-    console.log("result:",result)
+    console.log("xray result:",result)
 
     if (!result) return null;
 		// cleanup results
@@ -656,9 +693,9 @@ console.log("in <scraper> ")
 				result[key] = result[key].trim()
 				result[key] = result[key].replace(/\s\s*/g, ' '); // remove whitespace and
 			})
-			console.log("=>clean result:",result)
+			//console.log("=>clean result:",result)
 
-      console.log("smart-product-scraper> after call from x-ray:")
+      //console.log("smart-product-scraper> after call from x-ray:")
 
 			result.url = url;
       result.site = site_map[host]
@@ -666,95 +703,93 @@ console.log("in <scraper> ")
       // copy values
 			if(result.details)
 			{
-          console.log("<smart-product-scraper> in object details")
+          //console.log("<smart-product-scraper> in object details")
 				var details = [];
 				result.details.forEach(function(element, index, array){
 					details.push(element.trim());
 				});
 				result.details = details;
 			}
-			console.log("result:",JSON.stringify(result))
+			//console.log("result:",JSON.stringify(result))
 
 
-        console.log("<smart-product-scraper> got site:",result.site)
-				console.log("<smart-product-scraper> got ship_to_address:",result.ship_to_address);
-        console.log("<smart-product-scraper> got title:",result.title)
-        console.log("<smart-product-scraper> got shipping:",result.shipping)
-				console.log("<smart-product-scraper> got shipping1:",result.shipping1)
-        console.log("<smart-product-scraper> got condition:",result.condition)
-        console.log("<smart-product-scraper> got options:",result.options)
-				console.log("<smart-product-scraper> got options1:",result.options1)
-				console.log("<smart-product-scraper> got options2:",result.options2)
-				console.log("<smart-product-scraper> got options3:",result.options3)
-        console.log("<smart-product-scraper> got weight:",result.weight)
-        console.log("<smart-product-scraper> got dimensions:",result.dimensions)
-        console.log("<smart-product-scraper> got image:",result.image)
-				  console.log("<smart-product-scraper> got image1:",result.image1)
-					  console.log("<smart-product-scraper> got image2:",result.image2)
-						 console.log("<smart-product-scraper> got image3:",result.image3)
-        console.log("<smart-product-scraper> got brand:",result.brand)
-        console.log("<smart-product-scraper> got category:",result.category)
-				console.log("<smart-product-scraper> got category1:",result.category1)
-        console.log("<smart-product-scraper> got rank1:",result.rank1)
-        console.log("<smart-product-scraper> got rank2:",result.rank2)
-				console.log("<smart-product-scraper> got rank3:",result.rank3)
-				console.log("<smart-product-scraper> got price:",result.price)
-				console.log("<smart-product-scraper> got price1:",result.price1)
-				console.log("<smart-product-scraper> got price2:",result.price2)
-					console.log("<smart-product-scraper> got price3:",result.price3)
-						console.log("<smart-product-scraper> got price3:",result.price4)
-  		  console.log("<smart-product-scraper> got deal_price:",result.deal_price)
-	   		console.log("<smart-product-scraper> got sale_price:",result.sale_price)
-  			console.log("<smart-product-scraper> got price_fraction:",result.price_fraction)
-				console.log("<smart-product-scraper> got shipping:",result.shipping)
-				console.log("<smart-product-scraper> got shipping1:",result.shipping1)
-				console.log("<smart-product-scraper> got shipping2:",result.shipping2)
-				console.log("<smart-product-scraper> got shipping3:",result.shipping3)
-				console.log("<smart-product-scraper> got shipping4:",result.shipping4)
-				console.log("<smart-product-scraper> got shipping5:",result.shipping5)
-				console.log("<smart-product-scraper> got shipping6:",result.shipping6)
-				console.log("<smart-product-scraper> got prime:[",result.prime,"]")
-				console.log("<smart-product-scraper> got prime1:[",result.prime1,"]")
-					console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
-
-
+        //console.log("<smart-product-scraper> got site:",result.site)
+				//console.log("<smart-product-scraper> got ship_to_address:",result.ship_to_address);
+        //console.log("<smart-product-scraper> got title:",result.title)
+        //console.log("<smart-product-scraper> got shipping:",result.shipping)
+				//console.log("<smart-product-scraper> got shipping1:",result.shipping1)
+        //console.log("<smart-product-scraper> got condition:",result.condition)
+        //console.log("<smart-product-scraper> got options:",result.options)
+				//console.log("<smart-product-scraper> got options1:",result.options1)
+				//console.log("<smart-product-scraper> got options2:",result.options2)
+				//console.log("<smart-product-scraper> got options3:",result.options3)
+        //console.log("<smart-product-scraper> got weight:",result.weight)
+        //console.log("<smart-product-scraper> got dimensions:",result.dimensions)
+        //console.log("<smart-product-scraper> got image:",result.image)
+				  //console.log("<smart-product-scraper> got image1:",result.image1)
+					  //console.log("<smart-product-scraper> got image2:",result.image2)
+						 //console.log("<smart-product-scraper> got image3:",result.image3)
+        //console.log("<smart-product-scraper> got brand:",result.brand)
+        //console.log("<smart-product-scraper> got category:",result.category)
+				//console.log("<smart-product-scraper> got category1:",result.category1)
+        //console.log("<smart-product-scraper> got rank1:",result.rank1)
+        //console.log("<smart-product-scraper> got rank2:",result.rank2)
+				//console.log("<smart-product-scraper> got rank3:",result.rank3)
+				//console.log("<smart-product-scraper> got price:",result.price)
+				//console.log("<smart-product-scraper> got price1:",result.price1)
+				//console.log("<smart-product-scraper> got price2:",result.price2)
+					//console.log("<smart-product-scraper> got price3:",result.price3)
+						//console.log("<smart-product-scraper> got price3:",result.price4)
+  		  //console.log("<smart-product-scraper> got deal_price:",result.deal_price)
+	   		//console.log("<smart-product-scraper> got sale_price:",result.sale_price)
+  			//console.log("<smart-product-scraper> got price_fraction:",result.price_fraction)
+				//console.log("<smart-product-scraper> got shipping:",result.shipping)
+				//console.log("<smart-product-scraper> got shipping1:",result.shipping1)
+				//console.log("<smart-product-scraper> got shipping2:",result.shipping2)
+				//console.log("<smart-product-scraper> got shipping3:",result.shipping3)
+				//console.log("<smart-product-scraper> got shipping4:",result.shipping4)
+				//console.log("<smart-product-scraper> got shipping5:",result.shipping5)
+				//console.log("<smart-product-scraper> got shipping6:",result.shipping6)
+				//console.log("<smart-product-scraper> got prime:[",result.prime,"]")
+				//console.log("<smart-product-scraper> got prime1:[",result.prime1,"]")
+				//console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
 
        var usePrice = result.high_price || result.deal_price || result.sale_price || result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
 
-      console.log("<smart-product-scraper> got usePrice:",usePrice)
+      //console.log("<smart-product-scraper> got usePrice:",usePrice)
 
 
       if(usePrice) {
         var mp = String(usePrice).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s|/])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
-        console.log("match price:",mp)
+        //console.log("match price:",mp)
 				var priceUnit = mp && mp.length>1? mp[1]? mp[1]:'':'';
-				console.log("price Unit:",priceUnit)
+				//console.log("price Unit:",priceUnit)
 
         var price = mp && mp.length>2? mp[2]:'0';
 				price = price.replace(/,/g, ''); // assume , is 1000 separator (later use Intl.NumberFormat)
 				price = price && !isNaN(price)? parseFloat(price).toFixed(2):0;
-				console.log("Extracted price:",price)
+				//console.log("Extracted price:",price)
 				switch(priceUnit) {
 					case '':
 					case '$':
 					case 'USD':
-						console.log("price in USD or not specified");
+						//console.log("price in USD or not specified");
 						break;
 					case '€':
 					case "EUR":
-					 console.log("price in Euro");
+					 //console.log("price in Euro");
 					 price = parseFloat(price) * 1.14; // get conversion online
 					 break;
 					case '£':
 					case 'GBP':
-						console.log("price in British pound")
+						//console.log("price in British pound")
 						price = parseFloat(price) * 1.35; // get conversion online
 						break;
 					default:
 					break;
 				}
 				price = parseFloat(price) + ((result.price_fraction && !isNaN(result.price_fraction)) ? parseFloat(result.price_fraction)/100.0 : 0);
-				console.log("final price:",price)
+				//console.log("final price:",price)
         result.price = price>0? parseFloat(price).toFixed(2):-1;
       } else {
 				result.price = -1;
@@ -762,37 +797,37 @@ console.log("in <scraper> ")
 
 		  const usePrime = 	result.prime == ''|| result.prime1 == '' || result.prim2 == '' ? "FREE":null;
 			result.shipping5 = result.shipping5 != null? 'FREE':null;
-			console.log('usePime:',usePrime)
+			//console.log('usePime:',usePrime)
 			var useShipping = result.shipping ||
 			 	result.shipping1 || result.shipping2 ||
 				result.shipping3 || result.shipping4 || result.shipping5	||result.shipping6		|| usePrime;
-			console.log("useShipping:",useShipping)
+			//console.log("useShipping:",useShipping)
       if(useShipping) {
 				// look for FREE Shipping
         if (String(useShipping).match(/Free/i)) {
           result.shipping = 0;
         }  else {
 					var ms = String(useShipping).match(/(?:\s|[a-z]|,|;)*(\$|USD|€|EUR|£)*(?:\s)*(\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?|\.\d+)(?:[\(|\s])*(?:\s|\)|\s|\w|,|;)*(?:$)/i)
-					console.log("match ship_price:",ms)
+					//console.log("match ship_price:",ms)
 					var shipUnit = ms && ms.length>1? ms[1]? ms[1]:'':'';
-					console.log("Ship Unit:",shipUnit)
+					//console.log("Ship Unit:",shipUnit)
 
 					var shipping = ms && ms.length>2? ms[2]:'0';
-          console.log("match shipping price:",shipping)
+          //console.log("match shipping price:",shipping)
 					switch(shipUnit) {
 						case '':
 						case '$':
 						case 'USD':
-							console.log("shipUnit in USD or not specified");
+							//console.log("shipUnit in USD or not specified");
 							break;
 						case '€':
 						case "EUR":
-						 console.log("shipUnit in Euro");
+						 //console.log("shipUnit in Euro");
 						 shipping = parseFloat(shipping) * 1.14; // get conversion online
 						 break;
 						case '£':
 						case 'GBP':
-							console.log("shipUnit in British pound")
+							//console.log("shipUnit in British pound")
 							shipping = parseFloat(shipping) * 1.35; // get conversion online
 							break;
 						default:
@@ -805,7 +840,7 @@ console.log("in <scraper> ")
 				  result.shipping = -1;
 			}
 			var useTitle = result.title || result.title1 || result.title2 || result.title3
-			console.log("useTitle:",useTitle)
+			//console.log("useTitle:",useTitle)
 			if(useTitle) {
         result.title = useTitle.replace(/Details about/i,'')
 
@@ -832,7 +867,7 @@ console.log("in <scraper> ")
       var useWeight = result.shipping_weight || result.shipping_weight1 ||
 						result.shipping_weight2 ||result.shipping_weight3 || result.shipping_weight4
 						|| result.shipping_weight5 || result.shipping_weight6 ||result.weight || result.weight1 || result.item_weight || result.item_weight1 ;
-      console.log("useWeight:",useWeight)
+      //console.log("useWeight:",useWeight)
       if (useWeight) {
 
         var weight = 0;
@@ -841,11 +876,11 @@ console.log("in <scraper> ")
 				// var m0 = String(useWeight).match(/^(?:\s)*(((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s|\(])*(kg|lb|pound|ounce))?(?:\s|\))*(?:.)*/i);
 	        //  var m0  = String(useWeight).match(/^(?:\s)*((?:\d+|\d{1,3}(?:,\d{3})*)(?:\.\d+)?|\.\d+)(?:[\(|\s])*(kg|lb|pound|ounce)?(?:\s|\))*(?:$)/i)
 					// (?:^|\s)*(\d*\.?\d+|\d	{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(kg|lb|pound|ounce)?(?:\s*)/i);
-          console.log("match weight:",m0)
+          //console.log("match weight:",m0)
           weight = m0 && m0.length > 0? m0[1]:0;
 					var wUnit = m0 && m0.length > 1? m0[2]:'lb';
-          console.log("Extracted weight:", weight)
-					console.log("Extracted weight Unit:", wUnit)
+          //console.log("Extracted weight:", weight)
+					//console.log("Extracted weight Unit:", wUnit)
 					// convert to pound
         	switch(wUnit) {
 						case 'kg':
@@ -854,7 +889,7 @@ console.log("in <scraper> ")
 						case 'lb':
 						case 'pound':
 						 // no change
-						 console.log("already in pounds")
+						 //console.log("already in pounds")
 						break;
 						case 'ounces':
 						case 'ounce':
@@ -864,7 +899,7 @@ console.log("in <scraper> ")
 
 					}
           result.weight = parseFloat(weight).toFixed(2);
-          console.log("Final weight: ",result.weight)
+          //console.log("Final weight: ",result.weight)
       }
       var useDimensions = result.package_dimensions || result.dimensions ||result.dimensions1
 			||result.dimensions2 || result.product_dimensions || result.item_dimensions
@@ -874,7 +909,7 @@ console.log("in <scraper> ")
         //  var m1 =  String(useDimensions).match(/\d+(?:\.\d*)*\s*?[x|X]\s*\d+(?:\.\d*)*\s*[x|X]\s*\d+(?:\.\d*)*\s*?/i);
 				 var dim =  String(useDimensions).match(/(?:^|\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*[x|X](?:\s)*(\d*\.?\d+|\d{1,3}(?:,\d{3})*(?:\.\d+)?)(?:\s)*(inches|inch|in|cm|'|")?(?:\s)*/i);
 				 // match number with comma (optional) and fraction \b[0-9]{1,3}(,?[0-9]{3})*(\.[0-9]+)?\b|\.[0-9]+\b
-				  console.log("match dimensions:",dim)
+				  //console.log("match dimensions:",dim)
 
           //
 					if (dim && dim.length > 5) {
@@ -882,7 +917,7 @@ console.log("in <scraper> ")
 						var w = dim[3];
 						var h = dim[5];
 						var useUnit = dim && dim.length>6? dim[6] || dim[4] || dim[2]:'inch'
-						console.log("unit is:",useUnit);
+						//console.log("unit is:",useUnit);
 						switch(useUnit) { // contains unit
 
 							case 'cm':
@@ -919,7 +954,7 @@ console.log("in <scraper> ")
 					} else {
 						result.dimensions = '0 x 0 x 0';
 					}
-         	console.log('final dimensions:',result.dimensions)
+         	//console.log('final dimensions:',result.dimensions)
       }
 
 			if(result.brand) result.brand = result.brand.trim();
@@ -934,11 +969,11 @@ console.log("in <scraper> ")
 					    if (m.index === rank_regex.lastIndex) {
 					        rank_regex.lastIndex++;
 					    }
-							console.log('match:',m)
+							//console.log('match:',m)
 
 					    // The result can be accessed through the `m`-variable.
 					    m.forEach((match, groupIndex) => {
-					        console.log(`Found match, group ${groupIndex}: ${match}`);
+					        //console.log(`Found match, group ${groupIndex}: ${match}`);
 									if ( groupIndex % 2){  // IF ODD THEN USE THE GROUP
 										rankCatg = rankCatg + " " + match;
 									}
@@ -948,14 +983,14 @@ console.log("in <scraper> ")
 
 				result.ctegory = result.category? result.category.replace(/\s\s+/g, ' '):''
 				result.ctegory1 = result.category1? result.category1.replace(/\s\s+/g, ' '):''
-
-      var useCategory =[result.category , result.category1, rankCatg].filter(Boolean).join(' ')  ;
-			console.log('useCategory:',useCategory)
+				result.ctegory2 = result.category2? result.category2.replace(/\s\s+/g, ' '):''
+      var useCategory =[result.category , result.category1, result.category2, rankCatg].filter(Boolean).join(' ')  ;
+			//console.log('useCategory:',useCategory)
       if (useCategory) {
 
 
          useCategory = useCategory.replace(/\/\&\.\[\]/,' ')
-         console.log("=>Final CATEGORY after cleanup:", useCategory)
+         //console.log("=>Final CATEGORY after cleanup:", useCategory)
          //category = String(useCategory).match(/[a-z][a-z\,\&\b\/\\ \(\)\[\]]+/i)
 				  result.category = useCategory? useCategory:"general accessories"
       }
@@ -969,10 +1004,10 @@ console.log("in <scraper> ")
 						result.condition = 'New';
 				}
 				result.options = result.options + "; "+result.condition
-				console.log("final condition:",result.condition)
-					console.log("final options:",result.options)
+				//console.log("final condition:",result.condition)
+					//console.log("final options:",result.options)
 			}
-			console.log("return result:",result)
+			//console.log("return result:",result)
       return result;
 
     }

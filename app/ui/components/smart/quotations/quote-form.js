@@ -1205,7 +1205,7 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
 
         if (productScraper) {
             try {
-              console.log("<handleScrapeAction> <QuoteForm> call productScraper")
+              console.log("<handleScrapeAction> <QuoteForm> call productScraper ")
               const response = await productScraper({
                variables: {
                  "url":this.state.formEditInfo.edit_url,

@@ -3,7 +3,7 @@ import  {ChatMessages}  from '/app/entry-points/server/models/chat-messages';
 //import {User} from '/app/entry-points/server/models/user'
 import moment from 'moment';
 const getChatMessages = async (root, args, context) => {
-  console.log('=>resolver  getChatMessages args', args)
+  //console.log('=>resolver  getChatMessages args', args)
   //const { quotation: usr } = context;
 
   // if (!usr || !usr._id) {
@@ -91,13 +91,13 @@ const getChatMessages = async (root, args, context) => {
       dateFrom = moment().add(-7, 'days').toDate()
       dateTo = moment().add(1,'days').toDate()
     }
-    console.log("moment:", moment())
-    console.log("moment toDate:", moment().toDate())
+    //console.log("moment:", moment())
+    //console.log("moment toDate:", moment().toDate())
     if (!dateFrom) dateFrom = moment(dateTo).add(-1, 'days').toDate()
     if (!dateTo) dateTo = moment(dateFrom).add(1, 'days').toDate()
   }
-  console.log("dateFrom:", dateFrom)
-  console.log("dateTo:", dateTo)
+  //console.log("dateFrom:", dateFrom)
+  //console.log("dateTo:", dateTo)
   matchArray.push({
     "dateCreated": {
       "$gte": dateFrom,
@@ -117,7 +117,7 @@ const getChatMessages = async (root, args, context) => {
     queryStr[andOr] = matchArray.length == 0? [{ _id : { $exists: true } }]:matchArray
   // Query current logged in quotation
   try {
-    console.log('getChatMessages queryStr:',JSON.stringify(queryStr))
+    //console.log('getChatMessages queryStr:',JSON.stringify(queryStr))
     const curChatMessages = await ChatMessages.aggregate([
      {
        $lookup: {
@@ -165,14 +165,14 @@ const getChatMessages = async (root, args, context) => {
      if (row.messageAttachments=="") row.messageAttachments = null
      else row.messageAttachments = JSON.stringify(row.messageAttachments,null,2)
 
-        //console.log('po_date:',row.po_date)
+        ////console.log('po_date:',row.po_date)
           return row
     })
-    console.log("result.length:",result.length)
-//console.log("curChatMessages:",JSON.stringify(result))
+    //console.log("result.length:",result.length)
+////console.log("curChatMessages:",JSON.stringify(result))
     return result;
   } catch (exc) {
-    console.log(exc);
+    //console.log(exc);
     return null;
   }
 };

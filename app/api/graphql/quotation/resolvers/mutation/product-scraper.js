@@ -24,12 +24,10 @@ async function productScraper(root, args, context) {
     throw new Error("URL is required")
   }
 
-  console.log("<productScraper> URL:",  args.url)
   try {
       console.log("<productScraper> Call scraper:")
-     var res = await scraper(args.url.trim());//, function(data) {
-        console.log("*** <update-quote> After callback from scraper.init")
-        console.log("<update-quote> scrapped data :",res);
+      var res = await scraper(args.url.trim());//, function(data) {
+        console.log("*** <update-quote> After return from scraper.init  data:",res)
 
 //        r={ title: 'Universal Perforated Edge Writing Pad, Legal Ruled, Letter, White, 50 Sheet, Dozen',
 // price: '9',
@@ -48,19 +46,7 @@ async function productScraper(root, args, context) {
         result.thumbnailImage = res.image;
       }
       result.ship_to_address = res.ship_to_address;
-      // var price=-1;
-      // var sale_price=-1;
-      //
-      //
-      //
-      // if (res.price || res.sale_price) {
-      //    price =  res.price? res.price.match(/\d+(?:\.\d+)?/):9999999999;
-      //    sale_price  =  res.sale_price? res.sale_price.match(/\d+(?:\.\d+)?/):9999999999;
-      //    price = Math.min(price,sale_price)
-      //   console.log("price:",price)
-      //   result.price = parseFloat(price) +
-      //     parseFloat(res.price_fraction? res.price.match(/\d+(?:\.\d+)?/):0)/100;
-      // }
+
       if (res.price) {
         result.price = res.price
       } else result.price = -1;

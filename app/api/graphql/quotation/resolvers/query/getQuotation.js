@@ -2,7 +2,7 @@ import Quotation from '/app/entry-points/server/models/quotation';
 import moment from 'moment';
 
 const getQuotation = async(root, args, context) => {
-  console.log('=>resolver  <getQuotation> args', args)
+  //console.log('=>resolver  <getQuotation> args', args)
   matchArray = []
   andOr = "$and"
     var searchField;
@@ -28,8 +28,8 @@ const getQuotation = async(root, args, context) => {
              }
            }]
          })
-        
-         console.log("matchArray1:",matchArray)
+
+         //console.log("matchArray1:",matchArray)
          // start of duplicate code with all get query
          var dateTo = null;
            var dateFrom = null;
@@ -48,13 +48,13 @@ const getQuotation = async(root, args, context) => {
            dateFrom = moment().add(-4, 'days').toDate()
            dateTo = moment().add(1,'days').toDate()
          }
-         console.log("moment:", moment())
-         console.log("moment toDate:", moment().toDate())
+         //console.log("moment:", moment())
+         //console.log("moment toDate:", moment().toDate())
          if (!dateFrom) dateFrom = moment(dateTo).add(-1, 'days').toDate()
          if (!dateTo) dateTo = moment(dateFrom).add(1, 'days').toDate()
        }
-       console.log("dateFrom:", dateFrom)
-       console.log("dateTo:", dateTo)
+       //console.log("dateFrom:", dateFrom)
+       //console.log("dateTo:", dateTo)
        matchArray.push({
          "date_created": {
            "$gte": dateFrom,
@@ -117,7 +117,7 @@ const getQuotation = async(root, args, context) => {
       ]
     })
   }
-  console.log("check other args")
+  //console.log("check other args")
   if (args.quote_no && args.quote_no != 0) matchArray.push({
     quote_no:  args.quote_no
   })
@@ -134,21 +134,21 @@ const getQuotation = async(root, args, context) => {
   }] : matchArray
 }
  catch(err) {
-   console.log("error setting query err:",err)
+   //console.log("error setting query err:",err)
  }
   try {
-    console.log('getQuotation queryStr:', JSON.stringify(queryStr))
+    //console.log('getQuotation queryStr:', JSON.stringify(queryStr))
 
     const curQuotation = await Quotation.find(queryStr, {
       'quotation.price': 0
     }).sort({
       "quote_no": -1
     }).limit(200).exec();
-    console.log("curQuotation.length:", curQuotation.length)
-    //if (curQuotation &&   curQuotation.length>0) console.log("curQuotation:", JSON.stringify(curQuotation[0]))
+    //console.log("curQuotation.length:", curQuotation.length)
+    //if (curQuotation &&   curQuotation.length>0) //console.log("curQuotation:", JSON.stringify(curQuotation[0]))
     return curQuotation;
   } catch (exc) {
-    console.log(exc);
+    //console.log(exc);
     return null;
   }
 };
