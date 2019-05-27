@@ -113,6 +113,7 @@ var parse = require('url-parse')
 				 price: '#landingpage-price  li.price-current',
 				 price1: '#mm-saleDscPrc',
 				 shipping: '#landingpage-price > div > div > div.premier-info > a',
+				 shipping1: "#landingpage-price > div > div > ul > li.price-ship >",
 				// shipping1: "#shSummary",
 				 image: 'div.objImages > a > span > img@src',
 				 category: "#baBreadcrumbTop",
@@ -120,7 +121,9 @@ var parse = require('url-parse')
 				// condition: '#vi-itm-cond',
 				// item_number: '#descItemNumber',
 				dimensions: "#Specs > fieldset:nth-child(2) > dl:contains('Dimensions') > dd",
+			  dimensions1:	"#Specs > fieldset:contains('Dimensions') > dl:contains('Weight') > dd",
 				shipping_weight: "#Specs > fieldset:nth-child(2) > dl:contains('Weight') > dd",
+				shipping_weight1: "#Specs > fieldset:contains('Dimensions') > dl:contains('Weight') > dd",
 				 ship_to_address: '#Change_Country > ins > span',
 				 options: "#landingpage-property > div > div:nth-child(1) > div:nth-child(1) > span.value",
 				 option1: "#landingpage-property > div > div:nth-child(2) > div:nth-child(1) > span.value",
@@ -380,6 +383,7 @@ var parse = require('url-parse')
 			 image5: xDelay("#altImages > ul > li:nth-child(3) > span > span > span > span> img@src"),
 			 sale_price: '#priceblock_saleprice',
 			 deal_price: "#priceblock_dealprice",
+			 used_price: "#usedPitchPrice > div.a-section.a-spacing-none",
 			 price: '#priceblock_ourprice',
 
 			 price1: '#posPromoPitchPrice > div > span.price-large',
@@ -394,6 +398,7 @@ var parse = require('url-parse')
 			 shipping4: "#priceBadging_feature_div",
 			 shipping5: "#ourprice_shippingmessage > i",
 			 shipping6: "#ourprice_shippingmessage",
+			 shipping7: "#usedPitchPrice > div.a-section.a-spacing-mini > div", // uk
 			 prime: "#priceBadging_feature_div > i.a-icon-prime",
 			 prime1: "#priceBadging_feature_div > i",
 			 primt2: 'i[class^="a-icon a-icon-prime"]',
@@ -754,7 +759,7 @@ exports.scraper = async function(url) {
 				//console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
 
        var usePrice = result.high_price || result.deal_price || result.sale_price ||
-			 		result.price || result.price1 || result.price2  || result.price3 || result.price4 ;
+			 		result.price || result.price1 || result.price2  || result.price3 || result.price4 || result.used_price ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
 
@@ -805,7 +810,7 @@ exports.scraper = async function(url) {
 			//console.log('usePime:',usePrime)
 			var useShipping = result.shipping ||
 			 	result.shipping1 || result.shipping2 ||
-				result.shipping3 || result.shipping4 || result.shipping5	||result.shipping6		|| usePrime;
+				result.shipping3 || result.shipping4 || result.shipping5	||result.shipping6 ||result.shipping7	|| usePrime;
 			//console.log("useShipping:",useShipping)
       if(useShipping) {
 				// look for FREE Shipping

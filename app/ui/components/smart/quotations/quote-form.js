@@ -1266,9 +1266,9 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
 
                 shouldSort: true,
                   tokenize: true,
-                  matchAllTokens: true,
+                  matchAllTokens: false,
                   includeScore: true,
-                  threshold: 0.19,
+                  threshold: 0.1,
                   location: 0,
                   distance: 10,
                   maxPatternLength: 100,

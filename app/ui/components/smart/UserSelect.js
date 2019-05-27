@@ -341,7 +341,7 @@ class UserSelect extends React.Component {
     console.log("render UserSelect userInput:",userInput)
     const { classes, theme, value, name, usersQuery,username } = this.props;
     const { getUsers } = usersQuery
-
+    const fbusername = userInfo && userInfo.username? userInfo.username:username? username.label:'';
     const phoneNo = userInfo &&  userInfo.phone_no?userInfo.phone_no:'';
     const userId = userInfo && userInfo.userId? userInfo.userId:username? username.value:'';
     const fbInboxLink = userInfo && userInfo.fbInboxLink? 'https://www.facebook.com/'+userInfo.fbInboxLink:'';
@@ -404,6 +404,17 @@ class UserSelect extends React.Component {
               isSearchable={true}
             />
           </NoSsr>
+          <TextField
+            disabled={false}
+            name="fbusername"
+            type="String"
+            label="Username"
+            value={fbusername}
+            margin="dense"
+            className={classes.textField}
+            onClick={(e) => {this.copyToClipboard(e, fbusername)}}
+
+          />
       <TextField
         disabled={false}
         name="userId"
