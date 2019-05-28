@@ -33,8 +33,8 @@ class SimplePopover extends React.Component {
     const { classes } = this.props;
     const { anchorEl } = this.state;
     const anchorOrigin={
-      vertical: "bottom",
-      horizontal: "center"
+      vertical: "top",
+      horizontal: "left"
     }
     return (
       <div>
@@ -46,10 +46,11 @@ class SimplePopover extends React.Component {
           anchorEl={anchorEl}
           onClose={this.handleClose}
           anchorOrigin={anchorOrigin}
-          // transformOrigin={{
-          //   vertical: "bottom",
-          //   horizontal: "bottom"
-          // }}
+          transformOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+          }}
+
         >
           <Typography className={classes.typography}>
             The content of the Popover.

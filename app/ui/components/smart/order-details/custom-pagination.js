@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classnames from 'classnames'
 import Button from "@material-ui/core/Button";
- 
+
 import { withStyles } from "@material-ui/core/styles";
 //import  classes  from "classnames";
 import Tooltip from '@material-ui/core/Tooltip';
@@ -118,7 +118,7 @@ class CustomPagination extends Component {
     const { anchorEl } = this.state;
     const anchorOrigin = {
       vertical: "top",
-      horizontal: "bottom"
+      horizontal: "left"
     }
     return (
       <div className={classes1(className, '-pagination')} style={this.props.style}>
@@ -192,11 +192,11 @@ class CustomPagination extends Component {
           anchorEl={anchorEl}
           onClose={this.handleClose}
           anchorOrigin={anchorOrigin}
-          // transformOrigin={{
-          //   vertical: "bottom",
-          //   horizontal: "bottom"
-          // }}
-          >
+          transformOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+          }}
+        >
           <Typography className={classes.typography} onClick={() => { handleDownloadToJson(); }} style={{ padding: "10px", cursor: 'pointer' }} >
             json
                 </Typography>

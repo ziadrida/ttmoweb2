@@ -75,7 +75,7 @@ class ColumnChooser extends React.Component {
         const { classes, columns } = this.props;
         console.log("columnChooser columns:",columns)
         const anchorOrigin={
-             vertical: 'bottom',
+             vertical: 'top',
              horizontal: 'left',
            }
         return (
@@ -90,16 +90,9 @@ class ColumnChooser extends React.Component {
                     anchorEl={this.state.anchorEl}
                     anchorOrigin={anchorOrigin}
                        transformOrigin={{
-                         vertical: 'top',
-                         horizontal: 'center',
+                         vertical: 'bottom',
+                         horizontal: 'left',
                        }}
-                    // anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                  //  anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                  //  transformOrigin={{horizontal: 'left', vertical: 'top'}}
-                    // targetOrigin  ={{
-                    //   vertical: "bottom",
-                    //   horizontal: "left"
-                    // }}
                     onClose={this.handleRequestClose}
                     animation={PopoverAnimationVertical}
                 >

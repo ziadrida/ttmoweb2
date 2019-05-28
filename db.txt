@@ -192,3 +192,604 @@ dateCreated: "$messages.dateCreated"
 
        db.purchase_orders.save(row)
      })
+
+
+     db.purchase_orders.aggregate([
+          {
+           $lookup: {
+             from: "vendor_purchases",
+             localField: "_id",
+             foreignField: "po_no",
+             as: "po_purchases"
+           }
+         } ,
+          { "$addFields": { "total_purchased_qty": { $sum: "$po_purchases.purchased_qty"} } }
+          ,
+         { "$addFields": { "orders": "$po_purchases.order_no" }  }
+         ,{
+           $unwind: {
+             "path": "$po_purchases",
+             "preserveNullAndEmptyArrays": true
+           }
+         },
+
+         {
+           $project: {
+             _id: 1,
+             po_date_created: "$date_created",
+             purchase_date_created: "$po_purchases.date_created",
+             purchase_id:  { $ifNull: [ "$po_purchases._id", -99 ] } ,
+
+             po_no: "$_id",
+             po_date:1,
+             po_qty: 1,
+             price:1,
+             sale_price:1,
+             destination: 1,
+             address:1,
+             order_no: "$po_purchases.order_no",
+             orders:1,
+             order_type: 1,
+             delivery_days_from: "$po_purchases.delivery_days_from",
+             delivery_days_to: "$po_purchases.delivery_days_to",
+             order_date: "$po_purchases.order_date",
+             username: 1,
+             phone_no:1,
+             email:1,
+             sales_person:1,
+             purchase_last_updated:  "$po_purchases.last_updated",
+             last_updated: {
+               $cond: {
+                 if: {
+                   $gte: ["$po_purchases.last_updated", "$last_updated"]
+                 },
+                 then: "$po_purchases.last_updated",
+                 else: "$last_updated",
+               }
+             },
+             userId: 1,
+             title: 1,
+             options:1,
+             link:  { $ifNull: [ "$po_purchases.link", "$link" ] } ,
+             source: {
+               $ifNull: ["$po_purchases.source", "$source"]
+             },
+             category: 1,
+             first_payment: 1,
+             first_payment_date: 1,
+             final_payment: 1,
+             final_payment_date: 1,
+             total_amount: 1,
+             payment_method: 1,
+             paid_in_full: 1,
+             booked: 1,
+             accounting_note: 1,
+             payment_status: 1,
+             discount: 1,
+             vip: 1,
+             trc: 1,
+             membership_amount: 1,
+             customer_delivery_date: 1,
+             delivered_qty:1,
+             status:"$status",
+             purchase_status:"$po_purchases.status",
+             closed:1,
+
+             purchase_notes: "$po_purchases.notes",
+             notes: {
+               $cond: {
+                 if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$po_purchases.notes", null] }]},
+                 then:{ $concat: [ "$notes", "/", "$po_purchases.notes" ] },
+                 else:
+                   {  $cond: { if: { $and:[{ "$gt": ["$po_purchases.notes", null] }]},
+                       then: "$po_purchases.notes",
+                       else: "$notes"
+                     }
+                     }
+               }
+             },
+             purchased_qty: "$po_purchases.purchased_qty",
+             seller: "$po_purchases.seller",
+             total_purchased_qty: 1,
+             purchase_notes: "$po_purchases.notes"
+           }
+         }
+         , {
+           $lookup: {
+             from: "vendor_order_tracking",
+             localField: "purchase_id",
+             foreignField: "purchase_id",
+             as: "po_tracking"
+           }
+         },
+         { "$addFields": { "total_order_shipped_qty": { $sum: "$po_tracking.shipped_qty"} } },
+           { "$addFields": { "trackings": "$po_tracking.tracking_no" }  }
+        , {
+           $unwind: {
+             "path": "$po_tracking",
+             "preserveNullAndEmptyArrays": true
+           }
+         }, {
+           $project: {
+             _id: 1,
+             po_date_created:1,
+             purchase_date_created:1,
+             tracking_date_created:"$po_tracking.date_created",
+             seller_ship_id: "$po_tracking._id",
+             purchase_id: 1,
+             userId: 1,
+             po_no: 1,
+             po_date:1,
+             po_qty: 1,
+             price:1,
+             sale_price:1,
+             destination:1,
+             address:1,
+             username: 1,
+             phone_no:1,
+             email:1,
+             sales_person:1,
+             title: 1,
+             options:1,
+             link: 1,
+             source:1,
+             category: 1,
+             first_payment:1,
+             first_payment_date:1,
+             final_payment:1,
+             final_payment_date:1,
+             total_amount:1,
+             payment_method:1,
+             paid_in_full:1,
+             booked:1,
+             accounting_note:1,
+             payment_status:1,
+             discount:1,
+             vip:1,
+             trc:1,
+             membership_amount:1,
+             status:1,
+             purchase_status:1,
+             tracking_status:"$po_tracking.status",
+             closed:1,
+             order_no: 1,
+             orders:1,
+             trackings:1,
+             order_type: 1,
+             delivery_days_from: 1,
+             delivery_days_to: 1,
+             order_date: 1,
+             seller:1,
+             purchased_qty: 1,
+             total_purchased_qty: 1,
+             customer_delivery_date:1,
+             delivered_qty:1,
+             purchase_last_updated:1,
+             tracking_last_updated: "$po_tracking.last_updated",
+             last_updated: {
+               $cond: {
+                 if: {
+                   $gte: ["$po_tracking.last_updated", "$last_updated"]
+                 },
+                 then: "$po_tracking.last_updated",
+                 else: "$last_updated",
+               }
+             },
+
+             notes: {
+               $cond: {
+                 if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$po_tracking.notes", null] }]},
+                 then:{ $concat: [ "$notes", "/", "$po_tracking.notes" ] },
+                 else:
+                   {  $cond: { if: { $and:[{ "$gt": ["$po_tracking.notes", null] }]},
+                       then: "$po_tracking.notes",
+                       else: "$notes"
+                     }
+                     }
+               }
+             },
+             tracking_no: "$po_tracking.tracking_no",
+             ship_date: "$po_tracking.ship_date",
+             time_in_transit_from: "$po_tracking.time_in_transit_from",
+             time_in_transit_to: "$po_tracking.time_in_transit_to",
+             shipped_qty: "$po_tracking.shipped_qty",
+
+             total_order_shipped_qty:1,
+
+             purchase_notes: 1,
+             tracking_notes: "$po_tracking.notes"
+           }
+         }
+       , {
+         $lookup: {
+           from: "package_tracking",
+           localField: "tracking_no",
+           foreignField: "_id",
+           as: "received_packages"
+         }
+       }, {
+         $unwind: {
+           "path": "$received_packages",
+           "preserveNullAndEmptyArrays": true
+         }
+       }, {
+         $project: {
+           _id: 1,
+           po_date_created:1,
+           purchase_date_created:1,
+           tracking_date_created:1,
+           received_date_created:"$received_packages.dateCreated",
+           seller_ship_id:1,
+           purchase_id: 1,
+           userId: 1,
+           po_no: 1,
+           po_date:1,
+           po_qty: 1,
+           price:1,
+           sale_price:1,
+           destination:1,
+             address:1,
+           username: 1,
+           phone_no:1,
+           email:1,
+           sales_person:1,
+           title: 1,
+           options:1,
+           link: 1,
+           source:1,
+           category: 1,
+                       first_payment:1,
+                       first_payment_date:1,
+                       final_payment:1,
+                       final_payment_date:1,
+                       total_amount:1,
+                       payment_method:1,
+                       paid_in_full:1,
+                       booked:1,
+                       accounting_note:1,
+                           payment_status:1,
+                       discount:1,
+           vip:1,
+           trc:1,
+           membership_amount:1,
+           status:1,
+           purchase_status:1,
+           tracking_status:1,
+           closed:1,
+           order_no: 1,
+           orders:1,
+           trackings:1,
+           order_date:1,
+           order_type: 1,
+           delivery_days_from: 1,
+           delivery_days_to: 1,
+           seller:1,
+           purchased_qty: 1,
+           total_purchased_qty: 1,
+           customer_delivery_date:1,
+           delivered_qty:1,
+           tracking_no: 1,
+           shipped_qty: 1,
+           carrier: 1,
+           total_order_shipped_qty:1,
+           ship_date: 1,
+           time_in_transit_from: 1,
+           time_in_transit_to: 1,
+           purchase_last_updated:1,
+           tracking_last_updated: 1,
+           received_packages_last_updated: "$received_packages.last_updated",
+           last_updated: {
+             $cond: {
+               if: {
+                 $gte: ["$received_packages.last_updated", "$last_updated"]
+               },
+               then: "$received_packages.last_updated",
+               else: "$last_updated",
+             }
+           },
+
+           notes: {
+             $cond: {
+               if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$received_packages.notes", null] }]},
+               then:{ $concat: [ "$notes", "/", "$received_packages.notes" ] },
+               else:
+                 {  $cond: { if: { $and:[{ "$gt": ["$received_packages.notes", null] }]},
+                     then: "$received_packages.notes",
+                     else: "$notes"
+                   }
+                   }
+             }
+           },
+           box_id: "$received_packages.box_id",
+           date_received: "$received_packages.date_received",
+           carrier: "$received_packages.carrier",
+           purchase_notes: 1,
+           tracking_notes:1,
+
+         }
+       }
+       , {
+         $lookup: {
+           from: "minor_shipments",
+           localField: "box_id",
+           foreignField: "packing.box_id",
+           as: "packed_packages"
+         }
+       }, {
+         $unwind: {
+           "path": "$packed_packages",
+           "preserveNullAndEmptyArrays": true
+         }
+       }, {
+         $project: {
+           _id: 1,
+           po_date_created:1,
+           purchase_date_created:1,
+           tracking_date_created:1,
+           received_date_created:1,
+           packed_date_created:"$packed_packages.date_created",
+           seller_ship_id:1,
+           purchase_id: 1,
+           userId: 1,
+           po_no: 1,
+           po_date:1,
+           po_qty: 1,
+           price:1,
+           sale_price:1,
+           destination:1,
+             address:1,
+           username: 1,
+           phone_no:1,
+           email:1,
+           sales_person:1,
+           title: 1,
+           options:1,
+           link: 1,
+           source:1,
+           category: 1,
+           first_payment:1,
+           first_payment_date:1,
+           final_payment:1,
+           final_payment_date:1,
+           total_amount:1,
+           payment_method:1,
+           paid_in_full:1,
+           booked:1,
+           accounting_note:1,
+           payment_status:1,
+           discount:1,
+           vip:1,
+             trc:1,
+             membership_amount:1,
+             status:1,
+             purchase_status:1,
+             tracking_status:1,
+             closed:1,
+             discount:1,
+           order_no: 1,
+           orders:1,
+           trackings:1,
+           order_date:1,
+           order_type: 1,
+           delivery_days_from: 1,
+           delivery_days_to: 1,
+           seller:1,
+           purchased_qty: 1,
+           total_purchased_qty: 1,
+           customer_delivery_date:1,
+           delivered_qty:1,
+           tracking_no: 1,
+           shipped_qty: 1,
+           carrier: 1,
+           total_order_shipped_qty:1,
+           ship_date: 1,
+           time_in_transit_from: 1,
+           time_in_transit_to: 1,
+           box_id: 1,
+           date_received: 1,
+           purchase_last_updated:1,
+           tracking_last_updated: 1,
+           received_packages_last_updated: 1,
+           last_updated: {
+             $cond: {
+               if: {
+                 $gte: ["$packed_packages.last_updated", "$last_updated"]
+               },
+               then: "$packed_packages.last_updated",
+               else: "$last_updated",
+             }
+           },
+           recent_date_created: { "$ifNull":["$packed_date_created",
+                   { "$ifNull":["$received_date_created",
+                   { "$ifNull":["$tracking_date_created",
+                 { "$ifNull":["$purchase_date_created",
+                 { "$ifNull":["$po_date_created","???"]}]}]}]}]},
+           notes: {
+             $cond: {
+               if: { $and:[{ "$gt": ["$notes", null] },{ "$gt": ["$packed_packages.notes", null] }]},
+               then:{ $concat: [ "$notes", "/", "$packed_packages.notes" ] },
+               else:
+                 {  $cond: { if: { $and:[{ "$gt": ["$packed_packages.notes", null] }]},
+                     then: "$packed_packages.notes",
+                     else: "$notes"
+                   }
+                   }
+             }
+           },
+           ship_id: "$packed_packages._id",
+           packing: "$packed_packages.packing",
+           final_box_id: "$packed_packages.packing.final_box_id",
+           purchase_notes: 1,
+           tracking_notes:1,
+         }
+       },
+       {
+              $unwind: {
+                "path":"$final_box_id",
+                "preserveNullAndEmptyArrays": true
+              }
+       },
+       {
+         $lookup: {
+           from: "major_shipments",
+           localField: "final_box_id",
+           foreignField: "final_box_id",
+           as: "awb_pos"
+         }
+       }, {
+         $unwind: {
+           "path": "$awb_pos",
+           "preserveNullAndEmptyArrays": true
+         }
+       }, {
+         $project: {
+           _id:  { $concat: [ "$po_no", "-",
+                { "$ifNull":["$order_no",""]},
+                    { "$ifNull":["$tracking_no",""]}
+                   ] } ,
+           po_date_created:1,
+           tracking_date_created:1,
+           purchase_date_created:1,
+           received_date_created:1,
+           packed_date_created:1,
+           awb_date_created: "$awb_pos.dateCreated",
+           seller_ship_id:1,
+           purchase_id: 1,
+           userId: 1,
+           po_no: 1,
+           po_date:1,
+           po_qty: 1,
+           price:1,
+           sale_price:1,
+           destination:1,
+             address:1,
+           username: 1,
+           phone_no:1,
+           email:1,
+           sales_person:1,
+           title: 1,
+           options:1,
+           link: 1,
+           source:1,
+           category: 1,
+           first_payment:1,
+           first_payment_date:1,
+           final_payment:1,
+           final_payment_date:1,
+           total_amount:1,
+           payment_method:1,
+           paid_in_full:1,
+           booked:1,
+           accounting_note:1,
+           payment_status:1,
+           discount:1,
+           vip:1,
+           trc:1,
+           membership_amount:1,
+           status:1,
+           purchase_status:1,
+           tracking_status:1,
+           closed:1,
+           order_no: 1,
+           orders:1,
+           trackings:1,
+           order_type: 1,
+           delivery_days_from: 1,
+           delivery_days_to: 1,
+           order_date: 1,
+           seller:1,
+           purchased_qty: 1,
+           total_purchased_qty: 1,
+           purchased: {$cmp: ['$total_purchased_qty','$po_qty']},
+           needsTracking: {$cmp: ['$total_order_shipped_qty','$purchased_qty']},
+           customer_delivery_date:1,
+           delivered_qty:1,
+           delivered: {$cmp: ['$delivered_qty','$purchased_qty']},
+           tracking_no: 1,
+           shipped_qty: 1,
+           carrier: 1,
+           total_order_shipped_qty:1,
+           ship_date: 1,
+           time_in_transit_from: 1,
+           time_in_transit_to: 1,
+           box_id: 1,
+           final_box_id:1,
+           date_received: 1,
+           ship_id: 1,
+           packing: 1,
+           purchase_last_updated:1,
+           tracking_last_updated: 1,
+           received_packages_last_updated: 1,
+           last_updated: {
+           $cond: {
+               if: {
+                 $gte: ["$awb_pos.last_updated", "$last_updated"]
+               },
+               then: "$awb_pos.last_updated",
+               else: "$last_updated",
+             }
+           },
+           notes: 1,
+           tracking_notes:1,
+           purchaes_notes:1,
+           departure_date:"$awb_pos.departure_date",
+           amm_showroom_arrival_date:"$awb_pos.amm_showroom_arrival_date",
+           aq_showroom_arrival_date: "$awb_pos.aq_showroom_arrival_date",
+           amm_customs_arrival_date:"$awb_pos.amm_customs_arrival_date",
+           aq_customs_arrival_date:"$awb_pos.aq_customs_arrival_date",
+           customer_address_arrival_date:"$awb_pos.customer_address_arrival_date",
+           awb_destination: "$awb_pos.destination",
+           shipment_ref: "$awb_pos.shipment_ref",
+           awb_status:"$awb_pos.awb_status",
+           awb_no: "$awb_pos._id",
+           received: {
+           $cond: { if: { $and:[{ "$ne": ["$awb_pos.amm_showroom_arrival_date", 0] },{ "$gt": ["$awb_pos.amm_showroom_arrival_date", null] }]},
+           then: true, else: {
+              $cond: { if: { $and:[{ "$ne": ["$awb_pos.aq_showroom_arrival_date", 0] },{ "$gt": ["$awb_pos.aq_showroom_arrival_date", null] }]},
+              then: true, else: {
+                 $cond: { if: { $and:[{ "$ne": ["$awb_pos.customer_address_arrival_date", 0] },{ "$gt": ["$awb_pos.customer_address_arrival_date", null] }]} ,
+                 then: true, else: false
+              } }
+           } }
+        } }
+
+         }
+       },
+       {
+         $match:
+          {
+           "$or": [
+              {
+                "awb_no": {
+                  "$exists": true
+                }
+              }
+               ]
+           }
+       },
+       {
+           $match:
+           {
+             "$and": [
+               {
+                 "closed": false
+                 },
+               {
+               "delivered": -1
+               }
+             ]
+             }
+       }
+     ]);
+
+     ,
+     {
+         $match:
+         {
+           "$and": [
+             {
+               "closed": false
+               }
+           ]
+           }
+     }
