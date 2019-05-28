@@ -143,7 +143,7 @@ const getQuotation = async(root, args, context) => {
       'quotation.price': 0
     }).sort({
       "quote_no": -1
-    }).limit(200).exec();
+    }).limit(100).exec();
     //console.log("curQuotation.length:", curQuotation.length)
     //if (curQuotation &&   curQuotation.length>0) //console.log("curQuotation:", JSON.stringify(curQuotation[0]))
     return curQuotation;

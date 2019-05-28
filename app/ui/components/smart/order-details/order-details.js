@@ -315,11 +315,12 @@ const SelectTable=selectTableHOC(ReactTable)
             accessor:  d => {  var p = d.po_no.split('-');
               return d.po_no? p[0]+'-'+ "00".substring(p[1].length) + p[1]:''
             },
-            filterMethod: (filter, rows) =>
-              matchSorter(rows, filter.value, {
-                keys: ["po_no"]
-              }),
-            filterAll: true,
+            filterMethod: (filter, rows) => {
+            return    row[filter.id] && row[filter.id] != '' &&
+
+               row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
+            },
+            filterAll: false,
             maxWidth: 120,
             views:[view.all,view.payment,view.purchase,view.track,view.arrive,view.pack,view.ship,view.deliver,view.book,view.close]
 
@@ -446,6 +447,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 id: "first_payment",
                 Header: "Init Pymnt",
                 accessor: d => d.first_payment?  parseFloat(d.first_payment):0,
+                Cell: ({ value }) => value? parseFloat(value).toFixed(2):0 ,
                 getProps:  (state, rowInfo) => ({
                  style: {
                      backgroundColor: (rowInfo && rowInfo.row &&
@@ -465,7 +467,7 @@ const SelectTable=selectTableHOC(ReactTable)
                 Header: "T Amount",
                 id: "total_amount",
                 accessor: d => parseFloat(d.total_amount) ,
-                Cell: ({ value }) => (value >= 9999 ? 0 : value),
+                Cell: ({ value }) => (value >= 9999 ? 0 : parseFloat(value).toFixed(2)),
                 filterMethod: (filter, row) =>
                           row[filter.id] >= filter.value,
                 filterAll:false,
@@ -606,6 +608,7 @@ const SelectTable=selectTableHOC(ReactTable)
               accessor: d => d.sale_price,
               filterMethod: (filter, row) =>
                 row[filter.id] >= filter.value,
+              Cell: ({ value }) => value? parseFloat(value).toFixed(2):0 ,
               filterAll: false,
               style: {
                 textAlign: 'right'
@@ -682,9 +685,10 @@ const SelectTable=selectTableHOC(ReactTable)
              {
               id: "price",
               Header: "Price USD",
-              accessor: d => d.price? parseFloat(d.price).toFixed(2):0,
+              accessor: d => d.price,
               filterMethod: (filter, row) =>
                         parseFloat(row[filter.id]) >= parseFloat(filter.value),
+              Cell: ({ value }) => value? parseFloat(value).toFixed(2):0 ,
               filterAll: false,
               style: {
                 textAlign: 'right'

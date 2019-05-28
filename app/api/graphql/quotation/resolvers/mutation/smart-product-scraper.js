@@ -621,6 +621,7 @@ var parse = require('url-parse')
 	     image: xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src'),
 			 image1: xDelay("div.image-view-magnifier-wrap > img@src"),
 			 image2: "#j-image-thumb-list > li > span > img@src",
+			 image3: "#poster@src",
 	     shipping: "#j-product-shipping span.logistics-cost",
 			 shipping1: "div.product-shipping",
 	     category: "body > div.ui-breadcrumb > div > h2 > a",
@@ -991,11 +992,12 @@ exports.scraper = async function(url) {
 					}
 			}
 
-				result.ctegory = result.category? result.category.replace(/\s\s+/g, ' '):''
-				result.ctegory1 = result.category1? result.category1.replace(/\s\s+/g, ' '):''
-				result.ctegory2 = result.category2? result.category2.replace(/\s\s+/g, ' '):''
+
       var useCategory =[result.category , result.category1, result.category2, rankCatg].filter(Boolean).join(' ')  ;
 			//console.log('useCategory:',useCategory)
+			useCategory = useCategory? useCategory.replace(/\s\s+/g, ' '):''
+			useCategory = useCategory? useCategory.replace(/Accessories|Acccessory/ig, ' '):''
+
       if (useCategory) {
 
 

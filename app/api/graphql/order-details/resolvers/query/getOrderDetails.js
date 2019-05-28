@@ -14,7 +14,7 @@ const parseRow = (rowVal) => {
     return parseFloat(tot) + parseFloat(v)}
   )
   //console.log('converted ',rowVal ,' to => ', tot)
-  return  parseFloat(tot);
+  return  parseFloat(tot).toFixed(2);
 
 }
 const getOrderDetails = async (root, args, context) => {
@@ -1063,7 +1063,7 @@ const getOrderDetails = async (root, args, context) => {
       { $sort : sortOpt }
   //___END OF aggregate_______
 
-]).limit(200).exec()
+]).limit(100).exec()
     console.log("curOrderDetails.length:",curOrderDetails.length)
    //console.log("curOrderDetails:",JSON.stringify(curOrderDetails))
    // cleanup wrong field values
@@ -1073,6 +1073,10 @@ const getOrderDetails = async (root, args, context) => {
 
      if (row.shipping) row.shipping = parseRow(row.shipping)
      if (row.price) row.price = parseRow(row.price)
+     if (row.sale_price) row.sale_price = parseRow(row.sale_price)
+     if (row.first_payment) row.first_payment = parseRow(row.first_payment)
+     if (row.total_amount) row.total_amount = parseRow(row.total_amount)
+     if (row.final_payment) row.final_payment = parseRow(row.final_payment)
      if (row.closed != null && row.closed == "true" ) row.closed = true;
      if (row.closed != null && row.closed == "false" ) row.closed = false;
      if (!Array.isArray(row.final_box_id) ) row.final_box_id = new Array(row.final_box_id)

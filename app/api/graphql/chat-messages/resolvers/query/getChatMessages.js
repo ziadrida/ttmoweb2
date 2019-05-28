@@ -157,7 +157,7 @@ const getChatMessages = async (root, args, context) => {
      },
 
      { $sort :    { dateCreated :  -1 } }
-    ]).limit(200).exec()
+   ]).limit(100).exec()
 
    result = curChatMessages.map(row=> {
      // check shipping price
