@@ -2,15 +2,15 @@ import Quotation from '/app/entry-points/server/models/quotation';
 import moment from 'moment';
 
 const getQuotation = async(root, args, context) => {
-  //console.log('=>resolver  <getQuotation> args', args)
+  console.log('=>resolver  <getQuotation> args', args)
   matchArray = []
   andOr = "$and"
     var searchField;
      searchField=  args.searchField
     var searchTrim
   try {
-    if (args.search && searchField && searchField!= '' && searchField != 'days_back' ) {
 
+    if (args.search!=null && searchField!=null ) {
         searchTrim = args.search.trim()
 
        if (searchField == 'quote_no') {
@@ -20,14 +20,16 @@ const getQuotation = async(root, args, context) => {
              }]
            })
        } else {
-       matchArray.push({
-         "$or": [{
-             [searchField]: {
-               "$regex": searchTrim,
-               "$options": "i"
-             }
-           }]
-         })
+          if (searchField!= '' && searchField != 'days_back' ) {
+                 matchArray.push({
+                   "$or": [{
+                       [searchField]: {
+                         "$regex": searchTrim,
+                         "$options": "i"
+                       }
+                     }]
+                   })
+          }
 
          //console.log("matchArray1:",matchArray)
          // start of duplicate code with all get query
@@ -39,7 +41,7 @@ const getQuotation = async(root, args, context) => {
            dateFrom = moment().add(-1*days_back,'day').toDate()
            dateTo = moment().add(1,'day').toDate();
          } else {
-
+           console.log("handle date range")
          if (args.dateFrom) dateFrom = moment(args.dateFrom).toDate()
          if (args.dateTo) dateTo = moment(args.dateTo).toDate()
 
@@ -137,7 +139,7 @@ const getQuotation = async(root, args, context) => {
    //console.log("error setting query err:",err)
  }
   try {
-    //console.log('getQuotation queryStr:', JSON.stringify(queryStr))
+    console.log('getQuotation queryStr:', JSON.stringify(queryStr))
 
     const curQuotation = await Quotation.find(queryStr, {
       'quotation.price': 0
