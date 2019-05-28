@@ -170,7 +170,7 @@ doCalculate =  async function(editItem) {
     min_aqaba_marginParam: 0.02,
     min_taxable_amountParam: 180, // minimum tabable amount raised to 180 from 140 on June 4
     BN2_paperAWBFeesParam: 2.5 + 1.85,
-    expressClearanceFeeParam: 60 / 0.71, // USD
+    expressClearanceFeeParam: 35 / 0.71, // USD
     expressMarginParam: 0.11, // reduced from .12 to .1 July 11
     minExpressFeeParam: 4, // USD reduced from 5 to 4 July 11
     aqabaCleranceRateParam: 0.02, //

@@ -315,7 +315,7 @@ const SelectTable=selectTableHOC(ReactTable)
             accessor:  d => {  var p = d.po_no.split('-');
               return d.po_no? p[0]+'-'+ "00".substring(p[1].length) + p[1]:''
             },
-            filterMethod: (filter, rows) => {
+            filterMethod: (filter, row) => {
             return    row[filter.id] && row[filter.id] != '' &&
 
                row[filter.id].toLowerCase().indexOf(filter.value.toLowerCase()) !== -1
