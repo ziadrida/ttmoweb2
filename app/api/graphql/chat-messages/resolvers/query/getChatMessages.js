@@ -16,7 +16,7 @@ const getChatMessages = async (root, args, context) => {
   andOr = "$and"
   var searchField =  args.searchField;
   var searchTrim
-  if (args.search &&  searchField && searchField!= '' && searchField != 'days_back' ) {
+  if (args.search &&  searchField!=null && searchField!= '' && searchField != 'days_back' ) {
 
       searchTrim = args.search.trim()
 

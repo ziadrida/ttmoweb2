@@ -11,13 +11,22 @@ isArabicLang = (senderID) => {
 
 var getChargeableWeight = function(weight,length,width,height) {
   chargeableWt = -1
-  if(!weight || !length || !width || !height) return chargeableWt;
 
-  var volWeightKG = (Math.max(length*1.05,length + 1.00) *
-          Math.max(width*1.05,width + 1.00) *
-          Math.max(height*1.05,height + 1.00) *
+  if(!weight || !length || !width || !height
+    || isNaN(weight)
+    || isNaN(length)
+    || isNaN(width)
+    || isNaN(height)) return chargeableWt;
+
+  console.log('<getChargeableWeight> weight:',weight, 'length x width x height:',length,'x',width,'x',height )
+  var volWeightKG = (Math.max(parseFloat(length)*1.02,parseFloat(length) + 0.30) *
+          Math.max(parseFloat(width)*1.02,parseFloat(width) + 0.30) *
+          Math.max(parseFloat(height)*1.02,parseFloat(height) + 0.10) *
           Math.pow(2.54, 3)) / (5000.00);
-  if (debugOn) console.log("<calculatePrice> volWeightKG:", volWeightKG);
+  var volWeightKg_noAjd =    (parseFloat(length) * parseFloat(width) * parseFloat(height) *
+            Math.pow(2.54, 3)) / (5000.00);
+  if (debugOn) console.log("<calculatePrice> adjusted unAdjusted volWeightKG:", volWeightKg_noAjd);
+  if (debugOn) console.log("<calculatePrice> adjusted volWeightKG:", volWeightKG);
   if (volWeightKG > 10000) volWeightKG = -1 // avoid wrong units calculation
   var chargeableWt = 1 * Math.max(volWeightKG * 1, weight/2.20).toFixed(2);
   if (debugOn) console.log("<calculatePrice> x volWeight:", volWeightKG.toFixed(2));

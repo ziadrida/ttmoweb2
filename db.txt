@@ -8,6 +8,21 @@ ______________________
 mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet pricing.js > pricingOut2018.js
 mongo ds149412.mlab.com:49412/heroku_lrtnbx3s -u ziadrida -p get2the. --quiet getPOs.js > POsept1-9.js
 
+db.categories.find({"min_side_length":3,"min_lonng_side":{$exists: false}}).forEach(function(row) {
+    row.min_side_length = 8
+    row.min_lonng_side = 14
+    //row.dateCreated = null
+
+//print(row.quote_no)
+    db.categories.save(row)
+  })
+
+  db.categories.find({"min_side_length":2}).forEach(function(row) {
+      print(row.category_name)
+      row.min_side_length = 1.5
+      db.categories.save(row)
+    })
+
 -- create staging heroku environments
 heroku create --remote staging
 git push staging develop:master

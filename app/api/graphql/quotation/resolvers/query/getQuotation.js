@@ -19,7 +19,7 @@ const getQuotation = async(root, args, context) => {
                [searchField]: parseInt(searchTrim)
              }]
            })
-       } else {
+       } else { 
           if (searchField!= '' && searchField != 'days_back' ) {
                  matchArray.push({
                    "$or": [{

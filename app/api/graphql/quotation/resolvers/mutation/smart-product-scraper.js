@@ -953,6 +953,8 @@ exports.scraper = async function(url) {
 						}
 
 						// adjust dimensions by max of 1inch or 10%
+						// don't do this because we already do it again in DoCallculate
+						result.shipping_box_dimensions_given = package_dimensions? true: false
 						if (!package_dimensions) {
 								l = Math.max(parseFloat(l)*1.1, parseFloat(l)+1.5)
 								w = Math.max(parseFloat(w)*1.1, parseFloat(w)+1.5)
