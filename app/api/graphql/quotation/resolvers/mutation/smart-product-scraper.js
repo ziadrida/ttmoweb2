@@ -390,6 +390,7 @@ var parse = require('url-parse')
 			 price2: "#soldByThirdParty > span.a-color-price.price3P",
 			 price3: "#priceblock_pospromoprice",
 			 price4: "#buyNewSection",
+			 price5: '#newOfferAccordionRow > div > div.a-accordion-row-a11y > a > h5 > div > div.a-column.a-span4.a-text-right.a-span-last > span.a-size-medium.a-color-price.header-price',
 			 price_fraction: "#posPromoPitchPrice > div > span:nth-child(3)",
 			 shipping: "#priceBadging_feature_div > span > span",
 			 shipping1: xDelay("#soldByThirdParty > span.a-size-small.a-color-secondary.shipping3P"),
@@ -483,7 +484,7 @@ var parse = require('url-parse')
 
 					 await page.waitFor(5000);
 					 await page.waitForSelector("#cart-root-container-content-skip > div > div > div.text-left.Grid > div.Grid-col.u-size-1.u-size-3-12-m.u-size-3-12-l > div > div > div:nth-child(1) > div > div.order-summary-tax.order-summary-line > div > span > div > span > button > span")
-					 	await page.screenshot({ path: './walmart.png' });
+					 //	await page.screenshot({ path: './walmart.png' });
 					 // page.keyboard.press(String.fromCharCode(13));// press enter
 
 					 await page.goto(url)
@@ -527,53 +528,126 @@ var parse = require('url-parse')
 					 console.log("page is not defined!")
 					 return false;
 				 }
+				 var aurl =  page.url()
+				 await page.goto("https://login.aliexpress.com/");
 			     //await page.screenshot({ path: './star1.png' });
 					 //console.log('wait for 3000')
-					 await page.waitFor(3000);
+					 await page.waitFor(5000);
 					////console.log("click1")
+					try {
+						//	await page.screenshot({ path: './star3.png' });
+						 await page.waitForSelector("#ws-xman-register-email","{timeout: 10000}");
+						 console.log("found login page");
 
+	 					let userId='techtown.mailorder@gmail.com'
+						let password='admin@misd';
+
+	 					await page.waitFor(1000);
+						try {
+								console.log("click on register")
+							await page.click("#signInField > div > div > ul > li:first-child");
+								await page.waitFor(2000);
+							console.log("click on sign-in")
+
+							await page.click("#signInField > div > div > ul > li:last-child");
+								await page.waitFor(2000);
+							console.log("focus on email")
+							await page.focus("#ws-xman-register-email");
+								await page.waitFor(1000);
+								console.log('type email')
+							await page.keyboard.type(userId)
+						 	await page.waitFor(1000);
+								console.log("focus on password")
+		 					await page.focus('#ws-xman-register-password');
+								await page.waitFor(1000);
+
+									console.log('type password')
+							await page.keyboard.type(password)
+								await page.waitFor(1000);
+									console.log("focus on submit")
+							await page.focus('#ws-xman-register-submit');
+							try {
+								await page.focus('#ws-xman-register-submit');
+								console.log("submit clicked")
+							} catch(err) {
+								console.log("Error during submit")
+							}
+								await page.waitFor(1000);
+							//	console.log('click submit')
+							//	await page.click("#login-form > div.fm-btn > button")
+		 					//await page.click("#ws-xman-register-submit")
+
+
+							 console.log("logged in as ",userId);
+							 await page.waitFor(3000);
+
+		 						try {
+									console.log("switch to original URL")
+									await page.goto(aurl)
+									console.log("switched to original ulr:",aurl)
+		 						//console.log("wait for page to load")
+		 						await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+		 					} catch(err) {
+		 						console.log('Timeout WAITING ON PAGE LOAD ')
+		 					}
+
+						} catch(err) {
+								console.log("Error attempting to login")
+								let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+								console.log("bodyHTML start:\n",bodyHTML)
+						}
+					} catch(err) {
+							console.log("******* No  login  page found. OK CONTINUE")
+							let bodyHTML = await page.evaluate(() => document.body.innerHTML);
+			 			  console.log("bodyHTML start:\n",bodyHTML)
+					}
 					 try {
 						 // close ad popup
+						 // check for login page
+
 						  //console.log('wait for popup window (new-user)')
 					  await page.waitForSelector("body > div.next-overlay-wrapper.opened > div.next-overlay-inner.next-dialog-container > div > a",{timeout:2000})
 						await page.waitFor(1000);
 						await page.evaluate(() => {
 							document.querySelector("body > div.next-overlay-wrapper.opened > div.next-overlay-inner.next-dialog-container > div > a").click();
 						});
-
+						console.log("clicked of popup ")
 						await page.waitFor(2000);
 					} catch(err) {
+						console.log("no popup found - 1st try")
 						//console.log("could not find popup (new user) - try another way")
 						try {
 							await page.waitForSelector("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a",{timeout:2000})
 							await page.click("body > div.ui-window.ui-window-normal.ui-window-transition.ui-newuser-layer-dialog > div > div > a")
-
+							console.log("found popup - clicked on it")
 						} catch(err) {
 							//console.log("could not find popup (new user)")
+							console.log('no popup found - 2nd try')
 						}
 				 }
 
 					try {
-							//console.log('click  on change country')
+						console.log('click  on change country')
+
 						await page.evaluate(() => {
 							document.querySelector("#switcher-info > span.ship-to").click();
 						});
-						//console.log('click  on change country DONE')
+						console.log('click  on change country DONE')
 					} catch(err) {
-						//console.log('Couuld not click on change country')
+						console.log('Couuld not click on change country')
 					}
 			    await page.waitFor(2000);
 					try {
-						//console.log('click div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)')
+						console.log('click on country')
 				 		await page.click("div.switcher-shipto.item.util-clearfix > div > a:nth-child(1)")
 				 		await page.waitFor(2000);
 					} catch(err) {
-						//console.log('error clicking on country. Try another way')
+						console.log('error clicking on country. Try another way')
 						try {
 						await page.click("div > a.address-select-trigger.address-select-trigger-active[href='#']")
-						//console.log('after click on country')
+						console.log('after click on country - 2nd try')
 					} catch(err) {
-						//console.log('could not click on country')
+						console.log('could not click on country')
 					}
 					}
 					//console.log('focus div.switcher-shipto.item.util-clearfix > div > div:nth-child(4) > div > input')
@@ -591,15 +665,22 @@ var parse = require('url-parse')
 					//console.log('click #nav-global > div.ng-item.ng-switcher')
 			 		await page.click("div.switcher-btn.item.util-clearfix > button")
 			 		//await page.waitForSelector("#j-product-detail-bd > div.detail-main > div > h1")
+					//try {
+						//console.log("wait for page to load")
+					//	await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
+					//} catch(err) {
+						//console.log("WAITING ON PAGE LOAD")
+					//}
+					//console.log("assume page loaded")
+		 			//await page.waitFor(5000);
+	   			//  await page.screenshot({path: './star7.png'});
+					await page.goto(aurl)
 					try {
 						//console.log("wait for page to load")
 						await page.waitForNavigation({timeout: 5*1000,waitUntil: "networkidle2"})
 					} catch(err) {
-						//console.log("WAITING ON PAGE LOAD")
+						//console.log('Timeout WAITING ON PAGE LOAD ')
 					}
-					//console.log("assume page loaded")
-		 			//await page.waitFor(5000);
-	   			//  await page.screenshot({path: './star7.png'});
 			 		return true;
 		  }catch(err) {
 			   //console.log("Error setting up aliexpress")
@@ -614,8 +695,10 @@ var parse = require('url-parse')
 	     title1: "#j-product-detail-bd  h1.product-name",
 	     title2: "h1.product-name",
 			 title3: "div.product-title",
+			 title4: "div.product-info > div.product-title",
 	     price: '#j-sku-price',
 			 price1: "div.product-price",
+			 price2: "div.product-price > div > span.product-price-value",
 	     high_price: '#j-sku-discount-price > span:nth-child(2)',
 	     sale_price: "#j-sku-discount-price",
 	     image: xDelay('#magnifier > div.ui-image-viewer-thumb-wrap > a > img@src'),
@@ -624,6 +707,7 @@ var parse = require('url-parse')
 			 image3: "#poster@src",
 	     shipping: "#j-product-shipping span.logistics-cost",
 			 shipping1: "div.product-shipping",
+			 shipping2: "div.product-info > div.product-shipping",
 	     category: "body > div.ui-breadcrumb > div > h2 > a",
 	     category1: 'body > div.ui-breadcrumb > div > a:nth-child(7)',
 	     dimensions: "#j-product-desc > div.ui-box.pnl-packaging-main > div.ui-box-body > ul > li:contains('Package Size:') > span.packaging-des",
@@ -760,7 +844,7 @@ exports.scraper = async function(url) {
 				//console.log("<smart-product-scraper> got prime2[:",result.prime2,"]")
 
        var usePrice = result.high_price || result.deal_price || result.sale_price ||
-			 		result.price || result.price1 || result.price2  || result.price3 || result.price4 || result.used_price ;
+			 		result.price || result.price1 || result.price2  || result.price3 || result.price4 || result.price5 || result.used_price ;
 
       console.log("<smart-product-scraper> got usePrice:",usePrice)
 
@@ -850,7 +934,7 @@ exports.scraper = async function(url) {
       } else {
 				  result.shipping = -1;
 			}
-			var useTitle = result.title || result.title1 || result.title2 || result.title3
+			var useTitle = result.title || result.title1 || result.title2 || result.title3 || result.title4
 			//console.log("useTitle:",useTitle)
 			if(useTitle) {
         result.title = useTitle.replace(/Details about/i,'')

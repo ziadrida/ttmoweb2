@@ -687,14 +687,15 @@ handleCannedMessage = ({target}) => {
         break;
       case 'priceDrop':
         options: 'message'
-        text= (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
-        "Price dropped نزل السعر "
+        text= (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" +
+        "$ هذا نازل سعره اليوم من " + this.state.formEditInfo.edit_price + "  $ إلى ...  " + "\n" +
+        "Price dropped today from " +  this.state.formEditInfo.edit_price + " to $ " + "\n" :'')
         break;
       case 'phoneAddress':
           options ='message'
           text = `
           فرع عمان
-السبت - الخميس ( 9:00 صباحا الى 7:00 مساءا )
+السبت - الخميس ( 9:00 صباحا إلى 7:00 مساءا )
 
  شارع الجاردنز بجانب مسجد الطباع عمارة رقم 86
 Amman
@@ -725,11 +726,11 @@ https://www.google.com/maps/place/TechTown+World+Mall/@30.7549756,34.3217007,8z/
       case 'needsApproval':
       options ='message'
       text = (this.state.formEditInfo.edit_title? this.state.formEditInfo.edit_title + "\n" :'')+
-        "Needs approval before ordering. هذا المنتج يحتاج الى موافقة قبل الطلب من الجهة المختصة"
+        "Needs approval before ordering. هذا المنتج يحتاج إلى موافقة قبل الطلب من الجهة المختصة"
       break;
       case 'sendLink':
       options ='message'
-      text = "ارسل الرابط للمنتح please send link to the item"
+      text = "ارسل الرابط للمنتج وليس لعربة التسوف please send link to the item itself and not to the shopping cart"
       break;
       default:
     }

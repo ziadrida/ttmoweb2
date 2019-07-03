@@ -2,7 +2,7 @@ import Quotation from '/app/entry-points/server/models/quotation';
 import moment from 'moment';
 
 const getQuotation = async(root, args, context) => {
-  console.log('=>resolver  <getQuotation> args', args)
+//  console.log('=>resolver  <getQuotation> args', args)
   matchArray = []
   andOr = "$and"
     var searchField;
@@ -19,7 +19,7 @@ const getQuotation = async(root, args, context) => {
                [searchField]: parseInt(searchTrim)
              }]
            })
-       } else { 
+       } else {
           if (searchField!= '' && searchField != 'days_back' ) {
                  matchArray.push({
                    "$or": [{
@@ -139,7 +139,7 @@ const getQuotation = async(root, args, context) => {
    //console.log("error setting query err:",err)
  }
   try {
-    console.log('getQuotation queryStr:', JSON.stringify(queryStr))
+  //  console.log('getQuotation queryStr:', JSON.stringify(queryStr))
 
     const curQuotation = await Quotation.find(queryStr, {
       'quotation.price': 0
