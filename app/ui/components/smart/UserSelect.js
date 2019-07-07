@@ -428,6 +428,36 @@ class UserSelect extends React.Component {
       />
       <TextField
         disabled={false}
+        name="first_name"
+        type="String"
+        label="First"
+        value={phoneNo}
+          onClick={(e) => {this.copyToClipboard(e, first_name)}}
+        margin="dense"
+        className={classes.textField}
+        style={{
+          //backgroundColor:'pink'
+
+        //  'width' : '15em',
+        }}
+      />
+      <TextField
+        disabled={false}
+        name="last_name"
+        type="String"
+        label="Last"
+        value={phoneNo}
+          onClick={(e) => {this.copyToClipboard(e, last_name)}}
+        margin="dense"
+        className={classes.textField}
+        style={{
+          //backgroundColor:'pink'
+
+        //  'width' : '15em',
+        }}
+      />
+      <TextField
+        disabled={false}
         name="phoneNo"
         type="String"
         label="Phone#"

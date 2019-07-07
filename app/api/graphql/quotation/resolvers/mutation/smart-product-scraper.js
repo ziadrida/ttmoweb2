@@ -738,18 +738,18 @@ const x = Xray().driver(xRayChrome(	{
 				console.log('in <x.cl> function:')
 				console.log("<cl> ctx.url:",ctx.url)
 				var urlinfo = parse(ctx.url, true);
-				//	//console.log('url:',url)
+				console.log('urlinfo:',urlinfo)
 				var host= urlinfo ? urlinfo.host:null
-				//console.log('host:',host)
+				console.log('host:',host)
 				// the following code can be replaced by a more concide loop (later!)
 				//console.log("site map:",site_map[host])
 				//console.log('initialized:',sites[site_map[host]].initialized)
 			  //console.log('initAttempts:',sites[site_map[host]].initAttempts)
 				if (sites[site_map[host]] && !sites[site_map[host]].initialized && sites[site_map[host]].initAttempts<3 ) {
-					//	//console.log("setup ",sites[site_map[host]])
+						console.log("setup ",sites[site_map[host]])
 						sites[site_map[host]].initialized = await sites[site_map[host]].setup(page);
 						sites[site_map[host]].initAttempts++
-						//console.log("after setup  initialized:",sites[site_map[host]].initialized)
+						console.log("after setup  initialized:",sites[site_map[host]].initialized)
 				}
 
       },
