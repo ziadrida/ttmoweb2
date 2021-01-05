@@ -35,7 +35,7 @@
     "apollo-link-http": "^1.5.5",
     "apollo-link-logger": "^1.2.3",
     "apollo-server-express": "^2.1.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-plugin-react-css-modules": "^3.4.2",
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
